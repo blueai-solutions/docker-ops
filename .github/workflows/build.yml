@@ -110,18 +110,90 @@ jobs:
           
       - name: 📋 Criar release notes
         run: |
-          echo "📋 Gerando release notes..."
-          echo "## 🚀 Release ${{ steps.version.outputs.version }}" > RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "### ✨ Novidades" >> RELEASE_NOTES.md
-          echo "- Sistema de instalação automática" >> RELEASE_NOTES.md
-          echo "- GitHub Actions para CI/CD" >> RELEASE_NOTES.md
-          echo "- Estrutura organizada e profissional" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "### 🔧 Melhorias" >> RELEASE_NOTES.md
-          echo "- Scripts de instalação organizados" >> RELEASE_NOTES.md
-          echo "- Documentação atualizada" >> RELEASE_NOTES.md
-          echo "- URLs de instalação organizadas" >> RELEASE_NOTES.md
+          echo "📋 Gerando release notes dinâmicos..."
+          
+          # Sourcing da configuração
+          source config/version-config.sh
+          
+          # Criar release notes dinâmicos
+          cat > RELEASE_NOTES.md << EOF
+          # 🚀 Release ${{ steps.version.outputs.version }}
+          
+          ## 📋 Informações do Sistema
+          
+          **Nome:** $SYSTEM_NAME  
+          **Versão:** ${{ steps.version.outputs.version }}  
+          **Autor:** $SYSTEM_AUTHOR  
+          **Licença:** $SYSTEM_LICENSE  
+          **Descrição:** $SYSTEM_DESCRIPTION
+          
+          ## ✨ Funcionalidades Principais
+          
+          ### 🔄 Sistema de Backup e Recuperação
+          - Backup dinâmico de containers Docker
+          - Recuperação automática com priorização
+          - Sistema de agendamento inteligente
+          
+          ### 🔧 Configuração e Instalação
+          - Instalação automática e manual
+          - Sistema de templates para configuração
+          - Configuração interativa e automática
+          
+          ### 📊 Monitoramento e Notificações
+          - Logs estruturados e relatórios HTML
+          - Notificações macOS e email
+          - Sistema de monitoramento em tempo real
+          
+          ## 🏗️ Arquitetura Organizada
+          
+          ### 📁 Estrutura de Scripts
+          - **Core:** Funcionalidades principais do sistema
+          - **Backup:** Sistema de backup dinâmico
+          - **Notifications:** Sistema de notificações
+          - **Logging:** Sistema de logs avançados
+          - **Utils:** Utilitários para usuários finais
+          - **Install:** Scripts de instalação
+          
+          ### 🔒 Segurança e Distribuição
+          - Templates limpos para distribuição
+          - Configurações locais preservadas
+          - Pacotes otimizados para usuários finais
+          
+          ## 🚀 Instalação
+          
+          ### ⚡ Instalação Automática
+          \`\`\`bash
+          curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
+          \`\`\`
+          
+          ### 🔧 Instalação Manual
+          \`\`\`bash
+          git clone https://github.com/blueai-solutions/docker-ops.git
+          cd docker-ops/backend
+          ./scripts/utils/config-setup.sh --interactive
+          \`\`\`
+          
+          ## 📚 Documentação
+          
+          - **📖 Guia de Início Rápido:** [docs/guia-inicio-rapido.md](docs/guia-inicio-rapido.md)
+          - **🔧 Comandos:** [docs/comandos.md](docs/comandos.md)
+          - **🏗️ Arquitetura:** [docs/arquitetura.md](docs/arquitetura.md)
+          - **🚀 LaunchAgent:** [docs/launchagent.md](docs/launchagent.md)
+          - **🆘 Solução de Problemas:** [docs/solucao-problemas.md](docs/solucao-problemas.md)
+          
+          ## 🆘 Suporte
+          
+          - **📧 Email:** docker-ops@blueaisolutions.com.br
+          - **🐛 Issues:** https://github.com/blueai-solutions/docker-ops/issues
+          - **📖 Documentação:** https://github.com/blueai-solutions/docker-ops/tree/main/docs
+          
+          ---
+          
+          **Desenvolvido com ❤️ pela $SYSTEM_AUTHOR**
+          EOF
+          
+          echo "✅ Release notes dinâmicos criados!"
+          echo "📋 Conteúdo baseado em: $SYSTEM_NAME v${{ steps.version.outputs.version }}"
           
       - name: 📤 Upload release notes
         uses: actions/upload-artifact@v4

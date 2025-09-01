@@ -111,10 +111,15 @@ jobs:
           
       - name: 📊 Relatório de distribuição
         run: |
+          # Sourcing da configuração
+          source config/version-config.sh
+          
           echo "📊 RELATÓRIO DE DISTRIBUIÇÃO"
           echo "============================="
           echo "🏷️ Release: ${{ steps.release.outputs.release_tag }}"
           echo "📋 Versão: ${{ steps.release.outputs.release_version }}"
+          echo "📋 Sistema: $SYSTEM_NAME"
+          echo "📋 Autor: $SYSTEM_AUTHOR"
           echo "📁 Arquivos: $(find dist/ -type f | wc -l)"
           echo "📦 Compactado: blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz"
           echo ""
@@ -138,10 +143,15 @@ jobs:
           
       - name: 🎯 Status final
         run: |
+          # Sourcing da configuração
+          source config/version-config.sh
+          
           echo "🎉 DISTRIBUIÇÃO PREPARADA COM SUCESSO!"
-          echo "🚀 BlueAI Docker Ops v${{ steps.release.outputs.release_version }} está pronto!"
+          echo "🚀 $SYSTEM_NAME v${{ steps.release.outputs.release_version }} está pronto!"
           echo "📦 Arquivo: blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz"
           echo ""
           echo "🎯 PACOTE OTIMIZADO PARA USUÁRIOS FINAIS"
           echo "📚 Scripts de desenvolvimento disponíveis apenas no repositório"
           echo "🏗️ Estrutura organizada por funcionalidade"
+          echo "🔒 CONFIGURAÇÕES LIMPAS - Sem informações locais!"
+          echo "👨‍💻 Desenvolvido com ❤️ pela $SYSTEM_AUTHOR"
