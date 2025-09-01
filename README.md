@@ -164,25 +164,76 @@ chmod +x scripts/**/*.sh
 
 ## 🚀 **Instalação e Configuração**
 
-### **1. Instalação Automática**
+### **⚡ Instalação Automática (Recomendado)**
 ```bash
+# Instalação em uma linha
 curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
-```
 
-### **2. Configuração de Containers**
-```bash
+# Após instalação, use os comandos:
+blueai-docker-ops --help
 blueai-docker-ops config containers
+blueai-docker-ops backup
 ```
 
-### **3. Configuração de Recuperação**
+### **🔧 Instalação Manual (Desenvolvedores)**
 ```bash
-blueai-docker-ops recovery config
+# 1. Clone do repositório
+git clone https://github.com/blueai-solutions/docker-ops.git
+cd docker-ops/backend
+
+# 2. Configuração automática com Makefile
+make dev-setup          # Configurar ambiente
+make config-interactive  # Configuração interativa
+make test               # Executar testes
+
+# 3. Primeira execução
+./blueai-docker-ops.sh --help
 ```
 
-### **4. Configuração do LaunchAgent (macOS)**
+## 🛠️ **Automação com Makefile**
+
+### **🚀 Comandos Principais:**
 ```bash
-blueai-docker-ops install launchagent
+# Ajuda e informações
+make help               # Todos os comandos disponíveis
+make info               # Informações do projeto
+make status             # Status completo
+
+# Desenvolvimento
+make dev-setup          # Configurar ambiente
+make test               # Executar testes
+make validate           # Validar sintaxe
+make check              # Verificação completa
+
+# Configuração
+make config-clean       # Limpar configurações
+make config-interactive # Configuração interativa
+make config-email       # Configurar email
+make config-schedule    # Configurar horário
+
+# LaunchAgent
+make launchagent-install   # Instalar LaunchAgent
+make launchagent-status    # Verificar status
+make launchagent-test      # Testar funcionamento
+
+# Releases
+make version-bump       # Incrementar versão
+make release-create     # Criar release
+make changelog-create   # Criar changelog
+
+# Deploy
+make deploy-prep        # Preparar para deploy
+make package            # Criar pacote de distribuição
 ```
+
+### **🎯 Comandos Especiais:**
+```bash
+make quick-start        # Configuração completa em uma linha
+make check-all          # Verificação completa com configurações limpas
+make all                # Configuração completa do projeto
+```
+
+**📖 Para documentação completa do Makefile:** [docs/makefile.md](docs/makefile.md)
 
 ## 🔔 **Sistema de Notificações**
 
