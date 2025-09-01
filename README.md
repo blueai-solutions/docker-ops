@@ -21,42 +21,48 @@ Sistema completo e moderno para backup, recuperação e gerenciamento de contain
 ```
 backend/
 ├── 🐳 blueai-docker-ops.sh              # Script principal unificado
-├── 📁 install/                       # Scripts de instalação
-│   ├── install.sh                    # Instalador automático
-│   ├── uninstall.sh                  # Desinstalador
-│   ├── INSTALL.md                    # Guia de instalação
-│   └── README-INSTALL.md             # Instalação rápida
-├── 📁 scripts/                       # Scripts do sistema
-│   ├── 📁 core/                      # Scripts principais
-│   │   ├── recover-containers.sh     # Recuperação dinâmica
-│   │   └── manage-containers.sh      # Gerenciamento dinâmico
-│   ├── 📁 backup/                    # Sistema de backup
-│   │   └── dynamic-backup.sh         # Backup dinâmico configurável
-│   ├── 📁 notifications/             # Sistema de notificações
-│   │   └── test-notifications.sh     # Teste de notificações
-│   ├── 📁 logging/                   # Sistema de logs avançados
-│   │   ├── logging-functions.sh      # Funções de log estruturado
-│   │   ├── log-analyzer.sh           # Analisador de logs
-│   │   └── report-generator.sh       # Gerador de relatórios HTML
-│   └── 📁 utils/                     # Utilitários
-│       ├── container-configurator.sh # Configurador interativo
-│       ├── recovery-configurator.sh  # Configurador de recuperação
-│       ├── config-backup-manager.sh  # Gerenciador de backups de config
-│       ├── cleanup-deprecated.sh     # Limpeza de código legado
-│       ├── test-system.sh            # Teste completo do sistema
-│       ├── install-launchagent.sh    # Instalador do LaunchAgent
-│       └── version-utils.sh          # Utilitários de versão
-├── 📁 config/                        # Configurações
-│   ├── backup-config.sh              # Configuração de backup dinâmico
-│   ├── recovery-config.sh            # Configuração de recuperação
-│   ├── notification-config.sh        # Configurações de notificações
-│   ├── version-config.sh             # Configurações de versão
-│   └── 📁 backups/                   # Backups de configurações
-├── 📁 logs/                          # Logs estruturados
-├── 📁 reports/                       # Relatórios gerados
-├── 📁 backups/                       # Backups dos volumes
-├── 📁 docs/                          # Documentação completa
-└── 📄 README.md                      # Esta documentação
+├── 📁 install/                           # Scripts de instalação do sistema
+│   ├── install.sh                        # Instalador automático
+│   ├── uninstall.sh                      # Desinstalador
+│   ├── INSTALL.md                        # Guia de instalação
+│   └── README-INSTALL.md                 # Instalação rápida
+├── 📁 scripts/                           # Scripts organizados por funcionalidade
+│   ├── 📁 core/                          # Scripts principais do sistema
+│   │   ├── recover-containers.sh         # Recuperação dinâmica
+│   │   ├── manage-containers.sh          # Gerenciamento dinâmico
+│   │   ├── recover.sh                    # Recuperação principal
+│   │   └── backup-volumes.sh             # Backup de volumes
+│   ├── 📁 backup/                        # Sistema de backup
+│   │   └── dynamic-backup.sh             # Backup dinâmico configurável
+│   ├── 📁 notifications/                 # Sistema de notificações
+│   │   └── test-notifications.sh         # Teste de notificações
+│   ├── 📁 logging/                       # Sistema de logs avançados
+│   │   ├── logging-functions.sh          # Funções de log estruturado
+│   │   ├── log-analyzer.sh               # Analisador de logs
+│   │   └── report-generator.sh           # Gerador de relatórios HTML
+│   ├── 📁 utils/                         # Utilitários para usuários finais
+│   │   ├── container-configurator.sh     # Configurador interativo
+│   │   ├── recovery-configurator.sh      # Configurador de recuperação
+│   │   ├── config-backup-manager.sh      # Gerenciador de backups de config
+│   │   ├── cleanup-deprecated.sh         # Limpeza de código legado
+│   │   └── test-system.sh                # Teste completo do sistema
+│   ├── 📁 install/                       # Scripts de instalação para usuários
+│   │   └── install-launchagent.sh        # Instalador do LaunchAgent
+│   └── 📁 dev/                           # Scripts de desenvolvimento (NÃO incluídos no release)
+│       ├── release-manager.sh            # Gerenciador de releases
+│       ├── changelog-manager.sh          # Gerenciador de changelog
+│       └── version-utils.sh              # Utilitários de versão
+├── 📁 config/                            # Configurações do sistema
+│   ├── backup-config.sh                  # Configuração de backup dinâmico
+│   ├── recovery-config.sh                # Configuração de recuperação
+│   ├── notification-config.sh            # Configurações de notificações
+│   ├── version-config.sh                 # Configurações de versão
+│   └── 📁 backups/                       # Backups de configurações
+├── 📁 logs/                              # Logs estruturados
+├── 📁 reports/                           # Relatórios gerados
+├── 📁 backups/                           # Backups dos volumes
+├── 📁 docs/                              # Documentação completa
+└── 📄 README.md                           # Esta documentação
 ```
 
 ## 🚀 Início Rápido
@@ -86,26 +92,6 @@ chmod +x scripts/**/*.sh
 ./blueai-docker-ops.sh --help
 ```
 
-### **2. Configurar Containers para Backup**
-```bash
-./blueai-docker-ops.sh config containers
-```
-
-### **3. Configurar Recuperação**
-```bash
-./blueai-docker-ops.sh recovery config
-```
-
-### **4. Executar Backup**
-```bash
-./blueai-docker-ops.sh backup
-```
-
-### **5. Verificar Status**
-```bash
-./blueai-docker-ops.sh status
-```
-
 ## 📋 Comandos Principais
 
 ### **🔄 Backup e Recuperação**
@@ -121,214 +107,121 @@ chmod +x scripts/**/*.sh
 ./blueai-docker-ops.sh config containers   # Configurar containers para backup
 ./blueai-docker-ops.sh config backups      # Gerenciar backups de configuração
 ./blueai-docker-ops.sh recovery config     # Configurar recuperação
-./blueai-docker-ops.sh recovery list       # Listar containers configurados
 ```
 
-### **📊 Monitoramento**
+### **🔧 Utilitários**
 ```bash
-./blueai-docker-ops.sh logs --last-24h     # Logs das últimas 24 horas
-./blueai-docker-ops.sh logs --errors       # Apenas erros
-./blueai-docker-ops.sh logs --performance  # Análise de performance
-./blueai-docker-ops.sh monitor             # Monitorar logs em tempo real
+./blueai-docker-ops.sh test system         # Testar sistema completo
+./blueai-docker-ops.sh cleanup             # Limpeza e manutenção
+./blueai-docker-ops.sh version             # Informações de versão
 ```
 
-### **📈 Relatórios**
-```bash
-./blueai-docker-ops.sh report html         # Gerar relatório HTML
-./blueai-docker-ops.sh report text         # Gerar relatório de texto
-./blueai-docker-ops.sh report export       # Exportar dados
-```
+## 🏗️ **Organização dos Scripts**
 
-### **🧪 Testes e Validação**
-```bash
-./blueai-docker-ops.sh notify-test         # Testar notificações
-./blueai-docker-ops.sh validate            # Validar configurações
-./blueai-docker-ops.sh dynamic validate    # Validar configuração dinâmica
-```
+### **📁 Scripts Organizados por Funcionalidade:**
 
-### **🧹 Manutenção**
-```bash
-./blueai-docker-ops.sh cleanup             # Limpar logs e backups antigos
-./blueai-docker-ops.sh version             # Mostrar informações da versão
-./blueai-docker-ops.sh changelog           # Mostrar changelog
-```
+#### **🎯 Core (Funcionalidades Principais)**
+- `recover-containers.sh` - Recuperação automática
+- `manage-containers.sh` - Gerenciamento dinâmico
+- `backup-volumes.sh` - Sistema de backup
 
-## 🔧 Funcionalidades Avançadas
+#### **🔧 Utils (Utilitários para Usuários)**
+- `container-configurator.sh` - Configuração interativa
+- `recovery-configurator.sh` - Configuração de recuperação
+- `test-system.sh` - Testes do sistema
+- `config-backup-manager.sh` - Gerenciamento de backups
 
-### **🔄 Recuperação Dinâmica**
-- ✅ **Detecção automática** de configurações de containers
-- ✅ **Fallback inteligente** para configurações padrão
-- ✅ **Suporte a qualquer nome** de container
-- ✅ **Recuperação por prioridade** configurável
+#### **🚀 Install (Instalação para Usuários)**
+- `install-launchagent.sh` - Gerenciador do LaunchAgent
 
-### **📦 Backup Dinâmico**
-- ✅ **Configuração interativa** de containers
-- ✅ **Detecção automática** de volumes
-- ✅ **Priorização** de containers
-- ✅ **Compressão** e retenção configuráveis
+#### **🛠️ Dev (Desenvolvimento - NÃO incluído no release)**
+- `release-manager.sh` - Gerenciamento de releases
+- `changelog-manager.sh` - Gerenciamento de changelog
+- `version-utils.sh` - Utilitários de versão
 
-### **🔔 Sistema de Notificações**
-- ✅ **Notificações macOS** nativas
-- ✅ **Envio de email** configurável
-- ✅ **Logs estruturados** com níveis
-- ✅ **Relatórios HTML** detalhados
+## 🎯 **Separação de Responsabilidades**
 
-### **📊 Monitoramento**
-- ✅ **Logs estruturados** com timestamps
-- ✅ **Análise de performance** em tempo real
-- ✅ **Relatórios automáticos** de status
-- ✅ **Detecção de problemas** proativa
+### **📦 Para Usuários Finais (Pacote de Release):**
+- Scripts de **uso** e **operação** do sistema
+- Utilitários de **configuração** e **testes**
+- Scripts de **instalação** e **configuração**
+- **Documentação de uso** e **suporte**
 
-## 🛠️ Configuração
-
-### **Backup de Containers**
-```bash
-# Configurar containers interativamente
-./blueai-docker-ops.sh config containers
-
-# Ver configuração atual
-./blueai-docker-ops.sh config preview
-
-# Validar configuração
-./blueai-docker-ops.sh config validate
-```
-
-### **Recuperação de Containers**
-```bash
-# Configurar recuperação interativamente
-./blueai-docker-ops.sh recovery config
-
-# Ver containers configurados
-./blueai-docker-ops.sh recovery list
-
-# Validar configuração
-./blueai-docker-ops.sh recovery validate
-```
-
-### **Notificações**
-```bash
-# Editar configurações de notificação
-./blueai-docker-ops.sh config edit
-
-# Testar notificações
-./blueai-docker-ops.sh notify-test
-```
+### **👨‍💻 Para Desenvolvedores (Repositório):**
+- **Todos** os scripts disponíveis
+- Scripts de **desenvolvimento** e **release management**
+- **Workflows** do GitHub Actions
+- **Documentação técnica** completa
 
 ## 📚 Documentação
 
-- 📖 **[Guia de Início Rápido](docs/guia-inicio-rapido.md)** - Primeiros passos
-- 🏗️ **[Arquitetura do Sistema](docs/arquitetura.md)** - Visão técnica
-- 📋 **[Comandos Detalhados](docs/comandos.md)** - Referência completa
-- 🔧 **[Solução de Problemas](docs/solucao-problemas.md)** - Troubleshooting
-- 📝 **[Changelog](docs/changelog/)** - Histórico de versões
+- **📖 [Guia de Início Rápido](docs/guia-inicio-rapido.md)** - Primeiros passos
+- **🔧 [Comandos](docs/comandos.md)** - Referência completa de comandos
+- **🏗️ [Arquitetura](docs/arquitetura.md)** - Visão técnica do sistema
+- **🚀 [LaunchAgent](docs/launchagent.md)** - Agendamento automático
+- **🆘 [Solução de Problemas](docs/solucao-problemas.md)** - Troubleshooting
+- **📦 [Distribuição](docs/distribuicao.md)** - Guia de distribuição GitHub
 
-## 🚨 Situações de Emergência
+## 🚀 **Instalação e Configuração**
 
-### **Recuperação Rápida**
+### **1. Instalação Automática**
 ```bash
-# Recuperar todos os containers configurados
-./blueai-docker-ops.sh recover
-
-# Verificar status
-./blueai-docker-ops.sh status
-
-# Ver logs de erro
-./blueai-docker-ops.sh logs --errors
+curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
 ```
 
-### **Backup de Emergência**
+### **2. Configuração de Containers**
 ```bash
-# Fazer backup imediato
-./blueai-docker-ops.sh backup
-
-# Verificar backups disponíveis
-./blueai-docker-ops.sh backup list
+blueai-docker-ops config containers
 ```
 
-## 🔄 Automação
-
-### **LaunchAgent e Agendamento Automático (macOS)**
+### **3. Configuração de Recuperação**
 ```bash
-# Instalar LaunchAgent
-./scripts/utils/install-launchagent.sh install
-
-# Verificar status
-./scripts/utils/install-launchagent.sh status
-
-# Alterar horário do backup
-./scripts/utils/install-launchagent.sh schedule
-
-# Testar LaunchAgent (execução em 60s)
-./scripts/utils/install-launchagent.sh test-launchagent
-
-# Desinstalar LaunchAgent
-./scripts/utils/install-launchagent.sh uninstall
+blueai-docker-ops recovery config
 ```
 
-**Funcionalidades Avançadas:**
-- ✅ **Agendamento inteligente** com sincronização automática
-- ✅ **Backup de configurações** antes de alterações
-- ✅ **Validação de horários** e descrição inteligente
-- ✅ **Teste de funcionamento** com execução imediata
-
-### **Cron Jobs**
+### **4. Configuração do LaunchAgent (macOS)**
 ```bash
-# Adicionar ao crontab para backup automático
-0 2 * * * /path/to/backend/blueai-docker-ops.sh backup
+blueai-docker-ops install launchagent
 ```
 
-## 🧪 Testes
+## 🔔 **Sistema de Notificações**
 
-### **Teste Completo do Sistema**
-```bash
-./scripts/utils/test-system.sh
-```
+- **📧 Email** - Notificações por email
+- **🍎 macOS** - Notificações nativas do sistema
+- **📊 Logs** - Logs estruturados e relatórios
 
-### **Teste de Notificações**
-```bash
-./blueai-docker-ops.sh notify-test
-```
+## 🧪 **Testes e Validação**
 
-### **Validação de Configuração**
 ```bash
+# Teste completo do sistema
+./blueai-docker-ops.sh test system
+
+# Teste específico de componente
+./blueai-docker-ops.sh test --component backup
+
+# Validação de configurações
 ./blueai-docker-ops.sh validate
 ```
 
-## 📈 Monitoramento
+## 🆘 **Suporte e Contribuição**
 
-### **Logs em Tempo Real**
-```bash
-./blueai-docker-ops.sh monitor
-```
+- **📧 Email:** docker-ops@blueaisolutions.com.br
+- **🐛 Issues:** [GitHub Issues](https://github.com/blueai-solutions/docker-ops/issues)
+- **📖 Documentação:** [Documentação Completa](docs/)
+- **🚀 Releases:** [GitHub Releases](https://github.com/blueai-solutions/docker-ops/releases)
 
-### **Análise de Performance**
-```bash
-./blueai-docker-ops.sh logs --performance
-```
+## 📄 **Licença**
 
-### **Relatórios Automáticos**
-```bash
-./blueai-docker-ops.sh report html
-```
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## 🤝 Contribuição
+## 🤝 **Contribuição**
 
-1. **Fork** o projeto
-2. **Crie** uma branch para sua feature
-3. **Commit** suas mudanças
-4. **Push** para a branch
-5. **Abra** um Pull Request
-
-## 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-## 🆘 Suporte
-
-- 📖 **Documentação**: [docs/](docs/)
-- 🐛 **Issues**: Abra uma issue no GitHub
-- 💬 **Discussões**: Use as discussões do GitHub
+Contribuições são bem-vindas! Por favor, leia o [Guia de Contribuição](CONTRIBUTING.md) antes de submeter pull requests.
 
 ---
 
 **Desenvolvido com ❤️ pela BlueAI Solutions**
+
+**🌐 Website:** https://blueaisolutions.com.br  
+**📧 Email:** docker-ops@blueaisolutions.com.br  
+**🐛 Issues:** https://github.com/blueai-solutions/docker-ops/issues

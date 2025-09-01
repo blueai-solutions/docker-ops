@@ -1,0 +1,122 @@
+name: 🚀 Release Automático - BlueAI Docker Ops
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  SYSTEM_NAME: "BlueAI Docker Ops"
+
+jobs:
+  # 🏷️ Criar Release
+  create-release:
+    name: 🏷️ Criar Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        
+      - name: 🏷️ Obter informações da tag
+        id: tag
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "tag_version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
+          echo "📋 Tag: $TAG_NAME"
+          echo "📋 Versão: ${TAG_NAME#v}"
+          
+      - name: 📋 Gerar release notes
+        id: release_notes
+        run: |
+          echo "📋 Gerando release notes..."
+          
+          # Obter commits desde a última tag
+          if [ "${{ steps.tag.outputs.tag_name }}" != "v0.0.0" ]; then
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "v0.0.0")
+            echo "📋 Tag anterior: $PREVIOUS_TAG"
+            
+            # Gerar changelog
+            echo "## 🚀 Release ${{ steps.tag.outputs.tag_name }}" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "### 📅 Data: $(date '+%d/%m/%Y')" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "### ✨ Novidades" >> RELEASE_NOTES.md
+            git log --oneline --pretty=format:"- %s" $PREVIOUS_TAG..HEAD | head -20 >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "### 🔧 Melhorias Técnicas" >> RELEASE_NOTES.md
+            echo "- Sistema de CI/CD com GitHub Actions" >> RELEASE_NOTES.md
+            echo "- Releases automáticos" >> RELEASE_NOTES.md
+            echo "- Estrutura organizada e profissional" >> RELEASE_NOTES.md
+          else
+            # Primeira release
+            echo "## 🚀 Primeira Release - ${{ steps.tag.outputs.tag_name }}" > RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "### 📅 Data: $(date '+%d/%m/%Y')" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "### ✨ Lançamento Inicial" >> RELEASE_NOTES.md
+            echo "- Sistema completo de backup Docker" >> RELEASE_NOTES.md
+            echo "- Recuperação automática de containers" >> RELEASE_NOTES.md
+            echo "- Sistema de notificações avançado" >> RELEASE_NOTES.md
+            echo "- Interface interativa de configuração" >> RELEASE_NOTES.md
+            echo "- Logs estruturados e relatórios HTML" >> RELEASE_NOTES.md
+            echo "- LaunchAgent para macOS" >> RELEASE_NOTES.md
+            echo "- Sistema de instalação automática" >> RELEASE_NOTES.md
+          fi
+          
+          # Adicionar informações de instalação
+          echo "" >> RELEASE_NOTES.md
+          echo "### 🚀 Instalação" >> RELEASE_NOTES.md
+          echo "```bash" >> RELEASE_NOTES.md
+          echo "# Instalação automática" >> RELEASE_NOTES.md
+          echo "curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "# Download manual" >> RELEASE_NOTES.md
+          echo "curl -O https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh" >> RELEASE_NOTES.md
+          echo "chmod +x install.sh" >> RELEASE_NOTES.md
+          echo "./install.sh" >> RELEASE_NOTES.md
+          echo "```" >> RELEASE_NOTES.md
+          
+          # Adicionar informações de suporte
+          echo "" >> RELEASE_NOTES.md
+          echo "### 🆘 Suporte" >> RELEASE_NOTES.md
+          echo "- 📖 [Documentação](https://github.com/blueai-solutions/docker-ops/tree/main/docs)" >> RELEASE_NOTES.md
+          echo "- 🐛 [Issues](https://github.com/blueai-solutions/docker-ops/issues)" >> RELEASE_NOTES.md
+          echo "- 📧 Email: docker-ops@blueaisolutions.com.br" >> RELEASE_NOTES.md
+          
+          # Salvar conteúdo para uso posterior
+          RELEASE_CONTENT=$(cat RELEASE_NOTES.md)
+          echo "release_content<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "📋 Release notes gerados com sucesso!"
+          
+      - name: 🏷️ Criar Release no GitHub
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          release_name: "🚀 ${{ steps.tag.outputs.tag_name }} - ${{ env.SYSTEM_NAME }}"
+          body: ${{ steps.release_notes.outputs.release_content }}
+          draft: false
+          prerelease: false
+          
+      - name: 📤 Upload assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./RELEASE_NOTES.md
+          asset_name: RELEASE_NOTES.md
+          asset_content_type: text/markdown
+          
+      - name: 🎯 Status final
+        run: |
+          echo "🎉 RELEASE CRIADO COM SUCESSO!"
+          echo "🏷️ Tag: ${{ steps.tag.outputs.tag_name }}"
+          echo "📋 Versão: ${{ steps.tag.outputs.tag_version }}"
+          echo "🚀 BlueAI Docker Ops está disponível para download!"
