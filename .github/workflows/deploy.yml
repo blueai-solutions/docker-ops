@@ -134,6 +134,7 @@ jobs:
           echo "❌ Configurações específicas do ambiente local"
           echo "❌ Documentação técnica de desenvolvimento"
           echo "❌ Workflows do GitHub Actions"
+          echo "❌ Makefile (ferramenta de desenvolvimento)"
           
       - name: 🎯 Status final
         run: |
