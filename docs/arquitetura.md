@@ -132,25 +132,34 @@ Retornar resultado
 - Limpeza de containers
 - Backup de volumes
 
-### **6. LaunchAgent (config/)**
+### **6. LaunchAgent e Sistema de Agendamento (scripts/utils/install-launchagent.sh)**
 
-**Responsabilidade:** Agendamento automático de backups
+**Responsabilidade:** Agendamento automático de backups com sincronização inteligente
 **Configuração:**
-- **Horário padrão:** 02:30 diariamente
+- **Horário padrão:** Configurável via `config/version-config.sh`
 - **Logs:** `/tmp/docker-backup-launchagent.log`
 - **Erros:** `/tmp/docker-backup-launchagent-error.log`
+- **Sincronização:** Automática entre configuração e arquivo .plist
+
+**Funcionalidades Avançadas:**
+- ✅ **Agendamento dinâmico** com validação de horários
+- ✅ **Sincronização automática** entre arquivos de configuração
+- ✅ **Backup de configurações** antes de alterações
+- ✅ **Descrição inteligente** de horários em português
+- ✅ **Reinstalação automática** após alterações de horário
+- ✅ **Teste de funcionamento** com execução em 60 segundos
 
 ## 🔄 Fluxos de Dados
 
 ### **Fluxo de Backup Automático**
 ```
-LaunchAgent (02:30)
+LaunchAgent (Horário Configurado)
     ↓
-smart-backup.sh
+dynamic-backup.sh (Script Principal)
     ↓
 Verificações (Docker, Containers, Disco)
     ↓
-backup-volumes.sh
+backup-volumes.sh (Backup de Volumes)
     ↓
 Docker Volume Backup
     ↓
@@ -163,6 +172,21 @@ Geração de Relatórios
 Envio de Notificações
     ↓
 Logging de Resultados
+```
+
+**Sistema de Agendamento Inteligente:**
+```
+Usuário altera horário
+    ↓
+update_config_file() (Atualiza config/version-config.sh)
+    ↓
+source "$VERSION_CONFIG" (Recarrega variáveis)
+    ↓
+generate_plist() (Gera novo arquivo .plist)
+    ↓
+launchctl load (Recarrega LaunchAgent)
+    ↓
+Sincronização completa entre arquivos
 ```
 
 ### **Fluxo de Notificações**

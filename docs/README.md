@@ -13,7 +13,7 @@ Esta pasta contém toda a documentação técnica e de usuário do BlueAI Docker
 - [Scripts e Componentes](scripts-componentes.md) - Documentação de cada script
 - [Sistema de Logs](sistema-logs.md) - Como funciona o logging estruturado
 - [Sistema de Notificações](sistema-notificacoes.md) - Configuração e funcionamento das notificações
-- [LaunchAgent](launchagent.md) - Configuração e gerenciamento do agendamento
+- [LaunchAgent e Agendamento](launchagent.md) - Configuração e gerenciamento do agendamento automático
 
 ### 📊 **Guias de Uso**
 - [Comandos Disponíveis](comandos.md) - Referência completa de comandos

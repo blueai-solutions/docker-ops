@@ -231,40 +231,36 @@ O script principal que unifica todas as funcionalidades do sistema.
 
 ## 🔄 Comandos de Automação
 
-### **LaunchAgent (macOS)**
+### **LaunchAgent e Agendamento Automático (macOS)**
 
 ```bash
 # Instalar LaunchAgent
-./blueai-docker-ops.sh automação install
-
-# Verificar status
-./blueai-docker-ops.sh automação status
-
-# Desinstalar LaunchAgent
-./blueai-docker-ops.sh automação uninstall
-
-# Testar script de backup
-./blueai-docker-ops.sh automação test
-
-# Ajuda dos comandos de automação
-./blueai-docker-ops.sh automação --help
-```
-
-### **Comandos Diretos (Alternativa)**
-
-```bash
-# Instalar LaunchAgent
-./scripts/utils/install-launchagent.sh
+./scripts/utils/install-launchagent.sh install
 
 # Verificar status
 ./scripts/utils/install-launchagent.sh status
 
+# Alterar horário do backup
+./scripts/utils/install-launchagent.sh schedule
+
+# Testar LaunchAgent (execução em 60s)
+./scripts/utils/install-launchagent.sh test-launchagent
+
 # Desinstalar LaunchAgent
 ./scripts/utils/install-launchagent.sh uninstall
 
-# Testar script de backup
-./scripts/utils/install-launchagent.sh test
+# Ajuda completa
+./scripts/utils/install-launchagent.sh help
 ```
+
+**Funcionalidades do LaunchAgent:**
+- ✅ **Agendamento automático** com horários personalizáveis
+- ✅ **Sincronização automática** entre configuração e arquivo .plist
+- ✅ **Backup de configurações** antes de alterações
+- ✅ **Validação inteligente** de horários (0-23h, 0-59min)
+- ✅ **Descrição automática** de horários em português
+- ✅ **Reinstalação automática** após alterações
+- ✅ **Teste de funcionamento** com execução em 60 segundos
 
 ## 📋 Opções Globais
 

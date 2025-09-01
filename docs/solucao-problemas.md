@@ -140,13 +140,14 @@ MACOS_NOTIFICATIONS_ENABLED=true
 NOTIFICATION_TITLE="Docker Backup"
 ```
 
-## 🚀 Problemas com LaunchAgent
+## 🚀 Problemas com LaunchAgent e Agendamento
 
 ### **"LaunchAgent não executa backup automático"**
 
 #### **Sintomas:**
 - Backup não executa no horário agendado
 - LaunchAgent não aparece na lista
+- Inconsistência entre horário configurado e executado
 
 #### **Soluções:**
 ```bash
@@ -156,12 +157,39 @@ NOTIFICATION_TITLE="Docker Backup"
 # 2. Verificar logs do LaunchAgent
 ./scripts/utils/install-launchagent.sh logs
 
-# 3. Reinstalar LaunchAgent
+# 3. Testar funcionamento (execução em 60s)
+./scripts/utils/install-launchagent.sh test-launchagent
+
+# 4. Reinstalar LaunchAgent
 ./scripts/utils/install-launchagent.sh uninstall
 ./scripts/utils/install-launchagent.sh install
 
-# 4. Testar manualmente
-./scripts/utils/install-launchagent.sh test
+# 5. Verificar sincronização de configurações
+cat config/version-config.sh | grep SCHEDULE
+cat ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist | grep -A 5 "StartCalendarInterval"
+```
+
+### **"Horário do backup não é alterado"**
+
+#### **Sintomas:**
+- Comando `schedule` não altera horário
+- Inconsistência entre arquivo de config e LaunchAgent
+- Arquivo .plist não é atualizado
+
+#### **Soluções:**
+```bash
+# 1. Alterar horário via comando
+./scripts/utils/install-launchagent.sh schedule
+
+# 2. Verificar se arquivo de config foi atualizado
+cat config/version-config.sh | grep SCHEDULE
+
+# 3. Verificar se arquivo .plist foi atualizado
+cat ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist | grep -A 5 "StartCalendarInterval"
+
+# 4. Se houver inconsistência, reinstalar
+./scripts/utils/install-launchagent.sh uninstall
+./scripts/utils/install-launchagent.sh install
 ```
 
 ### **"LaunchAgent não carrega"**
@@ -169,18 +197,23 @@ NOTIFICATION_TITLE="Docker Backup"
 #### **Sintomas:**
 - Erro: "Could not find specified service"
 - LaunchAgent não aparece em `launchctl list`
+- Arquivo .plist corrompido
 
 #### **Soluções:**
 ```bash
 # 1. Verificar arquivo do LaunchAgent
-cat /Users/$USER/Library/LaunchAgents/com.user.dockerbackup.plist
+cat ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist
 
 # 2. Verificar permissões
-ls -la /Users/$USER/Library/LaunchAgents/
+ls -la ~/Library/LaunchAgents/
 
 # 3. Recarregar LaunchAgent
-launchctl unload ~/Library/LaunchAgents/com.user.dockerbackup.plist
-launchctl load ~/Library/LaunchAgents/com.user.dockerbackup.plist
+launchctl unload ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist
+launchctl load ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist
+
+# 4. Se persistir, reinstalar completamente
+./scripts/utils/install-launchagent.sh uninstall
+./scripts/utils/install-launchagent.sh install
 ```
 
 ## 💾 Problemas com Backup

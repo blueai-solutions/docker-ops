@@ -169,27 +169,38 @@ docker stop $(docker ps -q)
 
 ## 🔄 Automação
 
-### **LaunchAgent (macOS)**
+### **LaunchAgent e Agendamento Automático (macOS)**
 
 ```bash
-# Instalar automação
-./blueai-docker-ops.sh automação install
+# Instalar LaunchAgent
+./scripts/utils/install-launchagent.sh install
 
 # Verificar status
-./blueai-docker-ops.sh automação status
+./scripts/utils/install-launchagent.sh status
 
-# Desinstalar automação
-./blueai-docker-ops.sh automação uninstall
+# Alterar horário do backup
+./scripts/utils/install-launchagent.sh schedule
 
-# Testar automação
-./blueai-docker-ops.sh automação test
+# Testar LaunchAgent (execução em 60s)
+./scripts/utils/install-launchagent.sh test-launchagent
+
+# Desinstalar LaunchAgent
+./scripts/utils/install-launchagent.sh uninstall
 ```
 
 **O LaunchAgent irá:**
-- 🔄 **Executar backups** automaticamente
+- 🔄 **Executar backups** automaticamente no horário configurado
 - 🔔 **Enviar notificações** sobre o status
 - 📊 **Gerar relatórios** periódicos
 - 🧹 **Limpar logs** antigos
+- ⏰ **Agendamento inteligente** com sincronização automática de configurações
+
+**Funcionalidades Avançadas:**
+- ✅ **Sincronização automática** entre arquivo de config e LaunchAgent
+- ✅ **Backup de configurações** antes de alterações
+- ✅ **Validação de horários** (0-23h, 0-59min)
+- ✅ **Descrição inteligente** de horários em português
+- ✅ **Reinstalação automática** após alterações de horário
 
 ### **Cron Jobs (Alternativa)**
 

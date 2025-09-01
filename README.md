@@ -224,20 +224,29 @@ cd /Users/alexandregomes/Projetos/pessoais/BlueAI\ Solutions/BlueAI\ Docker\ Rec
 
 ## 🔄 Automação
 
-### **LaunchAgent (macOS)**
+### **LaunchAgent e Agendamento Automático (macOS)**
 ```bash
-# Instalar automação
-./blueai-docker-ops.sh automação install
+# Instalar LaunchAgent
+./scripts/utils/install-launchagent.sh install
 
 # Verificar status
-./blueai-docker-ops.sh automação status
+./scripts/utils/install-launchagent.sh status
 
-# Desinstalar automação
-./blueai-docker-ops.sh automação uninstall
+# Alterar horário do backup
+./scripts/utils/install-launchagent.sh schedule
 
-# Testar automação
-./blueai-docker-ops.sh automação test
+# Testar LaunchAgent (execução em 60s)
+./scripts/utils/install-launchagent.sh test-launchagent
+
+# Desinstalar LaunchAgent
+./scripts/utils/install-launchagent.sh uninstall
 ```
+
+**Funcionalidades Avançadas:**
+- ✅ **Agendamento inteligente** com sincronização automática
+- ✅ **Backup de configurações** antes de alterações
+- ✅ **Validação de horários** e descrição inteligente
+- ✅ **Teste de funcionamento** com execução imediata
 
 ### **Cron Jobs**
 ```bash
