@@ -19,7 +19,7 @@ NOTIFICATIONS_ENABLED=true
 EMAIL_ENABLED=true
 
 # Email de destino (OBRIGATÓRIO se EMAIL_ENABLED=true)
-EMAIL_TO="xandergomes@gmail.com"  # ⚠️  ALTERE PARA SEU EMAIL!
+EMAIL_TO="argomes.dev@gmail.com"  # ⚠️  ALTERE PARA SEU EMAIL!
 
 # Email de origem
 EMAIL_FROM="docker-ops@blueaisolutions.com.br"
