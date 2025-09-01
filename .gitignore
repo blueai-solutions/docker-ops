@@ -1,0 +1,31 @@
+# Logs
+logs/
+*.log
+
+# Reports
+reports/
+*.html
+*.txt
+
+# Backups
+backups/
+*.tar.gz
+*.zip
+
+# Configurações sensíveis
+config/*.env
+config/secrets/
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+.dockerignore
