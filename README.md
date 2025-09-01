@@ -21,45 +21,68 @@ Sistema completo e moderno para backup, recuperação e gerenciamento de contain
 ```
 backend/
 ├── 🐳 blueai-docker-ops.sh              # Script principal unificado
-├── 📁 scripts/
-│   ├── 📁 core/                     # Scripts principais
-│   │   ├── recover-containers.sh    # Recuperação dinâmica
-│   │   └── manage-containers.sh     # Gerenciamento dinâmico
-│   ├── 📁 backup/                   # Sistema de backup
-│   │   └── dynamic-backup.sh        # Backup dinâmico configurável
-│   ├── 📁 notifications/            # Sistema de notificações
-│   │   └── test-notifications.sh    # Teste de notificações
-│   ├── 📁 logging/                  # Sistema de logs avançados
-│   │   ├── logging-functions.sh     # Funções de log estruturado
-│   │   ├── log-analyzer.sh          # Analisador de logs
-│   │   └── report-generator.sh      # Gerador de relatórios HTML
-│   └── 📁 utils/                    # Utilitários
+├── 📁 install/                       # Scripts de instalação
+│   ├── install.sh                    # Instalador automático
+│   ├── uninstall.sh                  # Desinstalador
+│   ├── INSTALL.md                    # Guia de instalação
+│   └── README-INSTALL.md             # Instalação rápida
+├── 📁 scripts/                       # Scripts do sistema
+│   ├── 📁 core/                      # Scripts principais
+│   │   ├── recover-containers.sh     # Recuperação dinâmica
+│   │   └── manage-containers.sh      # Gerenciamento dinâmico
+│   ├── 📁 backup/                    # Sistema de backup
+│   │   └── dynamic-backup.sh         # Backup dinâmico configurável
+│   ├── 📁 notifications/             # Sistema de notificações
+│   │   └── test-notifications.sh     # Teste de notificações
+│   ├── 📁 logging/                   # Sistema de logs avançados
+│   │   ├── logging-functions.sh      # Funções de log estruturado
+│   │   ├── log-analyzer.sh           # Analisador de logs
+│   │   └── report-generator.sh       # Gerador de relatórios HTML
+│   └── 📁 utils/                     # Utilitários
 │       ├── container-configurator.sh # Configurador interativo
 │       ├── recovery-configurator.sh  # Configurador de recuperação
 │       ├── config-backup-manager.sh  # Gerenciador de backups de config
 │       ├── cleanup-deprecated.sh     # Limpeza de código legado
-│       ├── test-system.sh           # Teste completo do sistema
-│       ├── install-launchagent.sh   # Instalador do LaunchAgent
-│       └── version-utils.sh         # Utilitários de versão
-├── 📁 config/                       # Configurações
-│   ├── backup-config.sh             # Configuração de backup dinâmico
-│   ├── recovery-config.sh           # Configuração de recuperação
-│   ├── notification-config.sh       # Configurações de notificações
-│   ├── version-config.sh            # Configurações de versão
-│   ├── com.user.dockerbackup.plist  # LaunchAgent para macOS
-│   └── 📁 backups/                  # Backups de configurações
-├── 📁 logs/                         # Logs estruturados
-├── 📁 reports/                      # Relatórios gerados
-├── 📁 backups/                      # Backups dos volumes
-├── 📁 docs/                         # Documentação completa
-└── 📄 README.md                     # Esta documentação
+│       ├── test-system.sh            # Teste completo do sistema
+│       ├── install-launchagent.sh    # Instalador do LaunchAgent
+│       └── version-utils.sh          # Utilitários de versão
+├── 📁 config/                        # Configurações
+│   ├── backup-config.sh              # Configuração de backup dinâmico
+│   ├── recovery-config.sh            # Configuração de recuperação
+│   ├── notification-config.sh        # Configurações de notificações
+│   ├── version-config.sh             # Configurações de versão
+│   └── 📁 backups/                   # Backups de configurações
+├── 📁 logs/                          # Logs estruturados
+├── 📁 reports/                       # Relatórios gerados
+├── 📁 backups/                       # Backups dos volumes
+├── 📁 docs/                          # Documentação completa
+└── 📄 README.md                      # Esta documentação
 ```
 
 ## 🚀 Início Rápido
 
-### **1. Primeira Execução**
+### **⚡ Instalação Automática (Recomendado)**
 ```bash
-cd /Users/alexandregomes/Projetos/pessoais/BlueAI\ Solutions/BlueAI\ Docker\ Recover/backend
+# Instalação em uma linha
+curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
+
+# Após instalação, use os comandos:
+blueai-docker-ops --help
+blueai-docker-ops config containers
+blueai-docker-ops backup
+```
+
+### **🔧 Instalação Manual (Desenvolvedores)**
+```bash
+# 1. Clone do repositório
+git clone https://github.com/blueai-solutions/docker-ops.git
+cd docker-ops/backend
+
+# 2. Tornar executável
+chmod +x blueai-docker-ops.sh
+chmod +x scripts/**/*.sh
+
+# 3. Primeira execução
 ./blueai-docker-ops.sh --help
 ```
 
