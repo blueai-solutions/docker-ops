@@ -32,3 +32,8 @@ UPDATE_CHECK_INTERVAL=86400  # 24 horas
 # Configurações de compatibilidade
 BACKWARD_COMPATIBILITY=true
 CONFIG_MIGRATION_ENABLED=true
+
+# Configurações de agendamento (LaunchAgent)
+SCHEDULE_HOUR=17
+SCHEDULE_MINUTE=9
+SCHEDULE_DESCRIPTION="5:09 da tarde"

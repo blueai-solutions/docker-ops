@@ -411,7 +411,7 @@ test_backup() {
 
 # Função principal
 main() {
-    local command="${1:-help}"
+    local command="${1:-backup}"  # Executa backup por padrão se não há argumentos
     
     case "$command" in
         backup)

@@ -6,10 +6,20 @@
 
 set -e
 
-LAUNCHAGENT_NAME="com.user.dockerbackup"
-LAUNCHAGENT_FILE="com.user.dockerbackup.plist"
+LAUNCHAGENT_NAME="com.user.blueai.dockerbackup"
+LAUNCHAGENT_FILE="com.user.blueai.dockerbackup.plist"
 LAUNCHAGENT_PATH="$HOME/Library/LaunchAgents/$LAUNCHAGENT_FILE"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Carregar configuração de versão
+VERSION_CONFIG="$(cd "$SCRIPT_DIR/../.." && pwd)/config/version-config.sh"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+if [ -f "$VERSION_CONFIG" ]; then
+    source "$VERSION_CONFIG"
+else
+    echo "❌ Arquivo de configuração de versão não encontrado"
+    exit 1
+fi
 
 # Cores para output
 RED='\033[0;31m'
@@ -51,6 +61,7 @@ show_help() {
     echo "  logs       - Mostrar logs do LaunchAgent"
     echo "  test       - Testar o script de backup"
     echo "  schedule   - Alterar horário do backup"
+    echo "  test-launchagent - Testar LaunchAgent (execução em 60s)"
     echo "  help       - Mostrar esta ajuda"
     echo ""
     echo "Exemplos:"
@@ -69,15 +80,114 @@ is_loaded() {
     launchctl list | grep -q "$LAUNCHAGENT_NAME"
 }
 
+# Função para gerar arquivo plist dinamicamente
+generate_plist() {
+    local plist_content="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+    <key>Label</key>
+    <string>$LAUNCHAGENT_NAME</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>$PROJECT_ROOT/scripts/backup/dynamic-backup.sh</string>
+    </array>
+    
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>$SCHEDULE_HOUR</integer>
+            <key>Minute</key>
+            <integer>$SCHEDULE_MINUTE</integer>
+        </dict>
+    </array>
+    
+    <key>StandardOutPath</key>
+    <string>/tmp/docker-backup-launchagent.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/tmp/docker-backup-launchagent-error.log</string>
+    
+    <key>WorkingDirectory</key>
+    <string>$PROJECT_ROOT</string>
+    
+    <key>RunAtLoad</key>
+    <false/>
+    
+    <key>KeepAlive</key>
+    <false/>
+    
+    <key>ProcessType</key>
+    <string>Background</string>
+    
+    <key>ThrottleInterval</key>
+    <integer>3600</integer>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>"
+    
+    echo "$plist_content" > "$LAUNCHAGENT_PATH"
+}
+
+# Função para gerar arquivo plist de teste (execução imediata)
+generate_test_plist() {
+    local plist_content="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+    <key>Label</key>
+    <string>$LAUNCHAGENT_NAME</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>$PROJECT_ROOT/scripts/backup/dynamic-backup.sh</string>
+    </array>
+    
+    <key>StartInterval</key>
+    <integer>60</integer>
+    
+    <key>StandardOutPath</key>
+    <string>/tmp/docker-backup-launchagent.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/tmp/docker-backup-launchagent-error.log</string>
+    
+    <key>WorkingDirectory</key>
+    <string>$PROJECT_ROOT</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <false/>
+    
+    <key>ProcessType</key>
+    <string>Background</string>
+    
+    <key>ThrottleInterval</key>
+    <integer>3600</integer>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>"
+    
+    echo "$plist_content" > "$LAUNCHAGENT_PATH"
+}
+
 # Função para instalar LaunchAgent
 install_launchagent() {
     log_info "Instalando LaunchAgent..."
-    
-    # Verificar se arquivo existe
-    if [ ! -f "$SCRIPT_DIR/../../config/$LAUNCHAGENT_FILE" ]; then
-        log_error "Arquivo $LAUNCHAGENT_FILE não encontrado em $SCRIPT_DIR/../../config/"
-        exit 1
-    fi
     
     # Verificar se script de backup existe
     if [ ! -f "$SCRIPT_DIR/../backup/dynamic-backup.sh" ]; then
@@ -91,14 +201,14 @@ install_launchagent() {
     # Criar diretório LaunchAgents se não existir
     mkdir -p "$HOME/Library/LaunchAgents"
     
-    # Copiar arquivo
-    cp "$SCRIPT_DIR/../../config/$LAUNCHAGENT_FILE" "$LAUNCHAGENT_PATH"
+    # Gerar arquivo plist dinamicamente
+    generate_plist
     
     # Carregar LaunchAgent
     launchctl load "$LAUNCHAGENT_PATH"
     
     log_success "LaunchAgent instalado e carregado com sucesso!"
-    log_info "Backup será executado diariamente às 02:30 da manhã"
+    log_info "Backup será executado diariamente às $SCHEDULE_DESCRIPTION"
     log_info "Logs disponíveis em:"
     log_info "  - /tmp/docker-backup-launchagent.log"
     log_info "  - /tmp/docker-backup-launchagent-error.log"
@@ -173,7 +283,7 @@ check_status() {
     
     echo ""
     echo "⏰ Agendamento:"
-    echo "  Diariamente às 02:30 da manhã"
+    echo "  Diariamente às $SCHEDULE_DESCRIPTION"
     
     echo ""
     echo "📝 Logs:"
@@ -243,11 +353,50 @@ test_backup() {
     log_success "Teste concluído! Verifique os logs para detalhes."
 }
 
+# Função para atualizar arquivo de configuração
+update_config_file() {
+    local hour="$1"
+    local minute="$2"
+    local config_file="$PROJECT_ROOT/config/version-config.sh"
+    
+    # Determinar descrição do horário
+    local description
+    if [ "$hour" -eq 0 ]; then
+        description="meia-noite"
+    elif [ "$hour" -lt 12 ]; then
+        description="${hour}:$(printf "%02d" $minute) da manhã"
+    elif [ "$hour" -eq 12 ]; then
+        description="12:$(printf "%02d" $minute) do meio-dia"
+    else
+        description="$((hour - 12)):$(printf "%02d" $minute) da tarde"
+    fi
+    
+    # Atualizar arquivo de configuração
+    if [ -f "$config_file" ]; then
+        # Fazer backup do arquivo original
+        cp "$config_file" "$config_file.backup.$(date +%Y%m%d_%H%M%S)"
+        
+        # Atualizar SCHEDULE_HOUR
+        sed -i '' "s/^SCHEDULE_HOUR=.*/SCHEDULE_HOUR=$hour/" "$config_file"
+        
+        # Atualizar SCHEDULE_MINUTE
+        sed -i '' "s/^SCHEDULE_MINUTE=.*/SCHEDULE_MINUTE=$minute/" "$config_file"
+        
+        # Atualizar SCHEDULE_DESCRIPTION
+        sed -i '' "s/^SCHEDULE_DESCRIPTION=.*/SCHEDULE_DESCRIPTION=\"$description\"/" "$config_file"
+        
+        log_info "Arquivo de configuração atualizado: $config_file"
+        log_info "Backup criado: $config_file.backup.$(date +%Y%m%d_%H%M%S)"
+    else
+        log_warning "Arquivo de configuração não encontrado: $config_file"
+    fi
+}
+
 # Função para alterar horário
 change_schedule() {
     log_info "Alterando horário do backup..."
     
-    echo "Horário atual: 02:30 da manhã"
+    echo "Horário atual: $SCHEDULE_DESCRIPTION"
     echo ""
     echo "Escolha o novo horário:"
     echo "1) 01:00 da manhã"
@@ -290,14 +439,42 @@ change_schedule() {
         launchctl unload "$LAUNCHAGENT_PATH"
     fi
     
-    # Atualizar arquivo plist
-    sed -i '' "s/<key>Hour<\/key>.*<integer>[0-9]*<\/integer>/<key>Hour<\/key>\n            <integer>$hour<\/integer>/" "$LAUNCHAGENT_PATH"
-    sed -i '' "s/<key>Minute<\/key>.*<integer>[0-9]*<\/integer>/<key>Minute<\/key>\n            <integer>$minute<\/integer>/" "$LAUNCHAGENT_PATH"
+    # Atualizar arquivo de configuração
+    update_config_file "$hour" "$minute"
+    
+    # Recarregar configuração para usar novos valores
+    source "$VERSION_CONFIG"
+    
+    # Reinstalar LaunchAgent com novo horário
+    generate_plist
     
     # Recarregar LaunchAgent
     launchctl load "$LAUNCHAGENT_PATH"
     
     log_success "Horário alterado para $hour:$minute"
+    log_info "Arquivo de configuração atualizado: config/version-config.sh"
+}
+
+# Função para testar LaunchAgent
+test_launchagent() {
+    log_info "Testando LaunchAgent..."
+    
+    # Parar LaunchAgent se estiver carregado
+    if is_loaded; then
+        launchctl unload "$LAUNCHAGENT_PATH"
+        log_info "LaunchAgent descarregado para teste"
+    fi
+    
+    # Gerar arquivo plist de teste
+    generate_test_plist
+    
+    # Carregar LaunchAgent
+    launchctl load "$LAUNCHAGENT_PATH"
+    
+    log_success "LaunchAgent de teste carregado!"
+    log_info "O backup será executado em 60 segundos"
+    log_info "Verifique os logs em: /tmp/docker-backup-launchagent.log"
+    log_info "Para voltar ao horário normal, execute: $0 schedule"
 }
 
 # Função principal
@@ -326,6 +503,9 @@ main() {
             ;;
         schedule)
             change_schedule
+            ;;
+        test-launchagent)
+            test_launchagent
             ;;
         help|*)
             show_help
