@@ -591,13 +591,53 @@ generate_backups_section() {
     echo '</div>'
 }
 
+# Função para mostrar ajuda
+show_help() {
+    echo "🐳 Gerador de Relatórios HTML - $SYSTEM_NAME"
+    echo "============================================="
+    echo ""
+    echo "📋 Uso: $0 [arquivo_saida] [dias]"
+    echo ""
+    echo "🔧 Argumentos:"
+    echo "  arquivo_saida  - Nome do arquivo HTML de saída (opcional)"
+    echo "  dias          - Número de dias para análise (padrão: 7)"
+    echo ""
+    echo "📝 Exemplos:"
+    echo "  $0                                    # Gera relatório com nome automático"
+    echo "  $0 relatorio.html                     # Gera relatório com nome específico"
+    echo "  $0 relatorio.html 30                  # Análise dos últimos 30 dias"
+    echo "  $0 reports/meu_relatorio.html 14      # Análise dos últimos 14 dias"
+    echo ""
+    echo "💡 Dica: Se não especificar arquivo de saída, será gerado automaticamente"
+    echo "         no diretório reports/ com timestamp"
+}
+
 # Função principal
 main() {
     local output_file="$1"
     local days=${2:-7}
     
+    # Verificar se o primeiro argumento é help
+    if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+        show_help
+        return 0
+    fi
+    
+    # Validar número de dias
+    if ! [[ "$days" =~ ^[0-9]+$ ]]; then
+        echo "❌ Erro: Número de dias deve ser um número inteiro"
+        echo "💡 Use: $0 [arquivo_saida] [dias]"
+        return 1
+    fi
+    
+    # Se não foi especificado arquivo de saída, gerar nome automático
     if [ -z "$output_file" ]; then
         output_file="$REPORTS_DIR/backup_report_$(date +%Y%m%d_%H%M%S).html"
+    fi
+    
+    # Verificar se o arquivo de saída tem extensão .html
+    if [[ ! "$output_file" =~ \.html$ ]]; then
+        output_file="${output_file}.html"
     fi
     
     mkdir -p "$(dirname "$output_file")"
