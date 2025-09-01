@@ -1,16 +1,16 @@
 # 🏗️ Arquitetura do Sistema
 
-Documentação técnica da arquitetura e funcionamento interno do sistema de backup Docker.
+Documentação técnica da arquitetura e funcionamento interno do BlueAI Docker Ops.
 
 ## 📋 Visão Geral
 
-O sistema de backup Docker é uma solução completa e automatizada para backup de volumes Docker em ambiente macOS, com notificações, logging estruturado e relatórios.
+O BlueAI Docker Ops é uma solução completa e automatizada para backup de volumes Docker em ambiente macOS, com notificações, logging estruturado e relatórios.
 
 ## 🏛️ Arquitetura de Alto Nível
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Sistema de Backup Docker                 │
+│                    BlueAI Docker Ops                        │
 ├─────────────────────────────────────────────────────────────┤
 │  🐳 blueai-docker-ops.sh (Script Principal)                     │
 │  └───┬─── Comando Unificado                                 │

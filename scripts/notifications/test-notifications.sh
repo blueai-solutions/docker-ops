@@ -8,10 +8,19 @@ DATE=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Carregar configurações
 NOTIFICATION_CONFIG="$SCRIPT_DIR/../../config/notification-config.sh"
+VERSION_CONFIG="$SCRIPT_DIR/../../config/version-config.sh"
+
 if [ -f "$NOTIFICATION_CONFIG" ]; then
     source "$NOTIFICATION_CONFIG"
 else
     echo "❌ Arquivo de configuração não encontrado: $NOTIFICATION_CONFIG"
+    exit 1
+fi
+
+if [ -f "$VERSION_CONFIG" ]; then
+    source "$VERSION_CONFIG"
+else
+    echo "❌ Arquivo de configuração de versão não encontrado"
     exit 1
 fi
 
@@ -54,7 +63,7 @@ Script: $SCRIPT_DIR/test-notifications.sh
 $body
 
 ---
-Este é um email de teste do sistema de backup Docker.
+Este é um email de teste do $SYSTEM_NAME.
 "
         
         if command -v mail >/dev/null 2>&1; then

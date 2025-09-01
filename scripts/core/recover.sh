@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script principal para recuperação de containers Docker
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Diretório onde estão os scripts

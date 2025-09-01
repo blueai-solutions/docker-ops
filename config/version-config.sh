@@ -1,5 +1,5 @@
 # =============================================================================
-# CONFIGURAÇÃO DE VERSÃO DO SISTEMA DE BACKUP DOCKER
+# CONFIGURAÇÃO DE VERSÃO DO BLUEAI DOCKER OPS
 # =============================================================================
 
 # Versão principal da aplicação
@@ -11,9 +11,9 @@ BUILD_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')"
 BUILD_BRANCH="$(git branch --show-current 2>/dev/null || echo 'unknown')"
 
 # Informações do sistema
-SYSTEM_NAME="Docker Backup System"
+SYSTEM_NAME="BlueAI Docker Ops"
 SYSTEM_DESCRIPTION="Sistema automatizado de backup para containers Docker"
-SYSTEM_AUTHOR="Assistente IA"
+SYSTEM_AUTHOR="BlueAI Solutions"
 SYSTEM_LICENSE="MIT"
 
 # Compatibilidade

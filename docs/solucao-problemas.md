@@ -1,6 +1,6 @@
 # 🆘 Solução de Problemas
 
-Guia completo para resolver problemas comuns do sistema de backup Docker.
+Guia completo para resolver problemas comuns do BlueAI Docker Ops.
 
 ## 🔍 Diagnóstico Rápido
 

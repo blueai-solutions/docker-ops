@@ -1,14 +1,23 @@
 #!/bin/bash
 
-# Teste Completo do Sistema de Backup Docker
+# Teste Completo do BlueAI Docker Ops
 # =========================================
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Configurações
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 MAIN_SCRIPT="$PROJECT_ROOT/blueai-docker-ops.sh"
+
+# Carregar configuração de versão
+VERSION_CONFIG="$PROJECT_ROOT/config/version-config.sh"
+if [ -f "$VERSION_CONFIG" ]; then
+    source "$VERSION_CONFIG"
+else
+    echo "❌ Arquivo de configuração de versão não encontrado"
+    exit 1
+fi
 
 # Cores para output
 RED='\033[0;31m'
@@ -397,7 +406,7 @@ test_system_integrity() {
 
 # Função principal
 main() {
-    echo -e "${PURPLE}🐳 TESTE COMPLETO DO SISTEMA DE BACKUP DOCKER${NC}"
+    echo -e "${PURPLE}🐳 TESTE COMPLETO DO $SYSTEM_NAME${NC}"
     echo -e "${PURPLE}================================================${NC}"
     echo ""
     echo -e "Data: $(date)"

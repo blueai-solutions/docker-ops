@@ -1,17 +1,26 @@
 #!/bin/bash
 
-# Script Principal do Sistema de Backup Docker
+# Script Principal do BlueAI Docker Ops
 # ===========================================
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Configurações
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR"
 
+# Carregar configuração de versão
+VERSION_CONFIG="$PROJECT_ROOT/config/version-config.sh"
+if [ -f "$VERSION_CONFIG" ]; then
+    source "$VERSION_CONFIG"
+else
+    echo "❌ Arquivo de configuração de versão não encontrado"
+    exit 1
+fi
+
 # Função para mostrar ajuda
 show_help() {
-    echo "🐳 Sistema de Backup Docker - Script Principal"
+    echo "🐳 $SYSTEM_NAME - Script Principal"
     echo "=============================================="
     echo ""
     echo "Uso: $0 [COMANDO] [OPÇÕES]"

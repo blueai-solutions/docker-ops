@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para gerenciar containers Docker
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Carregar configuração de recuperação

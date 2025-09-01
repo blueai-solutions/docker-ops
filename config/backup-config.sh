@@ -5,7 +5,7 @@
 # Use: ./blueai-docker-ops.sh config containers para modificar
 
 # Diretório de backup
-BACKUP_DIR="/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Recover/backend/backups"
+BACKUP_DIR="/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Ops/backend/backups"
 
 # Configurações de retenção
 BACKUP_RETENTION_DAYS=7

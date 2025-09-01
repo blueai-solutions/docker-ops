@@ -1,6 +1,6 @@
-# 📚 Documentação do Sistema de Backup Docker
+# 📚 Documentação do BlueAI Docker Ops
 
-Esta pasta contém toda a documentação técnica e de usuário do sistema de backup Docker.
+Esta pasta contém toda a documentação técnica e de usuário do BlueAI Docker Ops.
 
 ## 📋 Índice da Documentação
 
@@ -42,7 +42,7 @@ Esta pasta contém toda a documentação técnica e de usuário do sistema de ba
 
 - **Data:** $(date +%Y-%m-%d)
 - **Versão:** 2.0.0
-- **Autor:** Sistema de Backup Docker
+- **Autor:** BlueAI Docker Ops
 
 ---
 

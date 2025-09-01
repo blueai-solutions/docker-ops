@@ -7,7 +7,7 @@
     
     <key>ProgramArguments</key>
     <array>
-        	<string>/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Recover/backend/scripts/backup/dynamic-backup.sh</string>
+        	<string>/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Ops/backend/scripts/backup/dynamic-backup.sh</string>
     </array>
     
     <key>StartCalendarInterval</key>
@@ -27,7 +27,7 @@
     <string>/tmp/docker-backup-launchagent-error.log</string>
     
     <key>WorkingDirectory</key>
-    <string>/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Recover/backend</string>
+    <string>/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Ops/backend</string>
     
     <key>RunAtLoad</key>
     <false/>

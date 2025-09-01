@@ -1,4 +1,4 @@
-# 🐳 Sistema de Backup e Recuperação Docker - BlueAI Solutions
+# 🐳 BlueAI Docker Ops - Sistema de Backup e Recuperação Docker
 
 [![Version](https://img.shields.io/badge/version-2.3.1-blue.svg)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

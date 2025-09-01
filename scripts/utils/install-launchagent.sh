@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para instalar e gerenciar o LaunchAgent de backup Docker
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 set -e

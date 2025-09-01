@@ -2,7 +2,7 @@
 
 # Analisador de Logs Avançado para Docker Backup
 # =============================================
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Carregar funções de logging

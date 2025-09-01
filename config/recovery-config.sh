@@ -5,7 +5,7 @@
 # Use: ./blueai-docker-ops.sh recovery config para modificar
 
 # Diretório de backups
-BACKUP_DIR="/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Recover/backend/backups"
+BACKUP_DIR="/Users/alexandregomes/Projetos/pessoais/BlueAI Solutions/BlueAI Docker Ops/backend/backups"
 
 # Configurações de recuperação
 RECOVERY_PARALLEL=false

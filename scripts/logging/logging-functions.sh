@@ -2,7 +2,7 @@
 
 # Sistema de Logging Avançado para Docker Backup
 # =============================================
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Configurações de logging

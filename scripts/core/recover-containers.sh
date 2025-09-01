@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para recuperar containers Docker com volumes nomeados
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 set -e  # Para o script se houver erro

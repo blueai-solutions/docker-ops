@@ -1,4 +1,4 @@
-# 📋 Comandos Detalhados - Sistema de Backup Docker
+# 📋 Comandos Detalhados - BlueAI Docker Ops
 
 Referência completa de todos os comandos disponíveis no sistema.
 

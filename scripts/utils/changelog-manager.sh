@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# GERENCIADOR DE CHANGELOG DO SISTEMA DE BACKUP DOCKER
+# GERENCIADOR DE CHANGELOG DO BLUEAI DOCKER OPS
 # =============================================================================
 
 # Definir diretório do script

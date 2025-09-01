@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# SCRIPT DE BACKUP DINÂMICO - SISTEMA DE BACKUP DOCKER
+# SCRIPT DE BACKUP DINÂMICO - BLUEAI DOCKER OPS
 # =============================================================================
 
 # Configurações
@@ -12,6 +12,7 @@ DATE=$(date '+%Y-%m-%d %H:%M:%S')
 # Carregar configurações
 source "$PROJECT_ROOT/config/backup-config.sh"
 source "$PROJECT_ROOT/config/notification-config.sh"
+source "$PROJECT_ROOT/config/version-config.sh"
 source "$SCRIPT_DIR/../logging/logging-functions.sh"
 
 # Função para mostrar ajuda

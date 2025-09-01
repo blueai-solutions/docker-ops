@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# UTILITÁRIOS DE VERSÃO DO SISTEMA DE BACKUP DOCKER
+# UTILITÁRIOS DE VERSÃO DO BLUEAI DOCKER OPS
 # =============================================================================
 
 # Definir diretório do script
@@ -326,3 +326,72 @@ show_system_stats() {
     echo "  Memória: $(vm_stat | grep "Pages free" | awk '{print $3}' | sed 's/\.//') páginas livres"
     echo "  Disco: $(df -h "$PROJECT_ROOT" | tail -1 | awk '{print $4}') disponível"
 }
+
+# Função para mostrar ajuda
+show_help() {
+    echo "🐳 Utilitários de Versão - $SYSTEM_NAME"
+    echo "======================================="
+    echo ""
+    echo "📋 Uso: $0 [comando]"
+    echo ""
+    echo "🔧 Comandos disponíveis:"
+    echo "  version        - Mostrar informações da versão"
+    echo "  changelog      - Mostrar changelog da versão atual"
+    echo "  history        - Mostrar histórico de versões"
+    echo "  compatibility  - Verificar compatibilidade"
+    echo "  update-check   - Verificar atualizações"
+    echo "  stats          - Mostrar estatísticas do sistema"
+    echo "  validate       - Validar configurações"
+    echo "  debug          - Mostrar informações de debug"
+    echo "  help           - Mostrar esta ajuda"
+    echo ""
+    echo "📝 Exemplos:"
+    echo "  $0 version"
+    echo "  $0 changelog"
+    echo "  $0 stats"
+}
+
+# Função principal
+main() {
+    local command="${1:-help}"
+    
+    case "$command" in
+        version)
+            show_version
+            ;;
+        changelog)
+            show_changelog
+            ;;
+        history)
+            show_version_history
+            ;;
+        compatibility)
+            check_compatibility
+            ;;
+        update-check)
+            check_for_updates
+            ;;
+        stats)
+            show_system_stats
+            ;;
+        validate)
+            validate_config
+            ;;
+        debug)
+            show_debug_info
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        *)
+            echo "❌ Comando desconhecido: $command"
+            echo "💡 Use: $0 help para ver comandos disponíveis"
+            exit 1
+            ;;
+    esac
+}
+
+# Executar função principal se o script for chamado diretamente
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

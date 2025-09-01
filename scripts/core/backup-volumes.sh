@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para fazer backup dos volumes Docker
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 set -e

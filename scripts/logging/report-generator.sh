@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Gerador de Relatórios HTML para Docker Backup
+# Gerador de Relatórios HTML para BlueAI Docker Ops
 # ============================================
-# Autor: Assistente IA
+# Autor: BlueAI Solutions
 # Data: $(date)
 
 # Carregar funções de logging
@@ -11,6 +11,15 @@ source "$SCRIPT_DIR/logging-functions.sh"
 
 # Configurações
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Carregar configuração de versão
+VERSION_CONFIG="$PROJECT_ROOT/config/version-config.sh"
+if [ -f "$VERSION_CONFIG" ]; then
+    source "$VERSION_CONFIG"
+else
+    echo "❌ Arquivo de configuração de versão não encontrado"
+    exit 1
+fi
 LOG_DIR="$PROJECT_ROOT/logs"
 REPORTS_DIR="$PROJECT_ROOT/reports"
 BACKUP_DIR="$PROJECT_ROOT/backups"
@@ -352,7 +361,7 @@ generate_header() {
 <body>
     <div class="container">
         <div class="header">
-            <h1>🐳 Docker Backup</h1>
+            <h1>🐳 $SYSTEM_NAME</h1>
             <div class="subtitle">$subtitle</div>
         </div>
         <div class="content">
@@ -361,10 +370,10 @@ EOF
 
 # Função para gerar rodapé HTML
 generate_footer() {
-    cat << 'EOF'
+    cat << EOF
         </div>
         <div class="footer">
-            <p>Relatório gerado automaticamente pelo Sistema de Backup Docker</p>
+            <p>Relatório gerado automaticamente pelo $SYSTEM_NAME</p>
             <p class="timestamp">Gerado em: $(date)</p>
         </div>
     </div>

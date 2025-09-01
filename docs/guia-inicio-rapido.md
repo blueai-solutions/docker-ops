@@ -1,6 +1,6 @@
-# 🚀 Guia de Início Rápido - Sistema de Backup Docker
+# 🚀 Guia de Início Rápido - BlueAI Docker Ops
 
-Este guia irá ajudá-lo a configurar e usar o sistema de backup e recuperação Docker em poucos minutos.
+Este guia irá ajudá-lo a configurar e usar o BlueAI Docker Ops em poucos minutos.
 
 ## 📋 Pré-requisitos
 
