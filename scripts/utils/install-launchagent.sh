@@ -373,8 +373,16 @@ update_config_file() {
     
     # Atualizar arquivo de configuração
     if [ -f "$config_file" ]; then
+        # Criar pasta de backups se não existir
+        local backup_dir="$PROJECT_ROOT/config/backups"
+        mkdir -p "$backup_dir"
+        
+        # Determinar nome do arquivo de backup
+        local backup_filename="version-config.sh.backup.$(date +%Y%m%d_%H%M%S)"
+        local backup_path="$backup_dir/$backup_filename"
+        
         # Fazer backup do arquivo original
-        cp "$config_file" "$config_file.backup.$(date +%Y%m%d_%H%M%S)"
+        cp "$config_file" "$backup_path"
         
         # Atualizar SCHEDULE_HOUR
         sed -i '' "s/^SCHEDULE_HOUR=.*/SCHEDULE_HOUR=$hour/" "$config_file"
@@ -386,7 +394,7 @@ update_config_file() {
         sed -i '' "s/^SCHEDULE_DESCRIPTION=.*/SCHEDULE_DESCRIPTION=\"$description\"/" "$config_file"
         
         log_info "Arquivo de configuração atualizado: $config_file"
-        log_info "Backup criado: $config_file.backup.$(date +%Y%m%d_%H%M%S)"
+        log_info "Backup criado: $backup_path"
     else
         log_warning "Arquivo de configuração não encontrado: $config_file"
     fi
