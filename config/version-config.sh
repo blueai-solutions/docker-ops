@@ -26,7 +26,7 @@ SUPPORTED_SHELLS=("bash" "zsh")
 
 # Configurações de atualização
 UPDATE_CHECK_ENABLED=true
-UPDATE_CHECK_URL="https://api.github.com/repos/user/docker-backup/releases/latest"
+UPDATE_CHECK_URL="https://api.github.com/repos/blueai-solutions/docker-ops/releases/latest"
 UPDATE_CHECK_INTERVAL=86400  # 24 horas
 
 # Configurações de compatibilidade

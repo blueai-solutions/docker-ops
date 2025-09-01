@@ -206,7 +206,7 @@ MACOS_NOTIFICATIONS_ENABLED=true
 
 # Email
 EMAIL_TO="usuario@exemplo.com"
-EMAIL_FROM="docker-backup@exemplo.com"
+EMAIL_FROM="docker-ops@blueaisolutions.com.br"
 EMAIL_SUBJECT_PREFIX="[Docker Backup]"
 
 # macOS

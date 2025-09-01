@@ -112,7 +112,7 @@ nano config/notification-config.sh
 # Configurações importantes:
 EMAIL_ENABLED=true
 EMAIL_TO="seu-email@gmail.com"
-EMAIL_FROM="docker-backup@seudominio.com"
+EMAIL_FROM="docker-ops@blueaisolutions.com.br"
 ```
 
 ### **"Notificação macOS não aparece"**

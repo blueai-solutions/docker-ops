@@ -22,7 +22,7 @@ EMAIL_ENABLED=true
 EMAIL_TO="xandergomes@gmail.com"  # ⚠️  ALTERE PARA SEU EMAIL!
 
 # Email de origem
-EMAIL_FROM="docker-backup@bluaisolutions.com.br"
+EMAIL_FROM="docker-ops@blueai-solutions.com"
 
 # Prefixo do assunto dos emails
 EMAIL_SUBJECT_PREFIX="[Docker Backup]"
