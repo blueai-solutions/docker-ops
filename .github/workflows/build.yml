@@ -108,92 +108,60 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "📋 Versão atual: $VERSION"
           
-      - name: 📋 Criar release notes
+      - name: 📋 Criar release notes do changelog
         run: |
-          echo "📋 Gerando release notes dinâmicos..."
+          echo "📋 Gerando release notes do changelog..."
           
           # Sourcing da configuração
           source config/version-config.sh
           
-          # Criar release notes dinâmicos
-          cat > RELEASE_NOTES.md << EOF
-          # 🚀 Release ${{ steps.version.outputs.version }}
+          VERSION="${{ steps.version.outputs.version }}"
+          CHANGELOG_FILE="docs/changelog/v${VERSION}.md"
           
-          ## 📋 Informações do Sistema
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "✅ Usando changelog existente: $CHANGELOG_FILE"
+            
+            # Cria release notes com cabeçalho do sistema
+            {
+              echo "# Release Notes - $SYSTEM_NAME v${VERSION}"
+              echo ""
+              echo "**$SYSTEM_NAME** - $SYSTEM_DESCRIPTION"
+              echo "**Autor:** $SYSTEM_AUTHOR"
+              echo "**Licença:** $SYSTEM_LICENSE"
+              echo ""
+              echo "---"
+              echo ""
+              # Remove o cabeçalho do changelog (primeira linha) e adiciona o conteúdo
+              tail -n +2 "$CHANGELOG_FILE"
+            } > RELEASE_NOTES.md
+            
+          else
+            echo "⚠️ Changelog não encontrado para v${VERSION}"
+            echo "📝 Gerando conteúdo padrão..."
+            
+            {
+              echo "# Release Notes - $SYSTEM_NAME v${VERSION}"
+              echo ""
+              echo "## Sobre"
+              echo "**$SYSTEM_NAME** - $SYSTEM_DESCRIPTION"
+              echo "**Autor:** $SYSTEM_AUTHOR"
+              echo "**Licença:** $SYSTEM_LICENSE"
+              echo ""
+              echo "## 📋 Informações da Release"
+              echo "Esta release foi criada automaticamente."
+              echo "Para detalhes completos das mudanças, consulte o [changelog completo](https://github.com/blueai-solutions/docker-ops/blob/main/docs/changelog/CHANGELOG.md)."
+              echo ""
+              echo "## 🚀 Funcionalidades Principais"
+              echo "- Sistema de backup automatizado para containers Docker"
+              echo "- Recuperação inteligente de volumes e dados"
+              echo "- Notificações por email e macOS"
+              echo "- Agendamento flexível de backups"
+              echo "- Interface de linha de comando intuitiva"
+            } > RELEASE_NOTES.md
+          fi
           
-          **Nome:** $SYSTEM_NAME  
-          **Versão:** ${{ steps.version.outputs.version }}  
-          **Autor:** $SYSTEM_AUTHOR  
-          **Licença:** $SYSTEM_LICENSE  
-          **Descrição:** $SYSTEM_DESCRIPTION
-          
-          ## ✨ Funcionalidades Principais
-          
-          ### 🔄 Sistema de Backup e Recuperação
-          - Backup dinâmico de containers Docker
-          - Recuperação automática com priorização
-          - Sistema de agendamento inteligente
-          
-          ### 🔧 Configuração e Instalação
-          - Instalação automática e manual
-          - Sistema de templates para configuração
-          - Configuração interativa e automática
-          
-          ### 📊 Monitoramento e Notificações
-          - Logs estruturados e relatórios HTML
-          - Notificações macOS e email
-          - Sistema de monitoramento em tempo real
-          
-          ## 🏗️ Arquitetura Organizada
-          
-          ### 📁 Estrutura de Scripts
-          - **Core:** Funcionalidades principais do sistema
-          - **Backup:** Sistema de backup dinâmico
-          - **Notifications:** Sistema de notificações
-          - **Logging:** Sistema de logs avançados
-          - **Utils:** Utilitários para usuários finais
-          - **Install:** Scripts de instalação
-          
-          ### 🔒 Segurança e Distribuição
-          - Templates limpos para distribuição
-          - Configurações locais preservadas
-          - Pacotes otimizados para usuários finais
-          
-          ## 🚀 Instalação
-          
-          ### ⚡ Instalação Automática
-          \`\`\`bash
-          curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
-          \`\`\`
-          
-          ### 🔧 Instalação Manual
-          \`\`\`bash
-          git clone https://github.com/blueai-solutions/docker-ops.git
-          cd docker-ops/backend
-          ./scripts/utils/config-setup.sh --interactive
-          \`\`\`
-          
-          ## 📚 Documentação
-          
-          - **📖 Guia de Início Rápido:** [docs/guia-inicio-rapido.md](docs/guia-inicio-rapido.md)
-          - **🔧 Comandos:** [docs/comandos.md](docs/comandos.md)
-          - **🏗️ Arquitetura:** [docs/arquitetura.md](docs/arquitetura.md)
-          - **🚀 LaunchAgent:** [docs/launchagent.md](docs/launchagent.md)
-          - **🆘 Solução de Problemas:** [docs/solucao-problemas.md](docs/solucao-problemas.md)
-          
-          ## 🆘 Suporte
-          
-          - **📧 Email:** docker-ops@blueaisolutions.com.br
-          - **🐛 Issues:** https://github.com/blueai-solutions/docker-ops/issues
-          - **📖 Documentação:** https://github.com/blueai-solutions/docker-ops/tree/main/docs
-          
-          ---
-          
-          **Desenvolvido com ❤️ pela $SYSTEM_AUTHOR**
-          EOF
-          
-          echo "✅ Release notes dinâmicos criados!"
-          echo "📋 Conteúdo baseado em: $SYSTEM_NAME v${{ steps.version.outputs.version }}"
+          echo "✅ Release notes criados!"
+          echo "📋 Conteúdo baseado em: $SYSTEM_NAME v${VERSION}"
           
       - name: 📤 Upload release notes
         uses: actions/upload-artifact@v4

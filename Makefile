@@ -62,6 +62,13 @@ help: ## Mostrar esta ajuda
 	@echo ""
 	@echo "Targets disponíveis:"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "Para ajuda específica:"
+	@echo "  make help-dev        - Ajuda para desenvolvimento"
+	@echo "  make help-config     - Ajuda para configuração"
+	@echo "  make help-launchagent - Ajuda para LaunchAgent"
+	@echo "  make help-release    - Ajuda para releases"
+	@echo "  make help-deploy     - Ajuda para deploy"
 
 # =============================================================================
 # DESENVOLVIMENTO
@@ -206,6 +213,241 @@ release-status: ## Verificar status do repositório
 	@./scripts/dev/release-manager.sh check-status
 
 # =============================================================================
+# RELEASES E DEPLOY
+# =============================================================================
+
+.PHONY: release-optimized
+release-optimized: ## Fluxo completo de release otimizado
+	$(call log_info,"🚀 INICIANDO RELEASE OTIMIZADO...")
+	@make release-validate
+	@make release-bump
+	@make release-notes
+	@make release-tag
+	@make release-push
+	@make deploy-prepare
+	@make deploy-package
+	$(call log_success,"🎉 RELEASE COMPLETO FINALIZADO!")
+
+.PHONY: release-validate
+release-validate: ## Validar release antes de publicar
+	$(call log_info,"🔍 Validando release...")
+	@echo "✅ Verificando sintaxe dos scripts..."
+	@make validate
+	@echo "✅ Verificando testes..."
+	@make test
+	@echo "✅ Verificando configurações..."
+	@make config-clean
+	@echo "✅ Verificando changelog..."
+	@if [ ! -f "docs/changelog/v$(PROJECT_VERSION).md" ]; then \
+		echo "⚠️  Changelog para v$(PROJECT_VERSION) não encontrado!"; \
+		echo "📝 Execute: make changelog-create"; \
+		exit 1; \
+	fi
+	$(call log_success,"✅ Release validado com sucesso!")
+
+.PHONY: release-notes
+release-notes: ## Gerar release notes do changelog
+	$(call log_info,"📋 Gerando release notes do changelog...")
+	@if [ -f "docs/changelog/v$(PROJECT_VERSION).md" ]; then \
+		echo "✅ Usando changelog: docs/changelog/v$(PROJECT_VERSION).md"; \
+		{ \
+			echo "# Release Notes - $(SYSTEM_NAME) v$(PROJECT_VERSION)"; \
+			echo ""; \
+			echo "**$(SYSTEM_NAME)** - $(SYSTEM_DESCRIPTION)"; \
+			echo "**Autor:** $(SYSTEM_AUTHOR)"; \
+			echo "**Licença:** $(SYSTEM_LICENSE)"; \
+			echo ""; \
+			echo "---"; \
+			echo ""; \
+			tail -n +2 "docs/changelog/v$(PROJECT_VERSION).md"; \
+		} > RELEASE_NOTES.md; \
+		echo "✅ Release notes criados: RELEASE_NOTES.md"; \
+	else \
+		echo "❌ Changelog não encontrado para v$(PROJECT_VERSION)"; \
+		echo "📝 Execute: make changelog-create"; \
+		exit 1; \
+	fi
+
+.PHONY: release-tag
+release-tag: ## Criar tag git para a versão
+	$(call log_info,"🏷️ Criando tag git v$(PROJECT_VERSION)...")
+	@git tag -a "v$(PROJECT_VERSION)" -m "Release v$(PROJECT_VERSION) - $(SYSTEM_NAME)" 2>/dev/null || \
+		git tag "v$(PROJECT_VERSION)" -m "Release v$(PROJECT_VERSION)"
+	$(call log_success,"🏷️ Tag v$(PROJECT_VERSION) criada!")
+
+.PHONY: release-push
+release-push: ## Push da tag para GitHub
+	$(call log_info,"🚀 Enviando tag para GitHub...")
+	@git push origin "v$(PROJECT_VERSION)"
+	$(call log_success,"🚀 Tag enviada para GitHub!")
+
+.PHONY: release-publish
+release-publish: ## Publicar release no GitHub (manual)
+	$(call log_info,"📤 Publicando release no GitHub...")
+	@echo "📋 Para publicar automaticamente:"
+	@echo "   1. Execute: make release-tag"
+	@echo "   2. Execute: make release-push"
+	@echo "   3. GitHub Actions executará automaticamente"
+	@echo ""
+	@echo "📋 Para publicar manualmente:"
+	@echo "   - Acesse: https://github.com/blueai-solutions/docker-ops/releases"
+	@echo "   - Clique em 'Draft a new release'"
+	@echo "   - Selecione a tag: v$(PROJECT_VERSION)"
+	@echo "   - Use o arquivo: RELEASE_NOTES.md"
+	@echo "   - Faça upload do arquivo: blueai-docker-ops-$(PROJECT_VERSION).tar.gz"
+
+# =============================================================================
+# DEPLOY E DISTRIBUIÇÃO
+# =============================================================================
+
+.PHONY: deploy-prepare
+deploy-prepare: ## Preparar pacote de distribuição
+	$(call log_info,"📦 Preparando pacote de distribuição...")
+	@echo "🧹 Limpando diretório dist..."
+	@rm -rf dist
+	@mkdir -p dist
+	@echo "📁 Copiando arquivos essenciais..."
+	@cp -r scripts/core/ dist/scripts/
+	@cp -r scripts/backup/ dist/scripts/
+	@cp -r scripts/notifications/ dist/scripts/
+	@cp -r scripts/logging/ dist/scripts/
+	@mkdir -p dist/scripts/utils
+	@cp scripts/utils/container-configurator.sh dist/scripts/utils/
+	@cp scripts/utils/recovery-configurator.sh dist/scripts/utils/
+	@cp scripts/utils/test-system.sh dist/scripts/utils/
+	@cp scripts/utils/config-setup.sh dist/scripts/utils/
+	@cp -r scripts/install/ dist/
+	@mkdir -p dist/config
+	@cp -r config/templates/ dist/config/
+	@cp docs/README.md dist/docs/
+	@cp docs/guia-inicio-rapido.md dist/docs/
+	@cp docs/comandos.md dist/docs/
+	@cp docs/arquitetura.md dist/docs/
+	@cp docs/solucao-problemas.md dist/docs/
+	@cp docs/launchagent.md dist/docs/
+	@cp docs/configuracao.md dist/docs/
+	@mkdir -p dist/docs/changelog
+	@cp docs/changelog/CHANGELOG.md dist/docs/changelog/ 2>/dev/null || true
+	@cp docs/changelog/v*.md dist/docs/changelog/ 2>/dev/null || true
+	@cp blueai-docker-ops.sh dist/
+	@cp VERSION dist/
+	@cp README.md dist/
+	@echo "✅ Pacote preparado em: dist/"
+
+.PHONY: deploy-package
+deploy-package: ## Criar arquivo compactado para distribuição
+	$(call log_info,"📦 Criando arquivo compactado...")
+	@if [ ! -d "dist" ]; then \
+		echo "❌ Diretório dist não encontrado!"; \
+		echo "📋 Execute: make deploy-prepare"; \
+		exit 1; \
+	fi
+	@cd dist && tar -czf "../blueai-docker-ops-$(PROJECT_VERSION).tar.gz" .
+	@echo "✅ Pacote criado: blueai-docker-ops-$(PROJECT_VERSION).tar.gz"
+	@echo "📊 Tamanho: $(shell du -h "blueai-docker-ops-$(PROJECT_VERSION).tar.gz" | cut -f1)"
+
+.PHONY: deploy-test
+deploy-test: ## Testar pacote de distribuição localmente
+	$(call log_info,"🧪 Testando pacote de distribuição...")
+	@if [ ! -f "blueai-docker-ops-$(PROJECT_VERSION).tar.gz" ]; then \
+		echo "❌ Pacote não encontrado!"; \
+		echo "📋 Execute: make deploy-package"; \
+		exit 1; \
+	fi
+	@echo "📁 Criando diretório de teste..."
+	@mkdir -p test-deploy
+	@cd test-deploy && tar -xzf "../blueai-docker-ops-$(PROJECT_VERSION).tar.gz"
+	@echo "✅ Pacote extraído em: test-deploy/"
+	@echo "📋 Estrutura do pacote:"
+	@find test-deploy/ -type f | head -20
+	@echo "🧪 Testando scripts principais..."
+	@cd test-deploy && ./blueai-docker-ops.sh --help > /dev/null && echo "✅ Script principal OK" || echo "❌ Script principal com problemas"
+	@echo "🧹 Limpando teste..."
+	@rm -rf test-deploy
+	$(call log_success,"✅ Teste do pacote concluído!")
+
+.PHONY: deploy-upload
+deploy-upload: ## Upload do pacote para GitHub releases
+	$(call log_info,"📤 Preparando upload para GitHub...")
+	@if [ ! -f "blueai-docker-ops-$(PROJECT_VERSION).tar.gz" ]; then \
+		echo "❌ Pacote não encontrado!"; \
+		echo "📋 Execute: make deploy-package"; \
+		exit 1; \
+	fi
+	@echo "📋 Para upload automático:"
+	@echo "   1. Execute: make release-tag"
+	@echo "   2. Execute: make release-push"
+	@echo "   3. GitHub Actions fará upload automático"
+	@echo ""
+	@echo "📋 Para upload manual:"
+	@echo "   - Acesse: https://github.com/blueai-solutions/docker-ops/releases"
+	@echo "   - Selecione a release: v$(PROJECT_VERSION)"
+	@echo "   - Faça upload do arquivo: blueai-docker-ops-$(PROJECT_VERSION).tar.gz"
+
+.PHONY: deploy-complete
+deploy-complete: ## Fluxo completo de deploy
+	$(call log_info,"🚀 INICIANDO DEPLOY COMPLETO...")
+	@make deploy-prepare
+	@make deploy-package
+	@make deploy-test
+	@make deploy-upload
+	$(call log_success,"🎉 DEPLOY COMPLETO FINALIZADO!")
+
+# =============================================================================
+# FERRAMENTAS DE RELEASE
+# =============================================================================
+
+.PHONY: release-info
+release-info: ## Informações sobre a release atual
+	$(call log_info,"📋 INFORMAÇÕES DA RELEASE:")
+	@echo "  🏷️  Versão: $(PROJECT_VERSION)"
+	@echo "  📁 Changelog: docs/changelog/v$(PROJECT_VERSION).md"
+	@if [ -f "docs/changelog/v$(PROJECT_VERSION).md" ]; then \
+		echo "  ✅ Changelog: Encontrado"; \
+		echo "  📊 Tamanho: $(shell wc -l < "docs/changelog/v$(PROJECT_VERSION).md") linhas"; \
+	else \
+		echo "  ❌ Changelog: Não encontrado"; \
+	fi
+	@if [ -f "RELEASE_NOTES.md" ]; then \
+		echo "  ✅ Release Notes: Encontrado"; \
+	else \
+		echo "  ❌ Release Notes: Não encontrado"; \
+	fi
+	@if [ -f "blueai-docker-ops-$(PROJECT_VERSION).tar.gz" ]; then \
+		echo "  ✅ Pacote: Encontrado"; \
+		echo "  📦 Tamanho: $(shell du -h "blueai-docker-ops-$(PROJECT_VERSION).tar.gz" | cut -f1)"; \
+	else \
+		echo "  ❌ Pacote: Não encontrado"; \
+	fi
+
+.PHONY: release-checklist
+release-checklist: ## Checklist para release
+	$(call log_info,"📋 CHECKLIST PARA RELEASE v$(PROJECT_VERSION):")
+	@echo ""
+	@echo "✅ PRÉ-RELEASE:"
+	@echo "  □ Testes executados (make test)"
+	@echo "  □ Validação de sintaxe (make validate)"
+	@echo "  □ Configurações limpas (make config-clean)"
+	@echo "  □ Changelog atualizado (docs/changelog/v$(PROJECT_VERSION).md)"
+	@echo "  □ Release notes gerados (make release-notes)"
+	@echo ""
+	@echo "🏷️  RELEASE:"
+	@echo "  □ Tag git criada (make release-tag)"
+	@echo "  □ Tag enviada para GitHub (make release-push)"
+	@echo "  □ GitHub Actions executando"
+	@echo ""
+	@echo "📦 DEPLOY:"
+	@echo "  □ Pacote preparado (make deploy-prepare)"
+	@echo "  □ Arquivo compactado (make deploy-package)"
+	@echo "  □ Pacote testado (make deploy-test)"
+	@echo "  □ Upload para GitHub releases"
+	@echo ""
+	@echo "🎯 PÓS-RELEASE:"
+	@echo "  □ Release publicada no GitHub"
+	@echo "  □ Documentação atualizada"
+	@echo "  □ Anúncio para usuários"
+
+# =============================================================================
 # LIMPEZA E MANUTENÇÃO
 # =============================================================================
 
@@ -337,6 +579,15 @@ help-launchagent: ## Ajuda para LaunchAgent
 	@echo "  make launchagent-test      - Testar"
 	@echo "  make launchagent-uninstall - Desinstalar"
 
+.PHONY: help-deploy
+help-deploy: ## Ajuda para deploy e distribuição
+	@echo "📦 COMANDOS DE DEPLOY:"
+	@echo "  make deploy-prepare        - Preparar pacote"
+	@echo "  make deploy-package        - Criar arquivo compactado"
+	@echo "  make deploy-test           - Testar pacote"
+	@echo "  make deploy-upload         - Upload para GitHub"
+	@echo "  make deploy-complete       - Fluxo completo"
+
 .PHONY: help-release
 help-release: ## Ajuda para releases
 	@echo "🏷️  COMANDOS DE RELEASE:"
@@ -344,6 +595,13 @@ help-release: ## Ajuda para releases
 	@echo "  make version-bump       - Incrementar versão"
 	@echo "  make release-status     - Ver status"
 	@echo "  make changelog-create   - Criar changelog"
+	@echo "  make release-optimized  - Fluxo completo otimizado"
+	@echo "  make release-validate   - Validar release"
+	@echo "  make release-notes      - Gerar release notes"
+	@echo "  make release-tag        - Criar tag git"
+	@echo "  make release-push       - Push da tag"
+	@echo "  make release-info       - Informações da release"
+	@echo "  make release-checklist  - Checklist para release"
 
 # =============================================================================
 # TARGETS ESPECIAIS
@@ -358,7 +616,7 @@ quick-start: dev-setup config-interactive launchagent-install ## Início rápido
 	$(call log_success,"Início rápido concluído!")
 
 .PHONY: deploy-prep
-deploy-prep: check-all package ## Preparar para deploy
+deploy-prep: check-all deploy-prepare deploy-package ## Preparar para deploy
 	$(call log_success,"Projeto preparado para deploy!")
 
 # =============================================================================
