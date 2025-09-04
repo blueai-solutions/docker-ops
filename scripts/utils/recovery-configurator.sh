@@ -71,8 +71,8 @@ detect_containers() {
             CONTAINER_NAMES+=("$name")
             CONTAINER_IMAGES+=("$image")
             
-            # Detectar volumes
-            local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{.Source}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            # Detectar volumes Docker válidos (não bind mounts)
+            local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Source}}{{"\n"}}{{end}}{{end}}' 2>/dev/null | grep -v '^$' | head -1)
             if [ -n "$volumes" ]; then
                 CONTAINER_VOLUMES+=("$volumes")
             else
@@ -80,7 +80,7 @@ detect_containers() {
             fi
             
             # Detectar portas
-            local ports=$(docker inspect "$name" --format '{{range $p, $conf := .NetworkSettings.Ports}}{{if $conf}}{{$p}} {{end}}{{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            local ports=$(docker inspect "$name" --format '{{range $p, $conf := .NetworkSettings.Ports}}{{if $conf}}{{$p}} {{end}}{{end}}' 2>/dev/null | xargs | head -1)
             if [ -n "$ports" ]; then
                 CONTAINER_PORTS+=("$ports")
             else
@@ -88,7 +88,7 @@ detect_containers() {
             fi
             
             # Detectar redes
-            local networks=$(docker inspect "$name" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            local networks=$(docker inspect "$name" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null | xargs | head -1)
             if [ -n "$networks" ]; then
                 CONTAINER_NETWORKS+=("$networks")
             else
@@ -96,7 +96,7 @@ detect_containers() {
             fi
             
             # Detectar variáveis de ambiente
-            local env_vars=$(docker inspect "$name" --format '{{range .Config.Env}}{{.}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -3 | tr '\n' ' ')
+            local env_vars=$(docker inspect "$name" --format '{{range .Config.Env}}{{.}} {{end}}' 2>/dev/null | xargs | head -3)
             if [ -n "$env_vars" ]; then
                 CONTAINER_ENV+=("$env_vars")
             else
@@ -117,7 +117,8 @@ load_current_config() {
         
         # Processar RECOVERY_TARGETS existente
         for target in "${RECOVERY_TARGETS[@]}"; do
-            local parts=($(echo "$target" | tr ':' '\n'))
+            # Usar readarray para preservar espaços nos nomes
+            IFS=':' read -ra parts <<< "$target"
             if [ ${#parts[@]} -eq 5 ]; then
                 local container="${parts[0]}"
                 local volume="${parts[1]}"
@@ -217,18 +218,28 @@ show_main_menu() {
             
             echo "[✓] $name ($image) - $priority_icon - ${timeout}s - $health_icon"
             if [ -n "$volume" ]; then
-                echo "    Volume: $volume"
+                echo "    📁 Volumes:"
+                echo "$volume" | while IFS= read -r vol; do
+                    if [ -n "$vol" ]; then
+                        echo "      • $vol"
+                    fi
+                done
             fi
             if [ -n "$ports" ]; then
-                echo "    Porta: $ports"
+                echo "    🔌 Porta: $ports"
             fi
         else
             echo "[ ] $name ($image)"
             if [ -n "$volume" ]; then
-                echo "    Volume: $volume"
+                echo "    📁 Volumes:"
+                echo "$volume" | while IFS= read -r vol; do
+                    if [ -n "$vol" ]; then
+                        echo "      • $vol"
+                    fi
+                done
             fi
             if [ -n "$ports" ]; then
-                echo "    Porta: $ports"
+                echo "    🔌 Porta: $ports"
             fi
         fi
         echo ""
@@ -719,7 +730,7 @@ save_configuration() {
 # CONFIGURAÇÃO DE RECUPERAÇÃO DINÂMICA - GERADA AUTOMATICAMENTE
 # =============================================================================
 # Data de geração: $(date)
-# Use: ./blueai-docker-ops.sh recovery config para modificar
+# Use: ./blueai-docker-ops.sh config para modificar
 
 # Diretório de backups
 BACKUP_DIR="$PROJECT_ROOT/backups"
@@ -745,6 +756,9 @@ EOF
         # Se não tem volume, usar nome do container
         if [ -z "$volume" ]; then
             volume="$name-data"
+        else
+            # Pegar apenas o primeiro volume (primeira linha)
+            volume=$(echo "$volume" | head -1)
         fi
         
         echo "    \"$name:$volume:$priority:$timeout:$health_check\"" >> "$RECOVERY_CONFIG"
@@ -834,7 +848,8 @@ validate_configuration() {
     
     # Validar formato de cada target
     for target in "${RECOVERY_TARGETS[@]}"; do
-        local parts=($(echo "$target" | tr ':' '\n'))
+        # Usar readarray para preservar espaços nos nomes
+        IFS=':' read -ra parts <<< "$target"
         
         if [ ${#parts[@]} -ne 5 ]; then
             log_error "VALIDATE" "Formato inválido: $target"
@@ -902,7 +917,7 @@ reset_configuration() {
 # CONFIGURAÇÃO DE RECUPERAÇÃO DINÂMICA - PADRÃO
 # =============================================================================
 # Data de reset: $(date)
-# Use: ./blueai-docker-ops.sh recovery config para configurar
+# Use: ./blueai-docker-ops.sh config para configurar
 
 # Diretório de backups
 BACKUP_DIR="$PROJECT_ROOT/backups"
