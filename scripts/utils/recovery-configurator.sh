@@ -18,6 +18,7 @@ source "$SCRIPT_DIR/../logging/logging-functions.sh"
 declare -a CONTAINERS=()
 declare -a CONTAINER_NAMES=()
 declare -a CONTAINER_IMAGES=()
+declare -a CONTAINER_STATUS=()
 declare -a CONTAINER_VOLUMES=()
 declare -a CONTAINER_PORTS=()
 declare -a CONTAINER_ENV=()
@@ -70,6 +71,13 @@ detect_containers() {
         if [ -n "$name" ]; then
             CONTAINER_NAMES+=("$name")
             CONTAINER_IMAGES+=("$image")
+            
+            # Determinar status
+            if [[ "$status" == *"Up"* ]]; then
+                CONTAINER_STATUS+=("running")
+            else
+                CONTAINER_STATUS+=("stopped")
+            fi
             
             # Detectar volumes Docker válidos (não bind mounts)
             local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Source}}{{"\n"}}{{end}}{{end}}' 2>/dev/null | grep -v '^$' | head -1)
@@ -287,12 +295,118 @@ toggle_container() {
     done
     
     echo ""
-    read -p "Escolha o número do container (0 para voltar): " choice
+    echo "🔧 OPÇÕES DE SELEÇÃO:"
+    echo "  • Digite um número para seleção individual"
+    echo "  • Digite números separados por vírgula (ex: 1,3,5)"
+    echo "  • Digite 'all' para selecionar todos"
+    echo "  • Digite 'running' para selecionar apenas os rodando"
+    echo "  • Digite '0' para voltar"
+    echo ""
+    read -p "Escolha sua opção: " choice
     
     if [ "$choice" = "0" ]; then
         return 0
     fi
     
+    # Seleção múltipla por vírgula
+    if [[ "$choice" == *,* ]]; then
+        local IFS=','
+        local -a choices=($choice)
+        local success_count=0
+        
+        for choice_item in "${choices[@]}"; do
+            choice_item=$(echo "$choice_item" | tr -d ' ')
+            if [[ "$choice_item" =~ ^[0-9]+$ ]] && [ "$choice_item" -ge 1 ] && [ "$choice_item" -le ${#CONTAINER_NAMES[@]} ]; then
+                local index=$((choice_item-1))
+                local name="${CONTAINER_NAMES[$index]}"
+                
+                # Adicionar à seleção (se não estiver já)
+                local found=false
+                for i in "${!SELECTED_CONTAINERS[@]}"; do
+                    if [ "${SELECTED_CONTAINERS[$i]}" = "$name" ]; then
+                        found=true
+                        break
+                    fi
+                done
+                
+                if [ "$found" = false ]; then
+                    SELECTED_CONTAINERS+=("$name")
+                    CONTAINER_PRIORITIES+=("2")
+                    CONTAINER_TIMEOUTS+=("30")
+                    CONTAINER_HEALTH_CHECKS+=("true")
+                    ((success_count++))
+                fi
+            fi
+        done
+        
+        if [ $success_count -gt 0 ]; then
+            echo "✅ $success_count container(s) adicionado(s) à seleção"
+        fi
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção de todos os containers
+    if [ "$choice" = "all" ]; then
+        local added_count=0
+        for i in "${!CONTAINER_NAMES[@]}"; do
+            local name="${CONTAINER_NAMES[$i]}"
+            local found=false
+            
+            for j in "${!SELECTED_CONTAINERS[@]}"; do
+                if [ "${SELECTED_CONTAINERS[$j]}" = "$name" ]; then
+                    found=true
+                    break
+                fi
+            done
+            
+            if [ "$found" = false ]; then
+                SELECTED_CONTAINERS+=("$name")
+                CONTAINER_PRIORITIES+=("2")
+                CONTAINER_TIMEOUTS+=("30")
+                CONTAINER_HEALTH_CHECKS+=("true")
+                ((added_count++))
+            fi
+        done
+        
+        echo "✅ Todos os containers adicionados à seleção ($added_count novos)"
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção apenas dos containers rodando
+    if [ "$choice" = "running" ]; then
+        local added_count=0
+        for i in "${!CONTAINER_NAMES[@]}"; do
+            local name="${CONTAINER_NAMES[$i]}"
+            local status="${CONTAINER_STATUS[$i]}"
+            
+            if [ "$status" = "running" ]; then
+                local found=false
+                
+                for j in "${!SELECTED_CONTAINERS[@]}"; do
+                    if [ "${SELECTED_CONTAINERS[$j]}" = "$name" ]; then
+                        found=true
+                        break
+                    fi
+                done
+                
+                if [ "$found" = false ]; then
+                    SELECTED_CONTAINERS+=("$name")
+                    CONTAINER_PRIORITIES+=("2")
+                    CONTAINER_TIMEOUTS+=("30")
+                    CONTAINER_HEALTH_CHECKS+=("true")
+                    ((added_count++))
+                fi
+            fi
+        done
+        
+        echo "✅ Containers rodando adicionados à seleção ($added_count novos)"
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção individual (código original)
     if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le ${#CONTAINER_NAMES[@]} ]; then
         local index=$((choice-1))
         local name="${CONTAINER_NAMES[$index]}"
