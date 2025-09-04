@@ -317,6 +317,34 @@ chmod 644 config/*.sh
 chmod +x blueai-docker-ops.sh
 ```
 
+### **Reset e Limpeza de Configurações**
+
+#### **Limpeza Seletiva (Segura)**
+```bash
+# Limpar apenas dados temporários
+./blueai-docker-ops.sh clean-data
+
+# O que é preservado:
+# - Configurações de containers
+# - Configurações de notificações
+# - Configurações de agendamento
+# - Estrutura do sistema
+```
+
+#### **Reset Completo (PERIGOSO!)**
+```bash
+# Reset completo de fábrica
+./blueai-docker-ops.sh factory-reset
+
+# ⚠️ ATENÇÃO: Apaga TUDO!
+# - Todas as configurações
+# - Todos os backups
+# - Todos os logs
+# - Todos os relatórios
+```
+
+**📚 Para detalhes completos, consulte [Reset e Limpeza](reset-e-limpeza.md)**
+
 ## 📚 Recursos Adicionais
 
 ### **Documentação Relacionada**

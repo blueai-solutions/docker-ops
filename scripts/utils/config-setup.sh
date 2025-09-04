@@ -150,6 +150,76 @@ setup_notification_config() {
     log_success "Arquivo de notificações configurado: $target"
 }
 
+# Função para configurar arquivo de backup
+setup_backup_config() {
+    local template="$TEMPLATES_DIR/backup-config.template.sh"
+    local target="$CONFIG_DIR/backup-config.sh"
+    
+    log_info "Configurando arquivo de backup..."
+    
+    if ! check_template "$template"; then
+        return 1
+    fi
+    
+    # Verificar se já existe configuração válida
+    if [ -f "$target" ]; then
+        # Tentar carregar a configuração existente
+        if source "$target" 2>/dev/null; then
+            # Verificar se é um template (contém comentários de exemplo) ou configuração real
+            if grep -q "Exemplo:" "$target" || grep -q "⚠️  CONFIGURE" "$target"; then
+                log_info "Arquivo de template encontrado, será substituído"
+            elif [ -n "$BACKUP_TARGETS" ] && [ ${#BACKUP_TARGETS[@]} -gt 0 ]; then
+                log_info "Configuração de backup existente encontrada com ${#BACKUP_TARGETS[@]} containers configurados"
+                log_info "Preservando configuração existente"
+                return 0
+            else
+                log_info "Configuração existente vazia, criando nova"
+            fi
+        fi
+    fi
+    
+    # Copiar template apenas se necessário
+    cp "$template" "$target"
+    
+    log_success "Arquivo de backup configurado: $target"
+    return 0
+}
+
+# Função para configurar arquivo de recovery
+setup_recovery_config() {
+    local template="$TEMPLATES_DIR/recovery-config.template.sh"
+    local target="$CONFIG_DIR/recovery-config.sh"
+    
+    log_info "Configurando arquivo de recovery..."
+    
+    if ! check_template "$template"; then
+        return 1
+    fi
+    
+    # Verificar se já existe configuração válida
+    if [ -f "$target" ]; then
+        # Tentar carregar a configuração existente
+        if source "$target" 2>/dev/null; then
+            # Verificar se é um template (contém comentários de exemplo) ou configuração real
+            if grep -q "Exemplo:" "$target" || grep -q "⚠️  CONFIGURE" "$target"; then
+                log_info "Arquivo de template encontrado, será substituído"
+            elif [ -n "$RECOVERY_TARGETS" ] && [ ${#RECOVERY_TARGETS[@]} -gt 0 ]; then
+                log_info "Configuração de recovery existente encontrada com ${#RECOVERY_TARGETS[@]} containers configurados"
+                log_info "Preservando configuração existente"
+                return 0
+            else
+                log_info "Configuração existente vazia, criando nova"
+            fi
+        fi
+    fi
+    
+    # Copiar template apenas se necessário
+    cp "$template" "$target"
+    
+    log_success "Arquivo de recovery configurado: $target"
+    return 0
+}
+
 # Função para configuração interativa
 interactive_setup() {
     log_info "Configuração interativa iniciada..."
@@ -302,7 +372,8 @@ main() {
         echo "🔧 CONFIGURAÇÃO AUTOMÁTICA - BlueAI Docker Ops"
         echo "=============================================="
         echo "Este script irá:"
-        echo "✅ Criar configurações limpas usando templates"
+        echo "✅ Preservar configurações existentes válidas"
+        echo "✅ Criar configurações apenas quando necessário"
         echo "✅ Fazer backup das configurações existentes"
         echo "✅ Configurar email e horário conforme especificado"
         echo "✅ Garantir que não haja informações locais"
@@ -356,10 +427,11 @@ main() {
     echo "🔧 PRÓXIMOS PASSOS:"
     echo "   1. Verificar configurações: cat config/*.sh"
     echo "   2. Testar sistema: ./blueai-docker-ops.sh --help"
-    echo "   3. Configurar containers: ./blueai-docker-ops.sh config containers"
-    echo "   4. Configurar recuperação: ./blueai-docker-ops.sh recovery config"
+    echo "   3. Configurar volumes: ./blueai-docker-ops.sh config"
+    echo "   4. Verificar volumes: ./blueai-docker-ops.sh volumes"
+    echo "   5. Verificar serviços: ./blueai-docker-ops.sh services"
     echo
-    echo "🎯 CONFIGURAÇÕES LIMPAS PARA DISTRIBUIÇÃO!"
+    echo "🎯 Configurações preservadas ou criadas conforme necessário!"
 }
 
 # Executar função principal

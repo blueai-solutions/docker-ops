@@ -20,6 +20,7 @@ Esta pasta contém toda a documentação técnica e de usuário do BlueAI Docker
 - [Configurações Avançadas](configuracao.md) - Personalizações avançadas
 - [Solução de Problemas](solucao-problemas.md) - Troubleshooting comum
 - [Monitoramento](monitoramento.md) - Como monitorar o sistema
+- [Reset e Limpeza](reset-e-limpeza.md) - Comandos perigosos de reset
 
 ### 🔧 **Desenvolvimento**
 - [Contribuindo](contribuindo.md) - Como contribuir para o projeto
@@ -41,7 +42,7 @@ Esta pasta contém toda a documentação técnica e de usuário do BlueAI Docker
 ## 📝 **Última Atualização**
 
 - **Data:** 2025-01-04
-- **Versão:** 2.3.1
+- **Versão:** 2.4.0
 - **Autor:** BlueAI Solutions
 
 ---

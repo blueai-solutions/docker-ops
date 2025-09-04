@@ -69,10 +69,16 @@ Retornar resultado
 - `config` - Configuração interativa
 - `schedule` - Configurar agendamento
 - `volumes` - Ver volumes configurados
+- `services` - Ver serviços configurados
 - `backup` - Executar backup
 - `recovery` - Executar recovery
 - `status` - Status geral do sistema
 - `test` - Testar sistema completo
+- `logs` - Ver logs do sistema
+- `report` - Gerar relatórios
+- `install` - Instalar sistema
+- `uninstall` - Desinstalar sistema
+- `advanced` - Comandos avançados
 
 ### **2. Sistema de Backup (scripts/backup/)**
 

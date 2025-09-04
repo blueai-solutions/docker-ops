@@ -2,7 +2,7 @@
 # CONFIGURAÇÃO DE BACKUP DINÂMICO - TEMPLATE
 # =============================================================================
 # Este é um template. Copie para config/backup-config.sh e configure conforme necessário.
-# Use: ./blueai-docker-ops.sh config containers para modificar
+# Use: ./blueai-docker-ops.sh config para modificar
 
 # Diretório de backup (configure conforme seu ambiente)
 BACKUP_DIR="./backups"
@@ -75,7 +75,7 @@ BACKUP_SECURITY_CHECK=true
 #    BACKUP_DIR="/caminho/para/seu/backup"
 
 # 3. Configure seus containers:
-#    - Use o comando: ./blueai-docker-ops.sh config containers
+#    - Use o comando: ./blueai-docker-ops.sh config
 #    - Ou edite manualmente o arquivo
 
 # 4. Para descobrir volumes Docker:

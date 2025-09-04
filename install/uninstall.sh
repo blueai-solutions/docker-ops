@@ -3,7 +3,7 @@
 # =============================================================================
 # BLUEAI DOCKER OPS - DESINSTALADOR
 # =============================================================================
-# Versão: 2.3.1
+# Versão: 2.4.0
 # Autor: BlueAI Solutions
 # Data: $(date +%Y-%m-%d)
 
@@ -276,7 +276,7 @@ case "${1:-}" in
         exit 0
         ;;
     --version|-v)
-        echo "BlueAI Docker Ops - Desinstalador v2.3.1"
+        echo "BlueAI Docker Ops - Desinstalador v2.4.0"
         exit 0
         ;;
     --force|-f)

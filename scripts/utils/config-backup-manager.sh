@@ -117,7 +117,7 @@ restore_backup() {
     
     if [ $? -eq 0 ]; then
         echo "✅ Configuração $config_type restaurada com sucesso!"
-        echo "💡 Use './blueai-docker-ops.sh config containers' para verificar"
+        echo "💡 Use './blueai-docker-ops.sh volumes' para verificar"
     else
         echo "❌ Erro ao restaurar configuração"
         return 1

@@ -47,8 +47,8 @@ make setup
 # Executar backup manual
 ./blueai-docker-ops.sh backup
 
-# Listar backups disponíveis
-./blueai-docker-ops.sh backup-list
+# Ver status do sistema
+./blueai-docker-ops.sh status
 
 # Ver logs do sistema
 ./blueai-docker-ops.sh logs
@@ -63,6 +63,7 @@ make setup
 ./blueai-docker-ops.sh config           # Configuração interativa
 ./blueai-docker-ops.sh schedule         # Configurar agendamento
 ./blueai-docker-ops.sh volumes          # Ver volumes configurados
+./blueai-docker-ops.sh services         # Ver serviços configurados
 ./blueai-docker-ops.sh backup           # Executar backup
 ./blueai-docker-ops.sh recovery         # Executar recovery
 ./blueai-docker-ops.sh status           # Status geral do sistema
@@ -72,8 +73,6 @@ make setup
 ### **📦 Comandos de Backup**
 ```bash
 ./blueai-docker-ops.sh backup           # Executar backup
-./blueai-docker-ops.sh backup-list     # Listar backups
-./blueai-docker-ops.sh backup-restore  # Restaurar backup
 ```
 
 ### **📊 Monitoramento**

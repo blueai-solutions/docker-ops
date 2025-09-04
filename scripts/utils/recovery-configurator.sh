@@ -862,17 +862,35 @@ EOF
     # Adicionar containers configurados
     for i in "${!SELECTED_CONTAINERS[@]}"; do
         local name="${SELECTED_CONTAINERS[$i]}"
-        local volume="${CONTAINER_VOLUMES[$i]}"
+        
+        # Encontrar o índice correto nos arrays de detecção
+        local detect_index=0
+        for j in "${!CONTAINER_NAMES[@]}"; do
+            if [ "${CONTAINER_NAMES[$j]}" = "$name" ]; then
+                detect_index=$j
+                break
+            fi
+        done
+        
+        local volume="${CONTAINER_VOLUMES[$detect_index]}"
         local priority="${CONTAINER_PRIORITIES[$i]}"
         local timeout="${CONTAINER_TIMEOUTS[$i]}"
         local health_check="${CONTAINER_HEALTH_CHECKS[$i]}"
         
-        # Se não tem volume, usar nome do container
-        if [ -z "$volume" ]; then
-            volume="$name-data"
+        # Validar e corrigir volume
+        if [ -n "$volume" ] && [ -d "$volume" ] && [ -r "$volume" ]; then
+            # Volume detectado é válido, usar
+            volume="$volume"
         else
-            # Pegar apenas o primeiro volume (primeira linha)
-            volume=$(echo "$volume" | head -1)
+            # Tentar verificar se existe volume Docker com nome padrão
+            if docker volume ls --format "{{.Name}}" | grep -q "^${name}-data$"; then
+                volume="${name}-data"
+            elif docker volume ls --format "{{.Name}}" | grep -q "^${name}_data$"; then
+                volume="${name}_data"
+            else
+                # Se não encontrar, usar nome simples
+                volume="${name}-data"
+            fi
         fi
         
         echo "    \"$name:$volume:$priority:$timeout:$health_check\"" >> "$RECOVERY_CONFIG"
@@ -914,11 +932,48 @@ EOF
     # Adicionar redes para todos os containers
     for i in "${!SELECTED_CONTAINERS[@]}"; do
         local name="${SELECTED_CONTAINERS[$i]}"
-        local network="${CONTAINER_NETWORKS[$i]}"
+        
+        # Encontrar o índice correto nos arrays de detecção
+        local detect_index=0
+        for j in "${!CONTAINER_NAMES[@]}"; do
+            if [ "${CONTAINER_NAMES[$j]}" = "$name" ]; then
+                detect_index=$j
+                break
+            fi
+        done
+        
+        local network="${CONTAINER_NETWORKS[$detect_index]}"
         if [ -z "$network" ]; then
             network="bridge"
         fi
         echo "    \"$name:$network\"" >> "$RECOVERY_CONFIG"
+    done
+    
+    cat >> "$RECOVERY_CONFIG" << EOF
+)
+
+# Configurações de porta por container
+RECOVERY_PORTS=(
+EOF
+    
+    # Adicionar portas para todos os containers
+    for i in "${!SELECTED_CONTAINERS[@]}"; do
+        local name="${SELECTED_CONTAINERS[$i]}"
+        
+        # Encontrar o índice correto nos arrays de detecção
+        local detect_index=0
+        for j in "${!CONTAINER_NAMES[@]}"; do
+            if [ "${CONTAINER_NAMES[$j]}" = "$name" ]; then
+                detect_index=$j
+                break
+            fi
+        done
+        
+        local ports="${CONTAINER_PORTS[$detect_index]}"
+        if [ -z "$ports" ]; then
+            ports="N/A"
+        fi
+        echo "    \"$name:$ports\"" >> "$RECOVERY_CONFIG"
     done
     
     cat >> "$RECOVERY_CONFIG" << EOF

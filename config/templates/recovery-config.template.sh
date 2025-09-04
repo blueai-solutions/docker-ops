@@ -2,7 +2,7 @@
 # CONFIGURAÇÃO DE RECUPERAÇÃO DINÂMICA - TEMPLATE
 # =============================================================================
 # Este é um template. Copie para config/recovery-config.sh e configure conforme necessário.
-# Use: ./blueai-docker-ops.sh recovery config para modificar
+# Use: ./blueai-docker-ops.sh config para modificar
 
 # Diretório de backups (configure conforme seu ambiente)
 BACKUP_DIR="./backups"
@@ -66,7 +66,7 @@ RECOVERY_CLEANUP_OLD_CONTAINERS=false
 #    BACKUP_DIR="/caminho/para/seu/backup"
 
 # 3. Configure seus containers:
-#    - Use o comando: ./blueai-docker-ops.sh recovery config
+#    - Use o comando: ./blueai-docker-ops.sh config
 #    - Ou edite manualmente o arquivo
 
 # 4. Para descobrir redes Docker:

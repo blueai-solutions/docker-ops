@@ -4,7 +4,7 @@
 # Este é um template. Copie para config/version-config.sh e configure conforme necessário.
 
 # Versão principal da aplicação
-APP_VERSION="2.3.1"
+APP_VERSION="2.4.0"
 
 # Informações de build (preenchidas automaticamente)
 BUILD_DATE="$(date +%Y-%m-%d)"

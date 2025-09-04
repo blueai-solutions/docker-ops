@@ -4,12 +4,14 @@ Histórico completo de todas as versões e mudanças do sistema.
 
 ## 🚀 Versões Disponíveis
 
-### [v2.4.0](v2.4.0.md) - **4 de Janeiro de 2025** - 🎯 **SIMPLIFICAÇÃO EXTREMA**
+### [v2.4.0](v2.4.0.md) - **4 de Janeiro de 2025** - 🎯 **SIMPLIFICAÇÃO EXTREMA** ✅ **IMPLEMENTADA**
 - **Sistema redesenhado** para ser simples e intuitivo
 - **Apenas 8 comandos essenciais** para operação diária
 - **Setup em uma linha** com `make setup`
 - **Interface unificada** e consistente
 - **Comandos avançados** para funcionalidades extras
+- **Comandos de reset** (`factory-reset`, `clean-data`)
+- **Menu avançado** completamente funcional
 
 ### [v2.3.1](v2.3.1.md) - **29 de Agosto de 2025** - 🔧 **Limpeza e Organização**
 - **Limpeza de código legado** e funcionalidades depreciadas
@@ -55,10 +57,11 @@ Histórico completo de todas as versões e mudanças do sistema.
 
 ## 📊 Resumo das Mudanças
 
-### 🎯 **Versão 2.4.0 (Atual)**
+### 🎯 **Versão 2.4.0 (Atual)** ✅ **IMPLEMENTADA**
 - **Foco:** Simplificação extrema e usabilidade
-- **Principais mudanças:** Interface redesenhada, comandos simplificados
+- **Principais mudanças:** Interface redesenhada, comandos simplificados, comandos avançados funcionais
 - **Impacto:** Redução de 70% na complexidade, melhoria de 80% na usabilidade
+- **Status:** Sistema completamente funcional com todas as funcionalidades implementadas
 
 ### 🔧 **Versões 2.3.x**
 - **Foco:** Limpeza de código e organização

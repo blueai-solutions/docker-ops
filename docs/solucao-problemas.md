@@ -219,7 +219,7 @@ which osascript
 #### **Soluções:**
 ```bash
 # 1. Listar backups disponíveis
-./blueai-docker-ops.sh backup-list
+./blueai-docker-ops.sh status
 
 # 2. Verificar diretório de backups
 ls -la backups/
@@ -441,6 +441,48 @@ cp -r config config.backup.$(date +%Y%m%d_%H%M%S)
 
 # 3. Se não funcionar, reconfigurar tudo
 ./blueai-docker-ops.sh setup
+```
+
+### **"Sistema completamente corrompido"**
+
+#### **Sintomas:**
+- Nenhum comando funciona
+- Configurações irreparáveis
+- Problemas de permissão graves
+
+#### **Soluções:**
+```bash
+# 1. Fazer backup manual de configurações importantes
+cp -r config config-backup-$(date +%Y%m%d_%H%M%S)/
+
+# 2. Reset completo de fábrica (PERIGOSO!)
+./blueai-docker-ops.sh factory-reset
+
+# 3. Reconfigurar sistema do zero
+./blueai-docker-ops.sh setup
+
+# 4. Configurar containers e agendamento
+./blueai-docker-ops.sh config
+./blueai-docker-ops.sh schedule
+```
+
+### **"Problemas de performance ou espaço em disco"**
+
+#### **Sintomas:**
+- Sistema lento
+- Pouco espaço em disco
+- Logs muito grandes
+
+#### **Soluções:**
+```bash
+# 1. Limpeza seletiva de dados
+./blueai-docker-ops.sh clean-data
+
+# 2. Verificar espaço liberado
+df -h
+
+# 3. Verificar status do sistema
+./blueai-docker-ops.sh status
 ```
 
 ## 📚 Recursos de Ajuda

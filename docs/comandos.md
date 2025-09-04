@@ -29,11 +29,27 @@ O script principal que unifica todas as funcionalidades do sistema.
 # Ver volumes configurados
 ./blueai-docker-ops.sh volumes
 
+# Ver serviços configurados
+./blueai-docker-ops.sh services
+
 # Status geral do sistema
 ./blueai-docker-ops.sh status
 
 # Testar sistema completo
 ./blueai-docker-ops.sh test
+```
+
+### **Monitoramento e Gestão**
+
+```bash
+# Ver logs do sistema
+./blueai-docker-ops.sh logs
+
+# Gerar relatórios
+./blueai-docker-ops.sh report
+
+# Comandos avançados
+./blueai-docker-ops.sh advanced
 ```
 
 ### **Instalação e Gestão**
@@ -53,12 +69,6 @@ O script principal que unifica todas as funcionalidades do sistema.
 ```bash
 # Executar backup
 ./blueai-docker-ops.sh backup
-
-# Listar backups disponíveis
-./blueai-docker-ops.sh backup-list
-
-# Restaurar backup específico
-./blueai-docker-ops.sh backup-restore [ARQUIVO]
 ```
 
 ### **Exemplos de Uso**
@@ -67,11 +77,8 @@ O script principal que unifica todas as funcionalidades do sistema.
 # Fazer backup manual
 ./blueai-docker-ops.sh backup
 
-# Ver backups disponíveis
-./blueai-docker-ops.sh backup-list
-
-# Restaurar backup específico
-./blueai-docker-ops.sh backup-restore backup_20250104_120000.tar.gz
+# Ver status do backup
+./blueai-docker-ops.sh status
 ```
 
 ## 🔄 Comandos de Recovery
@@ -162,8 +169,6 @@ stats                 # Estatísticas do sistema
 
 ### **🔄 Backup e Recovery**
 - `backup` - Executar backup
-- `backup-list` - Listar backups
-- `backup-restore` - Restaurar backup
 - `recovery` - Executar recovery
 
 ### **⚙️ Configuração**
@@ -251,6 +256,77 @@ stats                 # Estatísticas do sistema
 # 2. Verificar se foi criado
 ./blueai-docker-ops.sh backup-list
 ```
+
+## 🔧 Comandos Avançados
+
+### **Acesso ao Menu Avançado**
+
+```bash
+# Ver todos os comandos avançados
+./blueai-docker-ops.sh advanced
+```
+
+### **Categorias de Comandos Avançados**
+
+#### **📋 Backup Avançado**
+```bash
+backup run      # Executar backup completo
+backup validate # Validar configuração
+backup test     # Testar backup
+```
+
+#### **📊 Logs Avançados**
+```bash
+logs --last-24h     # Logs das últimas 24 horas
+logs --errors       # Apenas erros
+logs --performance  # Análise de performance
+logs --search TEXT  # Buscar nos logs
+```
+
+#### **📈 Relatórios Avançados**
+```bash
+report html     # Gerar relatório HTML
+report text     # Gerar relatório de texto
+report export   # Exportar dados
+```
+
+#### **🔄 Recovery Avançado**
+```bash
+config                # Configurar volumes e serviços
+recovery validate     # Validar configuração
+recovery start        # Iniciar recuperação
+recovery stop         # Parar recuperação
+```
+
+#### **🚀 Automação**
+```bash
+automation install     # Instalar LaunchAgent
+automation status      # Verificar status
+automation test        # Testar automação
+```
+
+#### **📊 Desenvolvimento**
+```bash
+version               # Informações da versão
+changelog             # Changelog
+compatibility         # Verificar compatibilidade
+stats                 # Estatísticas do sistema
+```
+
+#### **🚨 Reset e Limpeza (PERIGOSO!)**
+```bash
+factory-reset         # Reset completo de fábrica (APAGA TUDO!)
+clean-data            # Limpar dados (backups, logs, relatórios)
+```
+
+### **⚠️ Comandos Perigosos**
+
+Os comandos de reset são **extremamente perigosos** e devem ser usados com muito cuidado:
+
+- **`factory-reset`** - Apaga TODAS as configurações, backups, logs e dados
+- **`clean-data`** - Apaga apenas dados temporários, preservando configurações
+
+**Sempre faça backup antes de usar estes comandos!**
 
 ## 📚 Ajuda e Suporte
 

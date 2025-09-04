@@ -1,6 +1,6 @@
 # 🐳 BlueAI Docker Ops - Sistema de Backup e Recuperação Docker
 
-[![Version](https://img.shields.io/badge/version-2.3.1-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://www.docker.com/)
 [![macOS](https://img.shields.io/badge/macOS-10.15+-lightgrey.svg)](https://www.apple.com/macos/)
@@ -89,6 +89,7 @@ chmod +x scripts/**/*.sh
 ./blueai-docker-ops.sh config           # Configuração interativa
 ./blueai-docker-ops.sh schedule         # Configurar agendamento
 ./blueai-docker-ops.sh volumes          # Ver volumes configurados
+./blueai-docker-ops.sh services         # Ver serviços configurados
 ```
 
 ### **📦 Backup e Recovery**
@@ -97,7 +98,20 @@ chmod +x scripts/**/*.sh
 ./blueai-docker-ops.sh recovery         # Executar recovery
 ```
 
-### **📊 Monitoramento**
+### **📊 Monitoramento e Gestão**
+```bash
+./blueai-docker-ops.sh status           # Status geral do sistema
+./blueai-docker-ops.sh test             # Testar sistema completo
+./blueai-docker-ops.sh logs             # Ver logs do sistema
+./blueai-docker-ops.sh report           # Gerar relatórios
+```
+
+### **🔧 Instalação e Gestão**
+```bash
+./blueai-docker-ops.sh install          # Instalar sistema
+./blueai-docker-ops.sh uninstall        # Desinstalar sistema
+./blueai-docker-ops.sh advanced         # Comandos avançados
+```
 ```bash
 ./blueai-docker-ops.sh status           # Status geral do sistema
 ./blueai-docker-ops.sh logs             # Ver logs do sistema
