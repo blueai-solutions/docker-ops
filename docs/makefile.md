@@ -2,7 +2,21 @@
 
 ## 📋 Visão Geral
 
-O Makefile do BlueAI Docker Ops automatiza todas as operações de desenvolvimento, teste, configuração e deploy, proporcionando uma experiência de desenvolvimento profissional e eficiente.
+O Makefile do BlueAI Docker Ops automatiza operações de desenvolvimento, teste e deploy, proporcionando uma experiência de desenvolvimento profissional e eficiente. **Para usuários finais, use o script principal `blueai-docker-ops.sh`**.
+
+## 🎯 **Separação de Responsabilidades**
+
+### **👨‍💻 Para Desenvolvedores (Makefile)**
+- **Desenvolvimento** e testes
+- **Build** e validação
+- **Release** e deploy
+- **Manutenção** do código
+
+### **👤 Para Usuários Finais (blueai-docker-ops.sh)**
+- **Setup** e configuração
+- **Operação** diária
+- **Backup** e recovery
+- **Monitoramento** do sistema
 
 ## 🚀 **Comandos Principais**
 
@@ -22,22 +36,12 @@ make check             # Verificação completa (validate + test)
 make check-all         # Verificação com configurações limpas
 ```
 
-### **🔧 Configuração**
+### **🔧 Configuração (Alias para Script Principal)**
 ```bash
-make config-clean      # Limpar configurações usando templates
-make config-interactive # Configuração interativa
-make config-email      # Configurar email
-make config-schedule   # Configurar horário
-make backup-configs    # Backup das configurações atuais
-```
-
-### **🚀 LaunchAgent**
-```bash
-make launchagent-install   # Instalar LaunchAgent
-make launchagent-status    # Verificar status
-make launchagent-schedule  # Configurar horário
-make launchagent-test      # Testar funcionamento
-make launchagent-uninstall # Desinstalar
+make setup             # Alias para ./blueai-docker-ops.sh setup
+make config            # Alias para ./blueai-docker-ops.sh config
+make schedule          # Alias para ./blueai-docker-ops.sh schedule
+make status            # Alias para ./blueai-docker-ops.sh status
 ```
 
 ### **🏷️ Releases e Desenvolvimento**
@@ -89,220 +93,203 @@ make emergency-clean   # Limpeza de emergência (CUIDADO!)
 
 ### **🔧 Configuração Rápida**
 ```bash
-# Configurar email
-make config-email EMAIL=admin@empresa.com
+# Configuração completa em uma linha
+make setup
 
-# Configurar horário do backup
-make config-schedule HOUR=2 MIN=30
-
-# Configuração interativa completa
-make config-interactive
+# O sistema irá solicitar:
+# 1. Email para notificações
+# 2. Horário para backup automático
+# 3. Confirmar configurações
 ```
 
-### **🏷️ Gerenciamento de Versões**
+### **🛠️ Desenvolvimento**
 ```bash
-# Incrementar versão minor
-make version-bump TYPE=minor
-
-# Criar release específica
-make release-create VERSION=2.4.0
-
-# Verificar status
-make release-status
-```
-
-### **🚀 Configuração Completa**
-```bash
-# Configuração completa do projeto
-make all
-
-# Início rápido para desenvolvimento
-make quick-start
-
-# Preparar para deploy
-make deploy-prep
-```
-
-## 🏗️ **Estrutura do Makefile**
-
-### **📁 Seções Organizadas:**
-```
-1. DESENVOLVIMENTO      - Setup, testes, validação
-2. CONFIGURAÇÃO         - Templates, configurações limpas
-3. LAUNCHAGENT         - Instalação e gerenciamento
-4. DESENVOLVIMENTO     - Releases, changelog, versões
-5. LIMPEZA             - Manutenção e limpeza
-6. INSTALAÇÃO          - Instalação local e distribuição
-7. VERIFICAÇÃO         - Validação e testes
-8. AJUDA               - Comandos de ajuda específicos
-9. TARGETS ESPECIAIS   - Comandos compostos
-10. INFORMAÇÕES        - Status e informações do projeto
-11. EMERGÊNCIA         - Comandos de emergência
-```
-
-### **🎨 Recursos Visuais:**
-- **Cores** para diferentes tipos de mensagens
-- **Emojis** para identificação visual
-- **Logs estruturados** com timestamps
-- **Validação de parâmetros** com mensagens claras
-
-## 🔧 **Funcionalidades Avançadas**
-
-### **✅ Validação Automática:**
-- Verificação de sintaxe de todos os scripts
-- Validação de parâmetros obrigatórios
-- Verificação de dependências
-- Testes automáticos do sistema
-
-### **🔄 Configuração Inteligente:**
-- Uso automático de templates
-- Backup automático de configurações existentes
-- Validação de parâmetros de entrada
-- Configuração interativa e automática
-
-### **📦 Empacotamento Inteligente:**
-- Exclusão automática de arquivos de desenvolvimento
-- Exclusão de configurações locais
-- Inclusão apenas de templates limpos
-- Criação de pacotes otimizados para usuários
-
-### **🚀 Automação Completa:**
-- Setup automático do ambiente
-- Configuração automática de todos os componentes
-- Testes automáticos de funcionalidade
-- Preparação automática para deploy
-
-## 🆘 **Troubleshooting**
-
-### **❌ Problemas Comuns:**
-
-#### **1. Comando não encontrado**
-```bash
-# Verificar se make está instalado
-which make
-
-# Verificar se está no diretório correto
-pwd
-ls -la Makefile
-```
-
-#### **2. Permissões negadas**
-```bash
-# Verificar permissões
-ls -la scripts/**/*.sh
-
-# Corrigir permissões
-make dev-setup
-```
-
-#### **3. Configuração falhou**
-```bash
-# Verificar templates
-ls -la config/templates/
-
-# Fazer backup e limpar
-make backup-configs
-make config-clean
-```
-
-#### **4. Testes falharam**
-```bash
-# Verificar sintaxe primeiro
-make validate
-
-# Executar testes específicos
-make test-notifications
-```
-
-### **🔍 Debug e Logs:**
-```bash
-# Ver status completo
-make status
-
-# Ver informações do projeto
-make info
-
-# Verificar configurações
-make help-config
-```
-
-## 📚 **Integração com Outras Ferramentas**
-
-### **🔗 GitHub Actions:**
-- O Makefile complementa os workflows do GitHub
-- Comandos `make deploy-prep` preparam para CI/CD
-- Validação local antes do push
-
-### **🐳 Docker:**
-- Comandos de configuração funcionam com containers
-- Templates são compatíveis com ambientes Docker
-- Validação de configurações Docker
-
-### **📝 Scripts:**
-- Todos os comandos do Makefile usam scripts existentes
-- Integração perfeita com a arquitetura atual
-- Extensibilidade para novos comandos
-
-## 🚀 **Fluxo de Trabalho Recomendado**
-
-### **👨‍💻 Para Desenvolvedores:**
-```bash
-# 1. Setup inicial
+# Setup de desenvolvimento
 make dev-setup
 
-# 2. Desenvolvimento
-# ... trabalhar no código ...
-
-# 3. Validação
-make check
-
-# 4. Testes
+# Executar testes
 make test
 
-# 5. Preparar para commit
+# Validação completa
 make check-all
 ```
 
-### **🏷️ Para Releases:**
+### **📦 Release e Deploy**
 ```bash
-# 1. Verificar status
-make release-status
+# Criar nova versão
+make version-bump
 
-# 2. Incrementar versão
-make version-bump TYPE=minor
+# Criar release
+make release-create
 
-# 3. Criar changelog
-make changelog-create
-
-# 4. Criar release
-make release-create VERSION=2.4.0
-
-# 5. Preparar deploy
+# Preparar deploy
 make deploy-prep
 ```
 
-### **🔧 Para Configuração:**
+## 🔧 **Comandos de Sistema (Alias)**
+
+### **Setup e Configuração**
 ```bash
-# 1. Backup das configurações atuais
-make backup-configs
+make setup             # Configuração inicial completa
+make config            # Configuração interativa
+make schedule          # Configurar agendamento
+make status            # Status geral do sistema
+```
 
-# 2. Configuração limpa
-make config-clean
+**Estes comandos são aliases para o script principal:**
+- `make setup` → `./blueai-docker-ops.sh setup`
+- `make config` → `./blueai-docker-ops.sh config`
+- `make schedule` → `./blueai-docker-ops.sh schedule`
+- `make status` → `./blueai-docker-ops.sh status`
 
-# 3. Configuração personalizada
-make config-email EMAIL=admin@empresa.com
-make config-schedule HOUR=2 MIN=30
+## 🚀 **Fluxo de Desenvolvimento**
 
-# 4. Testar configuração
+### **1. Setup de Desenvolvimento**
+```bash
+# Configurar ambiente
+make dev-setup
+
+# Verificar status
+make status
+```
+
+### **2. Desenvolvimento**
+```bash
+# Fazer alterações no código
+# ...
+
+# Validar sintaxe
+make validate
+
+# Executar testes
 make test
 ```
 
-## 📖 **Referências**
+### **3. Release**
+```bash
+# Incrementar versão
+make version-bump
 
-- **Documentação Make:** https://www.gnu.org/software/make/
-- **Sintaxe Makefile:** https://makefiletutorial.com/
-- **Boas Práticas:** https://clarkgrubb.com/makefile-style-guide
+# Criar changelog
+make changelog-create
+
+# Criar release
+make release-create
+```
+
+### **4. Deploy**
+```bash
+# Preparar pacote
+make deploy-prep
+
+# Criar distribuição
+make package
+```
+
+## 📊 **Comandos por Categoria**
+
+### **🔄 Sistema (Alias)**
+- `setup` - Configuração inicial
+- `config` - Configuração interativa
+- `schedule` - Configurar agendamento
+- `status` - Status geral
+
+### **🛠️ Desenvolvimento**
+- `dev-setup` - Setup de desenvolvimento
+- `test` - Executar testes
+- `validate` - Validar sintaxe
+- `check` - Verificação completa
+
+### **🏷️ Release**
+- `version-bump` - Incrementar versão
+- `changelog-create` - Criar changelog
+- `release-create` - Criar release
+- `release-status` - Status do repositório
+
+### **📦 Deploy**
+- `package` - Criar pacote
+- `deploy-prep` - Preparar deploy
+- `deploy-test` - Testar pacote
+
+### **🧹 Manutenção**
+- `clean` - Limpeza geral
+- `clean-configs` - Limpar configurações
+- `backup-configs` - Backup de configurações
+
+## 🎯 **Quando Usar Cada Ferramenta**
+
+### **Use `make` para:**
+- ✅ **Desenvolvimento** e testes
+- ✅ **Build** e validação
+- ✅ **Release** e deploy
+- ✅ **Manutenção** do código
+- ✅ **Setup** de desenvolvimento
+
+### **Use `./blueai-docker-ops.sh` para:**
+- ✅ **Setup** inicial do sistema
+- ✅ **Configuração** interativa
+- ✅ **Operação** diária
+- ✅ **Backup** e recovery
+- ✅ **Monitoramento** do sistema
+
+## 📚 **Documentação Relacionada**
+
+### **Para Desenvolvedores**
+- **Este documento** - Comandos do Makefile
+- **Arquitetura** - [arquitetura.md](arquitetura.md)
+- **Solução de Problemas** - [solucao-problemas.md](solucao-problemas.md)
+
+### **Para Usuários Finais**
+- **Guia de Início Rápido** - [guia-inicio-rapido.md](guia-inicio-rapido.md)
+- **Comandos Detalhados** - [comandos.md](comandos.md)
+- **Configuração** - [configuracao.md](configuracao.md)
+
+## 🚨 **Solução de Problemas**
+
+### **Comandos Não Encontrados**
+```bash
+# Ver todos os comandos disponíveis
+make help
+
+# Ver comandos específicos
+make help-dev          # Comandos de desenvolvimento
+make help-system       # Comandos de sistema (alias)
+```
+
+### **Permissões Negadas**
+```bash
+# Verificar permissões
+ls -la Makefile
+
+# Corrigir permissões se necessário
+chmod 644 Makefile
+```
+
+### **Dependências Não Encontradas**
+```bash
+# Verificar se está no diretório correto
+pwd
+# Deve mostrar: .../blueai-docker-ops/backend
+
+# Verificar se arquivos existem
+ls -la blueai-docker-ops.sh
+ls -la Makefile
+```
+
+## 🔮 **Funcionalidades Futuras**
+
+### **Planejado para v2.5.0**
+- **Interface web** para desenvolvimento
+- **CI/CD integrado** com GitHub Actions
+- **Testes automatizados** mais avançados
+- **Deploy automático** para múltiplos ambientes
+
+### **Roadmap de Longo Prazo**
+- **Integração** com IDEs populares
+- **Plugins** para extensibilidade
+- **Machine learning** para otimização
+- **Colaboração** em tempo real
 
 ---
 
-**Desenvolvido com ❤️ pela BlueAI Solutions**
+**🛠️ Makefile para desenvolvimento, blueai-docker-ops.sh para usuários finais!**

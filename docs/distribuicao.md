@@ -2,7 +2,7 @@
 
 ## 📋 Visão Geral
 
-Este documento descreve como distribuir o BlueAI Docker Ops via GitHub, incluindo o sistema de CI/CD, releases automáticos e gerenciamento de versões.
+Este documento descreve como distribuir o BlueAI Docker Ops simplificado via GitHub, incluindo o sistema de CI/CD, releases automáticos e gerenciamento de versões.
 
 ## 🏗️ Arquitetura de Distribuição
 
@@ -29,9 +29,10 @@ Este documento descreve como distribuir o BlueAI Docker Ops via GitHub, incluind
 
 ### **📦 Pacote de Release (Usuários Finais)**
 **Conteúdo incluído:**
+- ✅ **Script principal simplificado** (`blueai-docker-ops.sh`)
 - ✅ Scripts de **uso** do sistema (backup, recuperação, notificações)
 - ✅ Scripts de **configuração** e **testes**
-- ✅ **Configurações** do sistema
+- ✅ **Templates de configuração** limpos
 - ✅ **Documentação de uso** (guias, comandos, solução de problemas)
 - ✅ Scripts de **instalação**
 - ✅ **Changelog** (apenas histórico para usuários)
@@ -43,6 +44,7 @@ Este documento descreve como distribuir o BlueAI Docker Ops via GitHub, incluind
 - **Documentação técnica** de desenvolvimento
 - **Workflows** do GitHub Actions
 - **Templates** de issues e PRs
+- **Makefile** (apenas para desenvolvimento)
 
 ### **👨‍💻 Repositório (Desenvolvedores)**
 **Conteúdo completo:**
@@ -51,6 +53,7 @@ Este documento descreve como distribuir o BlueAI Docker Ops via GitHub, incluind
 - Templates e configurações de desenvolvimento
 - Documentação técnica completa
 - Scripts de gerenciamento de releases
+- **Makefile** com todos os comandos
 
 ## 🔧 Workflows Implementados
 
@@ -77,7 +80,7 @@ Este documento descreve como distribuir o BlueAI Docker Ops via GitHub, incluind
 
 **Funcionalidades:**
 - 🏷️ Criação automática de releases
-- 📋 Geração de release notes
+- 📋 Geração de release notes baseados em changelog
 - 📤 Upload de assets
 - 🔗 Links de instalação
 
@@ -87,8 +90,8 @@ Este documento descreve como distribuir o BlueAI Docker Ops via GitHub, incluind
 git tag v2.4.0
 git push origin v2.4.0
 
-# Ou usar o script de release (apenas no repositório)
-./scripts/utils/release-manager.sh create-release 2.4.0
+# Ou usar o comando make (apenas no repositório)
+make release-create VERSION=2.4.0
 ```
 
 ### **3. Deploy e Distribuição (`deploy.yml`)**
@@ -98,270 +101,223 @@ git push origin v2.4.0
 **Funcionalidades:**
 - 📦 Preparação de arquivos **otimizada para usuários**
 - 🗜️ Compactação automática
-- 📤 Upload para releases
-- 📊 Relatórios de distribuição
-- 🎯 **Filtragem inteligente** de conteúdo
+- 🧹 Exclusão de arquivos de desenvolvimento
+- 📚 Inclusão apenas de documentação de uso
+- 🔧 Templates limpos sem dados locais
 
-## 🏷️ Gerenciamento de Versões
+## 📦 **Estrutura do Pacote de Distribuição**
 
-### **Script de Release Manager (Apenas Repositório)**
+### **Arquivos Incluídos**
+
+```
+blueai-docker-ops-2.4.0/
+├── 🐳 blueai-docker-ops.sh              # Script principal simplificado
+├── 📁 config/                            # Configurações limpas
+│   └── 📁 templates/                     # Templates para configuração
+│       ├── backup-config.template.sh     # Template de backup
+│       ├── recovery-config.template.sh   # Template de recovery
+│       ├── notification-config.template.sh # Template de notificações
+│       └── version-config.template.sh    # Template de versão
+├── 📁 scripts/                           # Scripts organizados
+│   ├── 📁 core/                          # Scripts principais
+│   ├── 📁 backup/                        # Sistema de backup
+│   ├── 📁 notifications/                 # Sistema de notificações
+│   ├── 📁 logging/                       # Sistema de logs
+│   ├── 📁 utils/                         # Utilitários para usuários
+│   └── 📁 install/                       # Scripts de instalação
+├── 📁 install/                            # Scripts de instalação do sistema
+├── 📁 docs/                               # Documentação de uso
+│   ├── README.md                          # Documentação principal
+│   ├── guia-inicio-rapido.md             # Guia de início rápido
+│   ├── comandos.md                        # Comandos disponíveis
+│   ├── arquitetura.md                     # Arquitetura do sistema
+│   ├── configuracao.md                    # Configuração
+│   ├── solucao-problemas.md               # Solução de problemas
+│   ├── launchagent.md                     # Sistema de agendamento
+│   └── 📁 changelog/                      # Histórico de versões
+├── 📄 README.md                           # README principal
+└── 📄 VERSION                             # Versão atual
+```
+
+### **Arquivos Excluídos**
+
+```
+❌ Makefile                               # Apenas para desenvolvimento
+❌ .github/                               # Workflows do GitHub
+❌ scripts/dev/                           # Scripts de desenvolvimento
+❌ config/*.sh                            # Arquivos de configuração local
+❌ config/backups/                        # Backups de configuração local
+❌ logs/                                  # Logs locais
+❌ reports/                               # Relatórios locais
+❌ backups/                               # Backups de volumes locais
+❌ .git/                                  # Repositório Git
+❌ .DS_Store                              # Arquivos do macOS
+```
+
+## 🚀 **Processo de Distribuição**
+
+### **1. Preparação para Release**
 
 ```bash
-# Localizar no repositório (NÃO no pacote de release)
-./scripts/utils/release-manager.sh
-
-# Comandos disponíveis
-./scripts/utils/release-manager.sh help
-./scripts/utils/release-manager.sh create-release 2.4.0
-./scripts/utils/release-manager.sh bump-version minor
-./scripts/utils/release-manager.sh list-releases
-./scripts/utils/release-manager.sh show-current
-./scripts/utils/release-manager.sh check-status
+# No repositório de desenvolvimento
+make version-bump TYPE=minor              # Incrementar versão
+make changelog-create                     # Criar changelog
+make release-create                       # Criar release
 ```
 
-**⚠️ IMPORTANTE:** Este script está disponível **apenas no repositório** para desenvolvedores, **NÃO no pacote de release** para usuários finais.
-
-### **Tipos de Versionamento**
-
-- **Major** (2.3.1 → 3.0.0): Mudanças incompatíveis
-- **Minor** (2.3.1 → 2.4.0): Novas funcionalidades
-- **Patch** (2.3.1 → 2.3.2): Correções de bugs
-
-### **Arquivo VERSION**
-
-```
-# Conteúdo do arquivo VERSION
-2.3.1
-```
-
-## 📦 Processo de Release
-
-### **1. Preparação (Desenvolvedores)**
+### **2. Criação de Tag**
 
 ```bash
-# Verificar status
-./scripts/utils/release-manager.sh check-status
+# Criar tag com nova versão
+git tag v2.4.0
+git push origin v2.4.0
 
-# Incrementar versão
-./scripts/utils/release-manager.sh bump-version minor
-
-# Ou criar versão específica
-./scripts/utils/release-manager.sh create-release 2.4.0
+# GitHub Actions executará automaticamente:
+# 1. Validação e testes
+# 2. Criação de release
+# 3. Geração de release notes
+# 4. Preparação de pacote de distribuição
 ```
 
-### **2. Validação Automática**
-
-GitHub Actions executa automaticamente:
-- ✅ Sintaxe bash
-- ✅ Testes do sistema
-- ✅ Verificação de permissões
-- ✅ Relatório de qualidade
-
-### **3. Criação da Release**
-
-- 🏷️ Tag criada automaticamente
-- 📋 Release notes gerados
-- 📦 Assets preparados **otimizados para usuários**
-- 🚀 Release publicado
-
-### **4. Distribuição**
-
-- 📥 Download disponível
-- 🔗 URLs de instalação ativas
-- 📚 Documentação de uso atualizada
-- 📊 Métricas disponíveis
-
-## 🔗 URLs de Distribuição
-
-### **Instalação Automática**
+### **3. Distribuição Automática**
 
 ```bash
-# Versão mais recente
-curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
-
-# Versão específica
-curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/releases/download/v2.4.0/install.sh | bash
+# GitHub Actions criará:
+# 1. Release no GitHub com changelog
+# 2. Pacote compactado (.tar.gz)
+# 3. Assets para download
+# 4. Links de instalação
 ```
 
-### **Download Manual**
+## 📋 **Release Notes Automáticos**
+
+### **Baseados em Changelog**
+
+O sistema gera automaticamente release notes baseados nos arquivos de changelog:
 
 ```bash
-# GitHub Releases
-https://github.com/blueai-solutions/docker-ops/releases
+# docs/changelog/v2.4.0.md
+# Será usado para gerar release notes da versão 2.4.0
 
-# Arquivo compactado
-https://github.com/blueai-solutions/docker-ops/releases/download/v2.4.0/blueai-docker-ops-2.4.0.tar.gz
+# Se arquivo não existir, sistema gera conteúdo padrão
 ```
 
-### **Documentação**
+### **Estrutura dos Release Notes**
 
-```bash
-# README principal
-https://github.com/blueai-solutions/docker-ops
+```markdown
+# Release Notes - BlueAI Docker Ops v2.4.0
 
-# Documentação completa
-https://github.com/blueai-solutions/docker-ops/tree/main/docs
+**BlueAI Docker Ops** - Sistema de backup e recuperação Docker
+**Autor:** BlueAI Solutions
+**Licença:** MIT
 
-# Guia de instalação
-https://github.com/blueai-solutions/docker-ops/tree/main/install
+---
+
+[Conteúdo do changelog v2.4.0.md]
 ```
 
-## 🧪 Testes e Validação
+## 🔧 **Configuração para Distribuição**
 
-### **Testes Automáticos**
-
-- **Sintaxe Bash:** Validação de todos os scripts
-- **Permissões:** Verificação de executabilidade
-- **Funcionalidade:** Testes básicos do sistema
-- **Integridade:** Verificação de arquivos
-
-### **Testes Manuais**
+### **Templates Limpos**
 
 ```bash
-# Testar script de release (APENAS no repositório)
-./scripts/utils/release-manager.sh --help
-
-# Verificar versão atual
-./scripts/utils/release-manager.sh show-current
-
-# Listar releases
-./scripts/utils/release-manager.sh list-releases
+# config/templates/ contém apenas:
+├── backup-config.template.sh         # Sem dados locais
+├── recovery-config.template.sh       # Sem dados locais
+├── notification-config.template.sh   # Sem dados locais
+└── version-config.template.sh        # Sem dados locais
 ```
 
-## 📊 Monitoramento e Métricas
+### **Configuração Automática**
 
-### **GitHub Insights**
-
-- 📈 Estatísticas de downloads
-- 👥 Contribuições da comunidade
-- 🐛 Issues e pull requests
-- 📊 Análise de código
-
-### **Métricas de Release**
-
-- 📦 Downloads por versão
-- 🔗 Cliques em links de instalação
-- 📊 Tempo de resposta
-- 🎯 Taxa de sucesso
-
-## 🚀 Próximos Passos
-
-### **Melhorias Planejadas**
-
-- [ ] **Docker Hub:** Imagens Docker oficiais
-- [ ] **Homebrew:** Formula para macOS
-- [ ] **Snap:** Pacote para Linux
-- [ ] **Chocolatey:** Pacote para Windows
-- [ ] **CI/CD Avançado:** Testes em múltiplas plataformas
-- [ ] **Automated Testing:** Testes de integração
-- [ ] **Security Scanning:** Análise de segurança
-- [ ] **Performance Testing:** Benchmarks automáticos
-
-### **Integrações**
-
-- [ ] **GitHub Packages:** Registro de pacotes
-- [ ] **Dependabot:** Atualizações automáticas
-- [ ] **CodeQL:** Análise de código
-- [ ] **SonarCloud:** Qualidade de código
-
-## 🆘 Suporte e Troubleshooting
-
-### **Problemas Comuns**
-
-#### **1. Release não criada automaticamente**
-
-**Sintomas:**
-- Tag criada mas release não aparece
-- Workflow falha
-
-**Soluções:**
 ```bash
-# Verificar permissões do token
+# Usuários finais executam:
+make setup
+
+# Sistema cria configurações usando templates
+# Sem dados específicos do ambiente
+```
+
+## 📊 **Métricas de Distribuição**
+
+### **Tamanho do Pacote**
+
+- **Versão 2.4.0:** ~2.5 MB (compactado)
+- **Conteúdo:** Apenas arquivos essenciais
+- **Exclusões:** Desenvolvimento, logs, backups locais
+
+### **Arquivos Incluídos**
+
+- **Scripts:** 15 arquivos principais
+- **Configurações:** 4 templates limpos
+- **Documentação:** 8 documentos de uso
+- **Instalação:** 2 scripts de instalação
+
+## 🚨 **Solução de Problemas**
+
+### **Release Não Criado**
+
+```bash
+# Verificar se tag foi criada
+git tag -l
+
+# Verificar se tag foi enviada
+git push origin --tags
+
+# Verificar GitHub Actions
+# Actions > Workflows > release.yml
+```
+
+### **Pacote Não Gerado**
+
+```bash
+# Verificar workflow deploy.yml
+# Actions > Workflows > deploy.yml
+
+# Verificar se release foi publicado
+# Releases > v2.4.0
+```
+
+### **Assets Não Disponíveis**
+
+```bash
+# Verificar se pacote foi criado
+# Releases > v2.4.0 > Assets
+
 # Verificar logs do workflow
-# Executar workflow manualmente
+# Actions > Workflows > deploy.yml > Runs
 ```
 
-#### **2. Assets não carregados**
+## 📚 **Documentação de Distribuição**
 
-**Sintomas:**
-- Release criada sem arquivos
-- Links de download quebrados
+### **Para Desenvolvedores**
 
-**Soluções:**
-```bash
-# Verificar tamanho dos arquivos
-# Verificar permissões de upload
-# Re-executar workflow de deploy
-```
+- **Este documento** - Guia de distribuição
+- **Makefile** - [makefile.md](makefile.md)
+- **Arquitetura** - [arquitetura.md](arquitetura.md)
 
-#### **3. Validação falha**
+### **Para Usuários Finais**
 
-**Sintomas:**
-- Build quebra
-- Testes falham
+- **Instalação** - [guia-inicio-rapido.md](guia-inicio-rapido.md)
+- **Comandos** - [comandos.md](comandos.md)
+- **Configuração** - [configuracao.md](configuracao.md)
 
-**Soluções:**
-```bash
-# Verificar sintaxe bash
-# Executar testes localmente
-# Verificar permissões
-```
+## 🔮 **Funcionalidades Futuras**
 
-### **Logs e Debugging**
+### **Planejado para v2.5.0**
 
-```bash
-# Ver logs do workflow
-# GitHub Actions > Workflows > [Workflow] > [Run] > Jobs
+- **Distribuição via Homebrew** para macOS
+- **Instalador universal** para diferentes sistemas
+- **Atualizações automáticas** para usuários
+- **Métricas de uso** anônimas
 
-# Executar localmente (APENAS no repositório)
-./scripts/utils/release-manager.sh check-status
+### **Roadmap de Longo Prazo**
 
-# Verificar arquivos
-ls -la .github/workflows/
-cat .github/workflows/build.yml
-```
-
-## 📚 Recursos Adicionais
-
-### **Documentação GitHub**
-
-- [GitHub Actions](https://docs.github.com/en/actions)
-- [Releases](https://docs.github.com/en/repositories/releasing-projects-on-github)
-- [Workflows](https://docs.github.com/en/actions/using-workflows)
-
-### **Ferramentas Úteis**
-
-- [GitHub CLI](https://cli.github.com/)
-- [GitHub Desktop](https://desktop.github.com/)
-- [GitHub Extensions](https://github.com/marketplace)
-
-### **Comunidade**
-
-- [GitHub Community](https://github.community/)
-- [GitHub Discussions](https://docs.github.com/en/discussions)
-- [GitHub Support](https://support.github.com/)
+- **Distribuição via Snap** para Linux
+- **Distribuição via Chocolatey** para Windows
+- **Repositórios de terceiros** (AUR, etc.)
+- **CDN global** para downloads rápidos
 
 ---
 
-## 🎯 **Resumo da Separação**
-
-### **📦 Para Usuários Finais (Pacote de Release):**
-- Sistema completo para **uso** e **operação**
-- Documentação de **uso** e **suporte**
-- Scripts de **instalação** e **configuração**
-
-### **👨‍💻 Para Desenvolvedores (Repositório):**
-- Sistema completo para **desenvolvimento**
-- Scripts de **release management**
-- Workflows de **CI/CD**
-- Documentação **técnica**
-
-**Esta separação garante que usuários finais recebam apenas o necessário para usar o sistema, enquanto desenvolvedores tenham acesso completo a todas as ferramentas de desenvolvimento.**
-
----
-
-**Desenvolvido com ❤️ pela BlueAI Solutions**
-
-**📧 Suporte:** docker-ops@blueaisolutions.com.br  
-**🐛 Issues:** https://github.com/blueai-solutions/docker-ops/issues  
-**📖 Documentação:** https://github.com/blueai-solutions/docker-ops/tree/main/docs
+**🚀 Sistema de distribuição otimizado para máxima usabilidade!**

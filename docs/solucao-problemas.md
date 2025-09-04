@@ -1,19 +1,77 @@
 # 🆘 Solução de Problemas
 
-Guia completo para resolver problemas comuns do BlueAI Docker Ops.
+Guia completo para resolver problemas comuns do BlueAI Docker Ops simplificado.
 
 ## 🔍 Diagnóstico Rápido
 
 ### **Verificar Status Geral**
 ```bash
 # Teste completo do sistema
-./scripts/utils/test-system.sh
+./blueai-docker-ops.sh test
 
-# Verificar status dos containers
+# Verificar status geral
 ./blueai-docker-ops.sh status
 
-# Verificar logs recentes
-./blueai-docker-ops.sh logs --recent
+# Ver logs do sistema
+./blueai-docker-ops.sh logs
+```
+
+### **Comandos de Diagnóstico**
+```bash
+# Ver volumes configurados
+./blueai-docker-ops.sh volumes
+
+# Ver comandos avançados disponíveis
+./blueai-docker-ops.sh advanced
+```
+
+## 🚀 Problemas de Configuração
+
+### **"Setup não funcionou corretamente"**
+
+#### **Sintomas:**
+- Erro durante `make setup`
+- Configuração incompleta
+- Comandos não funcionam
+
+#### **Soluções:**
+```bash
+# 1. Verificar se está no diretório correto
+pwd
+# Deve mostrar: .../blueai-docker-ops/backend
+
+# 2. Verificar permissões
+ls -la blueai-docker-ops.sh
+# Deve mostrar: -rwxr-xr-x
+
+# 3. Executar setup novamente
+./blueai-docker-ops.sh setup
+
+# 4. Se ainda houver problemas, verificar logs
+./blueai-docker-ops.sh logs
+```
+
+#### **Prevenção:**
+- Sempre execute `make setup` do diretório raiz
+- Verifique se Docker está rodando antes do setup
+- Certifique-se de ter permissões adequadas
+
+### **"Configuração pede horário duas vezes"**
+
+#### **Sintomas:**
+- Durante setup, sistema pede horário do backup duas vezes
+- Configuração duplicada
+
+#### **Soluções:**
+```bash
+# 1. Verificar se é a primeira execução
+# Se sim, use apenas: make setup
+
+# 2. Se já configurado, use apenas:
+./blueai-docker-ops.sh schedule
+
+# 3. Para reconfigurar tudo:
+./blueai-docker-ops.sh config
 ```
 
 ## 🐳 Problemas com Docker
@@ -93,29 +151,19 @@ docker-compose up -d
 # 1. Verificar configuração de email
 cat config/notification-config.sh | grep EMAIL
 
-# 2. Testar envio de email
-./blueai-docker-ops.sh config test
+# 2. Testar notificações
+./blueai-docker-ops.sh advanced
 
 # 3. Verificar se cliente de email está instalado
 which mail
-which sendmail
-
-# 4. Se não estiver instalado, instalar
-# macOS: Já vem com mail/sendmail
 ```
 
-#### **Configuração de Email:**
-```bash
-# Editar configuração
-nano config/notification-config.sh
+#### **Prevenção:**
+- Configure email durante setup inicial
+- Teste notificações após configuração
+- Verifique configurações de firewall
 
-# Configurações importantes:
-EMAIL_ENABLED=true
-EMAIL_TO="seu-email@gmail.com"
-EMAIL_FROM="docker-ops@blueaisolutions.com.br"
-```
-
-### **"Notificação macOS não aparece"**
+### **"Notificações macOS não funcionam"**
 
 #### **Sintomas:**
 - Notificações não aparecem no macOS
@@ -123,392 +171,329 @@ EMAIL_FROM="docker-ops@blueaisolutions.com.br"
 
 #### **Soluções:**
 ```bash
-# 1. Verificar se notificações estão habilitadas
-cat config/notification-config.sh | grep MACOS
+# 1. Verificar permissões de notificação
+# Sistema > Preferências > Notificações > BlueAI Docker Ops
 
-# 2. Testar notificação manual
-osascript -e 'display notification "Teste" with title "Docker Backup"'
+# 2. Testar notificações
+./blueai-docker-ops.sh advanced
 
-# 3. Verificar configurações do macOS
-# Sistema > Notificações > Docker Backup
+# 3. Verificar se osascript está disponível
+which osascript
 ```
 
-#### **Configuração:**
-```bash
-# Habilitar notificações macOS
-MACOS_NOTIFICATIONS_ENABLED=true
-NOTIFICATION_TITLE="Docker Backup"
-```
+## 🔄 Problemas com Backup
 
-## 🚀 Problemas com LaunchAgent e Agendamento
-
-### **"LaunchAgent não executa backup automático"**
+### **"Backup falha"**
 
 #### **Sintomas:**
-- Backup não executa no horário agendado
-- LaunchAgent não aparece na lista
-- Inconsistência entre horário configurado e executado
+- Erro durante execução de backup
+- Backup não é criado
+- Mensagens de erro no log
 
 #### **Soluções:**
 ```bash
-# 1. Verificar status do LaunchAgent
-./scripts/utils/install-launchagent.sh status
+# 1. Verificar status do sistema
+./blueai-docker-ops.sh status
 
-# 2. Verificar logs do LaunchAgent
-./scripts/utils/install-launchagent.sh logs
+# 2. Ver logs de erro
+./blueai-docker-ops.sh logs
 
-# 3. Testar funcionamento (execução em 60s)
-./scripts/utils/install-launchagent.sh test-launchagent
+# 3. Verificar volumes configurados
+./blueai-docker-ops.sh volumes
 
-# 4. Reinstalar LaunchAgent
-./scripts/utils/install-launchagent.sh uninstall
-./scripts/utils/install-launchagent.sh install
-
-# 5. Verificar sincronização de configurações
-cat config/version-config.sh | grep SCHEDULE
-cat ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist | grep -A 5 "StartCalendarInterval"
-```
-
-### **"Horário do backup não é alterado"**
-
-#### **Sintomas:**
-- Comando `schedule` não altera horário
-- Inconsistência entre arquivo de config e LaunchAgent
-- Arquivo .plist não é atualizado
-
-#### **Soluções:**
-```bash
-# 1. Alterar horário via comando
-./scripts/utils/install-launchagent.sh schedule
-
-# 2. Verificar se arquivo de config foi atualizado
-cat config/version-config.sh | grep SCHEDULE
-
-# 3. Verificar se arquivo .plist foi atualizado
-cat ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist | grep -A 5 "StartCalendarInterval"
-
-# 4. Se houver inconsistência, reinstalar
-./scripts/utils/install-launchagent.sh uninstall
-./scripts/utils/install-launchagent.sh install
-```
-
-### **"LaunchAgent não carrega"**
-
-#### **Sintomas:**
-- Erro: "Could not find specified service"
-- LaunchAgent não aparece em `launchctl list`
-- Arquivo .plist corrompido
-
-#### **Soluções:**
-```bash
-# 1. Verificar arquivo do LaunchAgent
-cat ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist
-
-# 2. Verificar permissões
-ls -la ~/Library/LaunchAgents/
-
-# 3. Recarregar LaunchAgent
-launchctl unload ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist
-launchctl load ~/Library/LaunchAgents/com.user.blueai.dockerbackup.plist
-
-# 4. Se persistir, reinstalar completamente
-./scripts/utils/install-launchagent.sh uninstall
-./scripts/utils/install-launchagent.sh install
-```
-
-## 💾 Problemas com Backup
-
-### **"Backup falha por espaço insuficiente"**
-
-#### **Sintomas:**
-- Erro: "No space left on device"
-- Backup interrompido
-
-#### **Soluções:**
-```bash
-# 1. Verificar espaço em disco
-df -h
-
-# 2. Limpar backups antigos
-./blueai-docker-ops.sh cleanup --backups
-
-# 3. Limpar logs antigos
-./scripts/logging/log-analyzer.sh --cleanup --days 7
-
-# 4. Verificar tamanho dos backups
-ls -lh backups/
-```
-
-### **"Backup corrompido"**
-
-#### **Sintomas:**
-- Erro: "tar: Unexpected EOF"
-- Arquivo de backup com tamanho 0
-- Falha na verificação de integridade
-
-#### **Soluções:**
-```bash
-# 1. Verificar integridade dos backups
-./blueai-docker-ops.sh backup list
-
-# 2. Remover backup corrompido
-rm backups/[arquivo_corrompido].tar.gz
-
-# 3. Executar novo backup
+# 4. Testar backup manualmente
 ./blueai-docker-ops.sh backup
-
-# 4. Verificar logs para identificar causa
-./blueai-docker-ops.sh logs --errors --recent
 ```
 
-### **"Backup muito lento"**
+#### **Prevenção:**
+- Execute `./blueai-docker-ops.sh test` regularmente
+- Monitore logs do sistema
+- Verifique espaço em disco
+
+### **"Backup não encontrado"**
 
 #### **Sintomas:**
-- Backup demora muito tempo
-- Sistema fica lento durante backup
+- Backup não aparece na lista
+- Erro ao restaurar backup
 
 #### **Soluções:**
 ```bash
-# 1. Verificar performance
-./blueai-docker-ops.sh logs --performance
+# 1. Listar backups disponíveis
+./blueai-docker-ops.sh backup-list
 
-# 2. Verificar uso de CPU/Disco
-top
-iostat 1
+# 2. Verificar diretório de backups
+ls -la backups/
 
-# 3. Otimizar horário do backup
-./scripts/utils/install-launchagent.sh schedule
-
-# 4. Considerar backup incremental
-# (funcionalidade futura)
+# 3. Verificar permissões
+ls -la backups/*.tar.gz
 ```
 
-## 📝 Problemas com Logs
+## 🔄 Problemas com Recovery
+
+### **"Recovery falha"**
+
+#### **Sintomas:**
+- Erro durante execução de recovery
+- Containers não são recuperados
+- Mensagens de erro no log
+
+#### **Soluções:**
+```bash
+# 1. Verificar configuração de recovery
+cat config/recovery-config.sh
+
+# 2. Ver status do sistema
+./blueai-docker-ops.sh status
+
+# 3. Executar recovery novamente
+./blueai-docker-ops.sh recovery
+
+# 4. Ver logs de erro
+./blueai-docker-ops.sh logs
+```
+
+#### **Prevenção:**
+- Configure recovery durante setup inicial
+- Teste recovery em ambiente de desenvolvimento
+- Mantenha backups atualizados
+
+## 🕐 Problemas com Agendamento
+
+### **"Backup automático não executa"**
+
+#### **Sintomas:**
+- Backup não executa no horário configurado
+- LaunchAgent não está funcionando
+
+#### **Soluções:**
+```bash
+# 1. Verificar status do agendamento
+./blueai-docker-ops.sh status
+
+# 2. Verificar LaunchAgent
+launchctl list | grep docker
+
+# 3. Reconfigurar agendamento
+./blueai-docker-ops.sh schedule
+
+# 4. Testar agendamento
+./blueai-docker-ops.sh advanced
+```
+
+#### **Prevenção:**
+- Configure agendamento durante setup inicial
+- Teste agendamento após configuração
+- Monitore logs do LaunchAgent
+
+### **"Horário incorreto"**
+
+#### **Sintomas:**
+- Backup executa em horário diferente do configurado
+- Configuração de horário não é respeitada
+
+#### **Soluções:**
+```bash
+# 1. Verificar configuração atual
+cat config/version-config.sh | grep SCHEDULE
+
+# 2. Reconfigurar horário
+./blueai-docker-ops.sh schedule
+
+# 3. Verificar LaunchAgent
+launchctl list | grep docker
+```
+
+## 📊 Problemas com Logs e Relatórios
 
 ### **"Logs não aparecem"**
 
 #### **Sintomas:**
-- Arquivos de log vazios
 - Logs não são gerados
+- Diretório de logs está vazio
 
 #### **Soluções:**
 ```bash
-# 1. Verificar se diretório de logs existe
+# 1. Verificar diretório de logs
 ls -la logs/
 
 # 2. Verificar permissões
-ls -la logs/
+ls -la logs/*.log
 
-# 3. Criar diretório se não existir
-mkdir -p logs/
+# 3. Executar comando para gerar logs
+./blueai-docker-ops.sh backup
 
-# 4. Verificar configuração de logging
-cat scripts/logging/logging-functions.sh | head -20
+# 4. Ver logs gerados
+./blueai-docker-ops.sh logs
 ```
 
-### **"Logs muito grandes"**
+#### **Prevenção:**
+- Execute comandos regularmente para gerar logs
+- Verifique permissões de escrita no diretório logs
+- Monitore tamanho dos arquivos de log
+
+### **"Relatórios não são gerados"**
 
 #### **Sintomas:**
-- Arquivos de log ocupam muito espaço
-- Sistema fica lento
+- Relatórios HTML não são criados
+- Diretório de relatórios está vazio
 
 #### **Soluções:**
 ```bash
-# 1. Limpar logs antigos
-./scripts/logging/log-analyzer.sh --cleanup --days 7
+# 1. Verificar diretório de relatórios
+ls -la reports/
 
-# 2. Verificar tamanho dos logs
-du -sh logs/
+# 2. Gerar relatório manualmente
+./blueai-docker-ops.sh report
 
-# 3. Configurar rotação de logs
-# (funcionalidade futura)
+# 3. Verificar permissões
+ls -la reports/*.html
 ```
 
-## 🔧 Problemas de Permissões
+## 🔧 Problemas de Instalação
 
-### **"Permission denied"**
+### **"Comando não encontrado"**
+
+#### **Sintomas:**
+- Erro: "command not found"
+- Comando não está no PATH
+
+#### **Soluções:**
+```bash
+# 1. Verificar se está instalado
+which blueai-docker-ops
+
+# 2. Se não estiver, executar setup
+./blueai-docker-ops.sh setup
+
+# 3. Verificar PATH
+echo $PATH
+
+# 4. Recarregar shell
+source ~/.zshrc  # ou ~/.bashrc
+```
+
+#### **Prevenção:**
+- Execute setup completo durante instalação
+- Verifique se comandos estão no PATH
+- Recarregue shell após instalação
+
+### **"Permissões negadas"**
 
 #### **Sintomas:**
 - Erro: "Permission denied"
-- Scripts não executam
+- Não consegue executar scripts
 
 #### **Soluções:**
 ```bash
-# 1. Verificar permissões dos scripts
-ls -la scripts/
+# 1. Verificar permissões
 ls -la blueai-docker-ops.sh
 
-# 2. Tornar scripts executáveis
+# 2. Tornar executável
 chmod +x blueai-docker-ops.sh
-chmod +x scripts/*/*.sh
+chmod +x scripts/**/*.sh
 
-# 3. Verificar permissões do diretório
-ls -la
-
-# 4. Se necessário, ajustar permissões
-chmod 755 scripts/
-chmod 644 config/*
+# 3. Verificar proprietário
+ls -la blueai-docker-ops.sh
 ```
 
-### **"Cannot create directory"**
+#### **Prevenção:**
+- Clone repositório como usuário normal (não root)
+- Verifique permissões após clone
+- Use `chmod +x` para scripts necessários
+
+## 🚨 Problemas Críticos
+
+### **"Sistema não responde"**
 
 #### **Sintomas:**
-- Erro: "mkdir: Permission denied"
-- Não consegue criar diretórios
+- Comandos não respondem
+- Sistema trava durante execução
 
 #### **Soluções:**
 ```bash
-# 1. Verificar permissões do diretório atual
-ls -la
+# 1. Interromper execução
+Ctrl+C
 
-# 2. Criar diretórios manualmente
-mkdir -p logs/
-mkdir -p reports/
-mkdir -p backups/
+# 2. Verificar processos
+ps aux | grep blueai
 
-# 3. Verificar permissões
-ls -la
+# 3. Matar processos se necessário
+killall blueai-docker-ops.sh
 
-# 4. Se necessário, usar sudo
-sudo mkdir -p /caminho/para/diretorio
+# 4. Reiniciar terminal
+# 5. Testar sistema
+./blueai-docker-ops.sh test
 ```
 
-## 🌐 Problemas de Rede
-
-### **"Cannot connect to Docker daemon"**
+### **"Configuração corrompida"**
 
 #### **Sintomas:**
-- Erro: "Cannot connect to the Docker daemon"
-- Docker não responde
+- Arquivos de configuração corrompidos
+- Sistema não funciona corretamente
 
 #### **Soluções:**
 ```bash
-# 1. Verificar se Docker está rodando
-docker ps
+# 1. Fazer backup da configuração atual
+cp -r config config.backup.$(date +%Y%m%d_%H%M%S)
 
-# 2. Reiniciar Docker
-killall Docker
-open -a Docker
+# 2. Restaurar configuração padrão
+./blueai-docker-ops.sh config
 
-# 3. Aguardar inicialização
-sleep 30
-
-# 4. Testar conexão
-docker version
+# 3. Se não funcionar, reconfigurar tudo
+./blueai-docker-ops.sh setup
 ```
 
-### **"Network timeout"**
+## 📚 Recursos de Ajuda
 
-#### **Sintomas:**
-- Erro: "Connection timed out"
-- Backup falha por timeout
-
-#### **Soluções:**
+### **Comandos de Ajuda**
 ```bash
-# 1. Verificar conectividade
-ping google.com
+# Ajuda principal
+./blueai-docker-ops.sh --help
 
-# 2. Verificar DNS
-nslookup docker.com
+# Comandos avançados
+./blueai-docker-ops.sh advanced
 
-# 3. Verificar firewall
-# Sistema > Segurança e Privacidade > Firewall
-
-# 4. Se necessário, adicionar exceção
+# Status detalhado
+./blueai-docker-ops.sh status
 ```
 
-## 📊 Problemas de Performance
+### **Documentação**
+- **Guia de Início Rápido:** [guia-inicio-rapido.md](guia-inicio-rapido.md)
+- **Comandos Detalhados:** [comandos.md](comandos.md)
+- **Arquitetura:** [arquitetura.md](arquitetura.md)
 
-### **"Sistema muito lento durante backup"**
-
-#### **Sintomas:**
-- Sistema fica lento
-- Backup demora muito tempo
-
-#### **Soluções:**
+### **Logs e Debug**
 ```bash
-# 1. Verificar uso de recursos
-top
-iostat 1
+# Ver logs detalhados
+./blueai-docker-ops.sh logs
 
-# 2. Otimizar horário do backup
-./scripts/utils/install-launchagent.sh schedule
+# Ver logs de erro
+./blueai-docker-ops.sh advanced
 
-# 3. Verificar se outros processos estão rodando
-ps aux | grep -v grep | grep -E "(backup|docker)"
-
-# 4. Considerar backup em horário de menor uso
+# Ver logs de performance
+./blueai-docker-ops.sh advanced
 ```
 
-### **"Backup consome muita memória"**
+## 🎯 Prevenção de Problemas
 
-#### **Sintomas:**
-- Uso de memória alto durante backup
-- Sistema fica lento
-
-#### **Soluções:**
+### **Manutenção Regular**
 ```bash
-# 1. Verificar uso de memória
-free -h
-vm_stat
+# Teste semanal do sistema
+./blueai-docker-ops.sh test
 
-# 2. Verificar processos Docker
-docker stats
+# Verificação de status
+./blueai-docker-ops.sh status
 
-# 3. Parar containers desnecessários
-docker stop [container_desnecessario]
-
-# 4. Limpar recursos Docker
-docker system prune
+# Limpeza de logs antigos
+# (implementar conforme necessário)
 ```
 
-## 🔄 Problemas de Restauração
-
-### **"Falha ao restaurar backup"**
-
-#### **Sintomas:**
-- Erro durante restauração
-- Dados não são restaurados corretamente
-
-#### **Soluções:**
-```bash
-# 1. Verificar integridade do backup
-tar -tzf backups/[arquivo_backup].tar.gz
-
-# 2. Parar container antes da restauração
-docker stop [nome_container]
-
-# 3. Restaurar manualmente
-docker run --rm -v [nome_volume]:/data -v $(pwd)/backups:/backup alpine tar -xzf /backup/[arquivo_backup].tar.gz -C /data
-
-# 4. Reiniciar container
-docker start [nome_container]
-```
-
-## 📞 Quando Pedir Ajuda
-
-### **Informações para Incluir:**
-1. **Versão do sistema:** `uname -a`
-2. **Versão do Docker:** `docker version`
-3. **Logs de erro:** `./blueai-docker-ops.sh logs --errors --recent`
-4. **Status do sistema:** `./scripts/utils/test-system.sh`
-5. **Configuração:** `cat config/notification-config.sh`
-
-### **Comandos de Diagnóstico:**
-```bash
-# Informações do sistema
-./scripts/utils/test-system.sh > diagnostico.txt 2>&1
-
-# Logs recentes
-./blueai-docker-ops.sh logs --recent > logs_recentes.txt 2>&1
-
-# Status dos containers
-./blueai-docker-ops.sh status > status_containers.txt 2>&1
-
-# Configurações
-cat config/notification-config.sh > configuracoes.txt
-```
+### **Monitoramento**
+- Execute `./blueai-docker-ops.sh status` regularmente
+- Monitore logs do sistema
+- Verifique espaço em disco
+- Teste backup e recovery periodicamente
 
 ---
 
-**💡 Dica:** Sempre execute `./scripts/utils/test-system.sh` antes de pedir ajuda. Ele fornece informações valiosas para diagnóstico!
+**🆘 Se o problema persistir, consulte a documentação completa ou abra uma issue no GitHub.**

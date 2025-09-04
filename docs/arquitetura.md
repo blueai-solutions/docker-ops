@@ -1,10 +1,10 @@
 # 🏗️ Arquitetura do Sistema
 
-Documentação técnica da arquitetura e funcionamento interno do BlueAI Docker Ops.
+Documentação técnica da arquitetura e funcionamento interno do BlueAI Docker Ops simplificado.
 
 ## 📋 Visão Geral
 
-O BlueAI Docker Ops é uma solução completa e automatizada para backup de volumes Docker em ambiente macOS, com notificações, logging estruturado e relatórios.
+O BlueAI Docker Ops é uma solução completa e automatizada para backup de volumes Docker em ambiente macOS, com notificações, logging estruturado e relatórios. O sistema foi redesenhado para ser **simples, intuitivo e eficiente**.
 
 ## 🏛️ Arquitetura de Alto Nível
 
@@ -12,27 +12,31 @@ O BlueAI Docker Ops é uma solução completa e automatizada para backup de volu
 ┌─────────────────────────────────────────────────────────────┐
 │                    BlueAI Docker Ops                        │
 ├─────────────────────────────────────────────────────────────┤
-│  🐳 blueai-docker-ops.sh (Script Principal)                     │
-│  └───┬─── Comando Unificado                                 │
-│      ├─── Roteamento de Comandos                            │
-│      └─── Interface de Usuário                              │
+│  🐳 blueai-docker-ops.sh (Script Principal Simplificado)   │
+│  └───┬─── Interface Unificada                              │
+│      ├─── Roteamento de Comandos                           │
+│      └─── Sistema de Ajuda Inteligente                     │
 ├─────────────────────────────────────────────────────────────┤
-│  📁 Scripts/ (Módulos Funcionais)                           │
-│  ├─── 📁 core/ (Scripts Principais)                         │
-│  ├─── 📁 backup/ (Sistema de Backup)                        │
-│  ├─── 📁 notifications/ (Sistema de Notificações)           │
-│  ├─── 📁 logging/ (Sistema de Logs)                         │
-│  └─── 📁 utils/ (Utilitários)                               │
+│  📁 Scripts/ (Módulos Funcionais)                          │
+│  ├─── 📁 core/ (Scripts Principais)                        │
+│  ├─── 📁 backup/ (Sistema de Backup)                       │
+│  ├─── 📁 notifications/ (Sistema de Notificações)          │
+│  ├─── 📁 logging/ (Sistema de Logs)                        │
+│  ├─── 📁 utils/ (Utilitários para Usuários)                │
+│  └─── 📁 install/ (Scripts de Instalação)                  │
 ├─────────────────────────────────────────────────────────────┤
-│  📁 Config/ (Configurações)                                 │
-│  ├─── notification-config.sh                                │
-│  └─── com.user.dockerbackup.plist                           │
+│  📁 Config/ (Configurações Centralizadas)                  │
+│  ├─── backup-config.sh                                     │
+│  ├─── recovery-config.sh                                   │
+│  ├─── notification-config.sh                               │
+│  ├─── version-config.sh                                    │
+│  └─── 📁 templates/ (Templates Limpos)                     │
 ├─────────────────────────────────────────────────────────────┤
-│  📁 Data/ (Dados Gerados)                                   │
-│  ├─── 📁 backups/ (Backups dos Volumes)                     │
-│  ├─── 📁 logs/ (Logs Estruturados)                          │
-│  ├─── 📁 reports/ (Relatórios Gerados)                      │
-│  └─── 📁 docs/ (Documentação)                               │
+│  📁 Data/ (Dados Gerados)                                  │
+│  ├─── 📁 backups/ (Backups dos Volumes)                    │
+│  ├─── 📁 logs/ (Logs Estruturados)                         │
+│  ├─── 📁 reports/ (Relatórios Gerados)                     │
+│  └─── 📁 docs/ (Documentação)                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -43,13 +47,13 @@ O BlueAI Docker Ops é uma solução completa e automatizada para backup de volu
 **Responsabilidade:** Ponto de entrada unificado para todos os comandos
 **Funcionalidades:**
 - Roteamento de comandos para módulos específicos
-- Interface de usuário consistente
-- Validação de parâmetros
+- Interface de usuário consistente e intuitiva
+- Sistema de ajuda inteligente
 - Tratamento de erros centralizado
 
 **Fluxo de Execução:**
 ```bash
-blueai-docker-ops.sh [comando] [opções]
+blueai-docker-ops.sh [comando]
     ↓
 Verificar comando
     ↓
@@ -60,18 +64,27 @@ Executar funcionalidade
 Retornar resultado
 ```
 
+**Comandos Essenciais:**
+- `setup` - Configuração inicial completa
+- `config` - Configuração interativa
+- `schedule` - Configurar agendamento
+- `volumes` - Ver volumes configurados
+- `backup` - Executar backup
+- `recovery` - Executar recovery
+- `status` - Status geral do sistema
+- `test` - Testar sistema completo
+
 ### **2. Sistema de Backup (scripts/backup/)**
 
 **Responsabilidade:** Execução de backups de volumes Docker
 **Componentes:**
-- `smart-backup.sh` - Backup inteligente com verificações
-- `backup-volumes.sh` - Backup direto de volumes
+- `dynamic-backup.sh` - Backup dinâmico configurável
 
 **Fluxo de Backup:**
 ```
 1. Verificar Docker
    ↓
-2. Verificar Containers
+2. Verificar Volumes Configurados
    ↓
 3. Verificar Espaço em Disco
    ↓
@@ -102,232 +115,228 @@ Retornar resultado
 
 **Responsabilidade:** Logging estruturado e análise
 **Componentes:**
-- `logging-functions.sh` - Funções de logging
-- `log-analyzer.sh` - Análise de logs
-- `report-generator.sh` - Geração de relatórios
+- `logging-functions.sh` - Funções de log estruturado
+- `log-analyzer.sh` - Analisador de logs
+- `report-generator.sh` - Gerador de relatórios HTML
 
-**Níveis de Log:**
-- **DEBUG:** Informações detalhadas para debugging
-- **INFO:** Informações gerais de operação
-- **WARNING:** Avisos que não impedem operação
-- **ERROR:** Erros que impedem funcionalidade
-- **CRITICAL:** Erros críticos do sistema
-
-**Arquivos de Log:**
-- `backup.log` - Logs de backup
-- `error.log` - Logs de erro
-- `system.log` - Logs do sistema
-- `performance.log` - Métricas de performance
-
-### **5. Sistema de Recuperação (scripts/core/)**
-
-**Responsabilidade:** Gerenciamento de containers Docker
-**Componentes:**
-- `recover.sh` - Recuperação e gerenciamento
-- `manage-containers.sh` - Gerenciamento avançado
-
-**Funcionalidades:**
-- Iniciar/parar containers
-- Verificar status
-- Limpeza de containers
-- Backup de volumes
-
-### **6. LaunchAgent e Sistema de Agendamento (scripts/utils/install-launchagent.sh)**
-
-**Responsabilidade:** Agendamento automático de backups com sincronização inteligente
-**Configuração:**
-- **Horário padrão:** Configurável via `config/version-config.sh`
-- **Logs:** `/tmp/docker-backup-launchagent.log`
-- **Erros:** `/tmp/docker-backup-launchagent-error.log`
-- **Sincronização:** Automática entre configuração e arquivo .plist
-
-**Funcionalidades Avançadas:**
-- ✅ **Agendamento dinâmico** com validação de horários
-- ✅ **Sincronização automática** entre arquivos de configuração
-- ✅ **Backup de configurações** antes de alterações
-- ✅ **Descrição inteligente** de horários em português
-- ✅ **Reinstalação automática** após alterações de horário
-- ✅ **Teste de funcionamento** com execução em 60 segundos
-
-## 🔄 Fluxos de Dados
-
-### **Fluxo de Backup Automático**
-```
-LaunchAgent (Horário Configurado)
-    ↓
-dynamic-backup.sh (Script Principal)
-    ↓
-Verificações (Docker, Containers, Disco)
-    ↓
-backup-volumes.sh (Backup de Volumes)
-    ↓
-Docker Volume Backup
-    ↓
-Verificação de Integridade
-    ↓
-Limpeza de Backups Antigos
-    ↓
-Geração de Relatórios
-    ↓
-Envio de Notificações
-    ↓
-Logging de Resultados
-```
-
-**Sistema de Agendamento Inteligente:**
-```
-Usuário altera horário
-    ↓
-update_config_file() (Atualiza config/version-config.sh)
-    ↓
-source "$VERSION_CONFIG" (Recarrega variáveis)
-    ↓
-generate_plist() (Gera novo arquivo .plist)
-    ↓
-launchctl load (Recarrega LaunchAgent)
-    ↓
-Sincronização completa entre arquivos
-```
-
-### **Fluxo de Notificações**
-```
-Evento (Sucesso/Aviso/Erro)
-    ↓
-notification-config.sh (Configurações)
-    ↓
-Verificar Canais Habilitados
-    ↓
-Email (se habilitado)
-    ↓
-macOS Notification (se habilitado)
-    ↓
-Logging da Notificação
-```
-
-### **Fluxo de Logging**
-```
-Evento do Sistema
-    ↓
-logging-functions.sh
-    ↓
-Determinar Nível de Log
-    ↓
-Formatação da Mensagem
-    ↓
-Escrita no Arquivo Apropriado
-    ↓
-Output no Terminal (se aplicável)
-```
-
-## 📊 Estrutura de Dados
-
-### **Configurações (config/notification-config.sh)**
-```bash
-# Notificações
-NOTIFICATIONS_ENABLED=true
-EMAIL_ENABLED=true
-MACOS_NOTIFICATIONS_ENABLED=true
-
-# Email
-EMAIL_TO="usuario@exemplo.com"
-EMAIL_FROM="docker-ops@blueaisolutions.com.br"
-EMAIL_SUBJECT_PREFIX="[Docker Backup]"
-
-# macOS
-NOTIFICATION_TITLE="Docker Backup"
-NOTIFICATION_SOUND="Glass"
-NOTIFICATION_TIMEOUT=10
-
-# Logging
-LOG_LEVEL=1  # 0=DEBUG, 1=INFO, 2=WARNING, 3=ERROR, 4=CRITICAL
-```
-
-### **Estrutura de Logs**
+**Estrutura de Logs:**
 ```
 logs/
-├── backup.log      # Logs de operações de backup
-├── error.log       # Logs de erros
-├── system.log      # Logs do sistema
-└── performance.log # Métricas de performance
+├── backup.log          # Logs de backup
+├── error.log           # Logs de erro
+├── performance.log     # Logs de performance
+└── system.log          # Logs do sistema
 ```
 
-### **Estrutura de Backups**
+### **5. Sistema de Configuração (config/)**
+
+**Responsabilidade:** Gerenciamento centralizado de configurações
+**Componentes:**
+- `backup-config.sh` - Configuração de backup
+- `recovery-config.sh` - Configuração de recuperação
+- `notification-config.sh` - Configuração de notificações
+- `version-config.sh` - Configuração de versão
+
+**Templates Limpos:**
+- `config/templates/` - Configurações limpas para distribuição
+- Sem dados locais ou específicos do usuário
+
+## 🔄 Fluxo de Dados
+
+### **Fluxo de Configuração**
 ```
-backups/
-├── mongo-local-data_20250829_025644.tar.gz
-├── postgres-local-data_20250829_025644.tar.gz
-└── rabbit-local-data_20250829_025644.tar.gz
+Usuário executa setup
+    ↓
+Configuração interativa
+    ↓
+Criação de arquivos de config
+    ↓
+Instalação de LaunchAgent
+    ↓
+Sistema pronto para uso
 ```
+
+### **Fluxo de Backup**
+```
+Agendamento automático
+    ↓
+Verificação de Docker
+    ↓
+Execução de backup
+    ↓
+Geração de logs
+    ↓
+Envio de notificações
+    ↓
+Geração de relatórios
+```
+
+### **Fluxo de Recovery**
+```
+Usuário executa recovery
+    ↓
+Verificação de configuração
+    ↓
+Recuperação de containers
+    ↓
+Verificação de saúde
+    ↓
+Logs e notificações
+```
+
+## 🏗️ Estrutura de Diretórios
+
+### **Estrutura Simplificada**
+```
+blueai-docker-ops/
+├── 🐳 blueai-docker-ops.sh              # Script principal
+├── 📁 config/                            # Configurações
+│   ├── 📁 templates/                     # Templates limpos (versionados)
+│   └── 📁 backups/                       # Backups automáticos de configuração
+├── 📁 scripts/                           # Scripts organizados
+│   ├── 📁 core/                          # Scripts principais
+│   ├── 📁 backup/                        # Sistema de backup
+│   ├── 📁 notifications/                 # Sistema de notificações
+│   ├── 📁 logging/                       # Sistema de logs
+│   ├── 📁 utils/                         # Utilitários para usuários
+│   └── 📁 install/                       # Scripts de instalação
+├── 📁 install/                            # Scripts de instalação do sistema
+├── 📁 logs/                               # Logs estruturados
+├── 📁 reports/                            # Relatórios gerados
+├── 📁 backups/                            # Backups dos volumes
+└── 📁 docs/                               # Documentação completa
+```
+
+## 🔧 Configuração do Sistema
+
+### **Configuração Inicial (setup)**
+```bash
+./blueai-docker-ops.sh setup
+```
+**O que acontece:**
+1. **Configuração interativa** - Email e horário do backup
+2. **Criação de configurações** usando templates limpos
+3. **Instalação de LaunchAgent** para agendamento automático
+4. **Instalação do sistema** com comandos no PATH
+
+### **Configuração Interativa (config)**
+```bash
+./blueai-docker-ops.sh config
+```
+**O que acontece:**
+1. **Solicitação de email** para notificações
+2. **Configuração de horário** para backup automático
+3. **Criação de configurações** personalizadas
+
+### **Agendamento (schedule)**
+```bash
+./blueai-docker-ops.sh schedule
+```
+**O que acontece:**
+1. **Configuração de horário** para backup automático
+2. **Instalação de LaunchAgent** com horário configurado
+3. **Sincronização** entre configuração e agendamento
+
+## 📊 Monitoramento e Logs
+
+### **Sistema de Logs**
+- **Logs estruturados** com timestamps e níveis
+- **Rotação automática** de logs antigos
+- **Análise inteligente** de logs
+- **Relatórios HTML** detalhados
+
+### **Monitoramento em Tempo Real**
+- **Status geral** do sistema
+- **Verificação de volumes** configurados
+- **Status de serviços** de recovery
+- **Informações de agendamento**
+
+## 🔄 Automação
+
+### **LaunchAgent (macOS)**
+- **Agendamento automático** de backups
+- **Sincronização** com configurações
+- **Notificações** sobre status
+- **Relatórios** periódicos
+
+### **Configuração Automática**
+- **Templates limpos** para distribuição
+- **Configuração interativa** para usuários
+- **Backup automático** de configurações
+- **Validação** de configurações
+
+## 🚀 Performance e Escalabilidade
+
+### **Otimizações Implementadas**
+- **Sistema simplificado** com menos comandos
+- **Roteamento eficiente** de comandos
+- **Logs estruturados** para análise rápida
+- **Configurações centralizadas** para manutenção
+
+### **Escalabilidade**
+- **Módulos independentes** para funcionalidades
+- **Configurações flexíveis** para diferentes ambientes
+- **Templates limpos** para distribuição
+- **Sistema de plugins** para extensões futuras
 
 ## 🔒 Segurança
 
-### **Permissões de Arquivos**
-- **Scripts:** `755` (executável para todos)
-- **Configurações:** `644` (leitura para todos, escrita para proprietário)
-- **Logs:** `644` (leitura para todos, escrita para proprietário)
-- **Backups:** `644` (leitura para todos, escrita para proprietário)
+### **Medidas de Segurança**
+- **Verificação de permissões** antes de execução
+- **Validação de configurações** antes de uso
+- **Backup automático** de configurações
+- **Logs de auditoria** para todas as operações
 
-### **Validações de Segurança**
-- Verificação de permissões antes da execução
-- Validação de caminhos para evitar path traversal
-- Sanitização de inputs de usuário
-- Verificação de integridade de backups
+### **Isolamento**
+- **Containers Docker** isolados
+- **Volumes separados** para dados
+- **Configurações independentes** por usuário
+- **Logs separados** por funcionalidade
 
-## ⚡ Performance
+## 🧪 Testes e Validação
 
-### **Otimizações Implementadas**
-- **Backup incremental:** (futuro)
-- **Compressão:** Gzip para reduzir tamanho
-- **Paralelização:** Backups simultâneos (futuro)
-- **Cache:** Informações de containers em cache
+### **Sistema de Testes**
+- **Teste completo** do sistema
+- **Validação de configurações**
+- **Teste de notificações**
+- **Teste de backup e recovery**
 
-### **Métricas de Performance**
-- **Tempo de backup:** Medido e logado
-- **Uso de recursos:** CPU, memória, disco
-- **Tamanho de backups:** Monitorado
-- **Frequência de execução:** Configurável
+### **Validação Automática**
+- **Verificação de dependências**
+- **Validação de configurações**
+- **Teste de conectividade**
+- **Verificação de permissões**
 
-## 🔧 Manutenibilidade
+## 📚 Documentação
 
-### **Padrões de Código**
-- **Bash:** Scripts em bash puro para compatibilidade
-- **Modularidade:** Cada funcionalidade em módulo separado
-- **Configuração:** Configurações centralizadas
-- **Logging:** Sistema de logs estruturado
+### **Estrutura de Documentação**
+- **Guia de início rápido** para novos usuários
+- **Documentação de comandos** completa
+- **Arquitetura técnica** detalhada
+- **Solução de problemas** comum
+- **Exemplos práticos** de uso
 
-### **Extensibilidade**
-- **Plugins:** Estrutura preparada para plugins (futuro)
-- **Configurações:** Fácil adição de novas configurações
-- **Notificações:** Novos canais podem ser adicionados
-- **Relatórios:** Novos formatos podem ser implementados
+### **Manutenção**
+- **Documentação atualizada** com código
+- **Exemplos funcionais** testados
+- **Changelog** detalhado por versão
+- **Guia de contribuição** para desenvolvedores
 
-## 🚀 Escalabilidade
+## 🔮 Roadmap e Futuro
 
-### **Limitações Atuais**
-- **Backup único:** Um backup por execução
-- **Local:** Apenas backup local
-- **Síncrono:** Execução sequencial
+### **Funcionalidades Planejadas**
+- **Backup incremental** para melhor performance
+- **Backup remoto** para servidores externos
+- **Criptografia** para backups sensíveis
+- **Interface web** para monitoramento
+- **App móvel** para notificações
 
-### **Melhorias Futuras**
-- **Backup distribuído:** Múltiplos servidores
-- **Cloud storage:** Backup na nuvem
-- **Paralelização:** Backups simultâneos
-- **Incremental:** Backup apenas de mudanças
-
-## 📈 Monitoramento
-
-### **Métricas Coletadas**
-- **Tempo de execução:** Por operação
-- **Taxa de sucesso:** Backups bem-sucedidos
-- **Uso de recursos:** CPU, memória, disco
-- **Erros:** Frequência e tipos de erro
-
-### **Alertas**
-- **Falha de backup:** Notificação imediata
-- **Espaço baixo:** Aviso preventivo
-- **Performance:** Alertas de degradação
-- **Integridade:** Falhas de verificação
+### **Melhorias Técnicas**
+- **Sistema de plugins** para extensões
+- **API REST** para integração
+- **Métricas avançadas** de performance
+- **Machine learning** para otimização
 
 ---
 
-**📝 Nota:** Esta arquitetura é evolutiva e pode ser expandida conforme necessário.
+**🎯 Sistema arquitetado para ser simples, eficiente e escalável!**

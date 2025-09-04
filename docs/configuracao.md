@@ -1,5 +1,7 @@
 # 🔧 Configuração - BlueAI Docker Ops
 
+Guia completo de configuração do sistema simplificado.
+
 ## ⚠️ IMPORTANTE
 
 **Este é um pacote de distribuição limpo que NÃO contém configurações específicas do ambiente local.**
@@ -8,32 +10,50 @@
 
 ### **1. Configuração Automática (Recomendado)**
 ```bash
-# Configuração interativa
-./scripts/utils/config-setup.sh --interactive
+# Configuração completa em uma linha
+make setup
 
-# Configuração automática com email
-./scripts/utils/config-setup.sh --email seu@email.com
-
-# Configuração com horário específico
-./scripts/utils/config-setup.sh --schedule 2 --schedule-min 30
+# OU usar o script diretamente
+./blueai-docker-ops.sh setup
 ```
 
-### **2. Configuração Manual**
+**O que acontece automaticamente:**
+1. ✅ **Configuração interativa** - Email e horário do backup
+2. 🕐 **Agendamento automático** - LaunchAgent instalado
+3. 🔧 **Instalação do sistema** - Comandos disponíveis no PATH
+
+### **2. Configuração Interativa**
+```bash
+# Configuração interativa
+./blueai-docker-ops.sh config
+
+# Configurar agendamento
+./blueai-docker-ops.sh schedule
+```
+
+### **3. Configuração Manual (Avançado)**
 ```bash
 # Copiar templates para configurações
 cp config/templates/version-config.template.sh config/version-config.sh
 cp config/templates/notification-config.template.sh config/notification-config.sh
+cp config/templates/backup-config.template.sh config/backup-config.sh
+cp config/templates/recovery-config.template.sh config/recovery-config.sh
 
 # Editar configurações conforme necessário
 nano config/version-config.sh
 nano config/notification-config.sh
+nano config/backup-config.sh
+nano config/recovery-config.sh
 ```
 
 ## 📁 Estrutura de Configuração
 
+### **Templates de Configuração** ✅
+> **Nota:** Estes arquivos são versionados no Git e servem como base para configuração inicial.
+
 ```
 config/
-├── templates/                    # Templates limpos
+├── templates/                    # Templates limpos (versionados)
 │   ├── version-config.template.sh
 │   ├── notification-config.template.sh
 │   ├── backup-config.template.sh
@@ -41,139 +61,281 @@ config/
 └── backups/                      # Backups automáticos
 ```
 
-## 🎯 O que o script de configuração faz
+### **Arquivos de Configuração Local** ⚠️
+> **Nota:** Estes arquivos contêm configurações específicas da máquina local e **NÃO são versionados** no Git.
 
-- ✅ Cria configurações limpas usando templates
-- ✅ Faz backup das configurações existentes
-- ✅ Configura email e horário automaticamente
-- ✅ Garante que não haja informações locais
-- ✅ Valida parâmetros de configuração
-- ✅ Configura todos os arquivos de configuração
+```
+config/
+├── version-config.sh             # Configuração de versão (local)
+├── notification-config.sh        # Configuração de notificações (local)
+├── backup-config.sh              # Configuração de backup (local)
+└── recovery-config.sh            # Configuração de recovery (local)
+```
+
+## 🎯 O que o sistema de configuração faz
+
+### **Setup Automático (`make setup`)**
+- ✅ **Configuração interativa** completa
+- ✅ **Criação automática** de configurações usando templates
+- ✅ **Backup automático** das configurações existentes
+- ✅ **Configuração de email** para notificações
+- ✅ **Configuração de horário** para backup automático
+- ✅ **Instalação de LaunchAgent** com agendamento
+- ✅ **Instalação do sistema** com comandos no PATH
+
+### **Configuração Interativa (`./blueai-docker-ops.sh config`)**
+- ✅ **Solicitação de email** para notificações
+- ✅ **Configuração de horário** para backup automático
+- ✅ **Criação de configurações** personalizadas
+- ✅ **Validação automática** de parâmetros
+- ✅ **Backup de configurações** existentes
+
+### **Agendamento (`./blueai-docker-ops.sh schedule`)**
+- ✅ **Configuração de horário** para backup automático
+- ✅ **Instalação de LaunchAgent** com horário configurado
+- ✅ **Sincronização** entre configuração e agendamento
+- ✅ **Validação** de horários (0-23h, 0-59min)
 
 ## 📧 Configurações Disponíveis
 
-### **Versão e Sistema**
-- Versão da aplicação
-- Informações de build
-- Configurações de agendamento
-- URLs de atualização
+### **Versão e Sistema (`version-config.sh`)**
+```bash
+# Informações do sistema
+SYSTEM_NAME="BlueAI Docker Ops"
+SYSTEM_VERSION="2.4.0"
+SYSTEM_AUTHOR="BlueAI Solutions"
+SYSTEM_DESCRIPTION="Sistema de backup e recuperação Docker"
 
-### **Notificações**
-- Email de destino
-- Email de origem
-- Som das notificações macOS
-- Nível de log
+# Configurações de agendamento
+SCHEDULE_HOUR=2          # Hora do backup (0-23)
+SCHEDULE_MINUTE=30       # Minuto do backup (0-59)
+SCHEDULE_DESCRIPTION="2:30 da manhã"
 
-### **Backup**
-- Diretório de backup
-- Configurações de retenção
-- Containers para backup
-- Configurações por container
+# URLs de atualização
+GITHUB_REPO="https://github.com/blueai-solutions/docker-ops"
+UPDATE_URL="https://api.github.com/repos/blueai-solutions/docker-ops/releases/latest"
+```
 
-### **Recuperação**
-- Diretório de backups
-- Containers para recuperação
-- Configurações de rede
-- Verificações de saúde
+### **Notificações (`notification-config.sh`)**
+```bash
+# Configurações gerais
+NOTIFICATIONS_ENABLED=true
+LOG_LEVEL=1              # 0=DEBUG, 1=INFO, 2=WARNING, 3=ERROR
+
+# Email
+EMAIL_ENABLED=true
+EMAIL_TO="seu-email@exemplo.com"
+EMAIL_FROM="docker-ops@blueaisolutions.com.br"
+EMAIL_SUBJECT_PREFIX="[Docker Backup]"
+
+# macOS
+MACOS_NOTIFICATIONS_ENABLED=true
+NOTIFICATION_TITLE="Docker Backup"
+NOTIFICATION_SOUND="Glass"
+NOTIFICATION_TIMEOUT=10
+```
+
+### **Backup (`backup-config.sh`)**
+```bash
+# Configurações gerais
+BACKUP_ENABLED=true
+BACKUP_DIR="backups"
+BACKUP_RETENTION_DAYS=30
+
+# Containers para backup
+CONTAINERS_TO_BACKUP=(
+    "mongo-local-data"
+    "postgres-local-data"
+    "redis-local-data"
+)
+
+# Configurações por container
+CONTAINER_CONFIGS=(
+    "mongo-local-data:1:true"      # nome:prioridade:parar_antes
+    "postgres-local-data:2:false"
+    "redis-local-data:3:false"
+)
+```
+
+### **Recovery (`recovery-config.sh`)**
+```bash
+# Configurações gerais
+RECOVERY_ENABLED=true
+RECOVERY_TIMEOUT=300               # 5 minutos
+RECOVERY_HEALTH_CHECK=true
+
+# Containers para recovery
+CONTAINERS_TO_RECOVER=(
+    "mongo-local-data"
+    "postgres-local-data"
+    "redis-local-data"
+)
+
+# Configurações por container
+RECOVERY_CONFIGS=(
+    "mongo-local-data:27017:bridge:mongodb:latest"
+    "postgres-local-data:5432:bridge:postgres:13"
+    "redis-local-data:6379:bridge:redis:6"
+)
+```
 
 ## 🚀 Exemplos de Uso
 
 ### **Configuração Rápida**
 ```bash
-# Configurar email e horário padrão
-./scripts/utils/config-setup.sh --email admin@empresa.com
+# Configuração completa em uma linha
+make setup
 
-# Configurar backup às 3:00 da manhã
-./scripts/utils/config-setup.sh --schedule 3 --schedule-min 0
-
-# Configuração completa interativa
-./scripts/utils/config-setup.sh --interactive
+# O sistema irá solicitar:
+# 1. Email para notificações
+# 2. Horário para backup automático
+# 3. Confirmar configurações
 ```
 
-### **Configuração Avançada**
+### **Configuração Personalizada**
 ```bash
-# Forçar configuração sem confirmação
-./scripts/utils/config-setup.sh --force --email admin@empresa.com
+# 1. Configuração inicial
+./blueai-docker-ops.sh setup
 
-# Configuração personalizada
-./scripts/utils/config-setup.sh \
-  --email admin@empresa.com \
-  --schedule 1 \
-  --schedule-min 30
+# 2. Personalizar configurações
+nano config/backup-config.sh
+nano config/recovery-config.sh
+
+# 3. Reconfigurar se necessário
+./blueai-docker-ops.sh config
 ```
 
-## 🔍 Verificação de Configuração
-
-### **Verificar Configurações Atuais**
+### **Alterar Agendamento**
 ```bash
-# Ver arquivo de versão
-cat config/version-config.sh
+# Ver status atual
+./blueai-docker-ops.sh status
 
-# Ver arquivo de notificações
-cat config/notification-config.sh
+# Alterar horário
+./blueai-docker-ops.sh schedule
 
-# Verificar se templates existem
-ls -la config/templates/
+# O sistema irá:
+# 1. Solicitar novo horário
+# 2. Atualizar configuração
+# 3. Reinstalar LaunchAgent
+# 4. Confirmar alteração
 ```
 
-### **Testar Configuração**
+## 🔧 Configuração Avançada
+
+### **Editar Configurações Manualmente**
 ```bash
-# Testar sistema com nova configuração
-./blueai-docker-ops.sh --help
+# Editar configuração de versão
+nano config/version-config.sh
 
-# Testar notificações
-./blueai-docker-ops.sh notify-test
+# Editar configuração de notificações
+nano config/notification-config.sh
 
-# Verificar agendamento
-./scripts/install/install-launchagent.sh status
+# Editar configuração de backup
+nano config/backup-config.sh
+
+# Editar configuração de recovery
+nano config/recovery-config.sh
 ```
 
-## 🛠️ Troubleshooting
-
-### **Problemas Comuns**
-
-#### **1. Template não encontrado**
+### **Backup de Configurações**
 ```bash
-# Verificar se templates existem
-ls -la config/templates/
-
-# Se não existir, recriar estrutura
-mkdir -p config/templates
-# Copiar templates do repositório
-```
-
-#### **2. Configuração não carregada**
-```bash
-# Verificar permissões
-chmod +x scripts/utils/config-setup.sh
-
-# Verificar sintaxe
-bash -n config/version-config.sh
-bash -n config/notification-config.sh
-```
-
-#### **3. Backup não criado**
-```bash
-# Verificar diretório de backups
+# Ver backups disponíveis
 ls -la config/backups/
 
-# Criar diretório se não existir
-mkdir -p config/backups
+# Restaurar configuração anterior
+cp config/backups/backup-config.sh.backup.20250104_120000 config/backup-config.sh
+
+# Reconfigurar sistema
+./blueai-docker-ops.sh config
 ```
 
-## 📚 Documentação Relacionada
+### **Validação de Configurações**
+```bash
+# Testar sistema completo
+./blueai-docker-ops.sh test
 
-- [Guia de Início Rápido](guia-inicio-rapido.md)
-- [Comandos](comandos.md)
-- [LaunchAgent](launchagent.md)
-- [Solução de Problemas](solucao-problemas.md)
+# Ver status das configurações
+./blueai-docker-ops.sh status
 
-## 🆘 Suporte
+# Ver volumes configurados
+./blueai-docker-ops.sh volumes
+```
 
-- **📧 Email:** docker-ops@blueaisolutions.com.br
-- **🐛 Issues:** https://github.com/blueai-solutions/docker-ops/issues
-- **📖 Documentação:** https://github.com/blueai-solutions/docker-ops/tree/main/docs
+## 📊 Monitoramento de Configurações
+
+### **Ver Status das Configurações**
+```bash
+# Status geral
+./blueai-docker-ops.sh status
+
+# Ver configurações atuais
+cat config/version-config.sh | grep SCHEDULE
+cat config/notification-config.sh | grep EMAIL
+cat config/backup-config.sh | grep CONTAINERS
+cat config/recovery-config.sh | grep CONTAINERS
+```
+
+### **Logs de Configuração**
+```bash
+# Ver logs do sistema
+./blueai-docker-ops.sh logs
+
+# Ver logs específicos
+tail -f logs/system.log
+tail -f logs/error.log
+```
+
+## 🚨 Solução de Problemas
+
+### **Configuração Corrompida**
+```bash
+# 1. Fazer backup da configuração atual
+cp -r config config.backup.$(date +%Y%m%d_%H%M%S)
+
+# 2. Restaurar configuração padrão
+./blueai-docker-ops.sh config
+
+# 3. Se não funcionar, reconfigurar tudo
+./blueai-docker-ops.sh setup
+```
+
+### **Configuração Duplicada**
+```bash
+# Se sistema pedir horário duas vezes:
+# 1. Use apenas: make setup (para primeira configuração)
+# 2. Use apenas: ./blueai-docker-ops.sh schedule (para alterar horário)
+# 3. Use apenas: ./blueai-docker-ops.sh config (para reconfigurar)
+```
+
+### **Permissões de Arquivo**
+```bash
+# Verificar permissões
+ls -la config/*.sh
+
+# Corrigir permissões se necessário
+chmod 644 config/*.sh
+chmod +x blueai-docker-ops.sh
+```
+
+## 📚 Recursos Adicionais
+
+### **Documentação Relacionada**
+- **Guia de Início Rápido:** [guia-inicio-rapido.md](guia-inicio-rapido.md)
+- **Comandos Detalhados:** [comandos.md](comandos.md)
+- **Solução de Problemas:** [solucao-problemas.md](solucao-problemas.md)
+
+### **Comandos de Ajuda**
+```bash
+# Ajuda principal
+./blueai-docker-ops.sh --help
+
+# Comandos avançados
+./blueai-docker-ops.sh advanced
+
+# Status detalhado
+./blueai-docker-ops.sh status
+```
 
 ---
 
-**Desenvolvido com ❤️ pela BlueAI Solutions**
+**🔧 Sistema de configuração simples e intuitivo para máxima usabilidade!**
