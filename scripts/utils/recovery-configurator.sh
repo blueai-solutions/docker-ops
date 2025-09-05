@@ -18,6 +18,7 @@ source "$SCRIPT_DIR/../logging/logging-functions.sh"
 declare -a CONTAINERS=()
 declare -a CONTAINER_NAMES=()
 declare -a CONTAINER_IMAGES=()
+declare -a CONTAINER_STATUS=()
 declare -a CONTAINER_VOLUMES=()
 declare -a CONTAINER_PORTS=()
 declare -a CONTAINER_ENV=()
@@ -71,8 +72,15 @@ detect_containers() {
             CONTAINER_NAMES+=("$name")
             CONTAINER_IMAGES+=("$image")
             
-            # Detectar volumes
-            local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{.Source}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            # Determinar status
+            if [[ "$status" == *"Up"* ]]; then
+                CONTAINER_STATUS+=("running")
+            else
+                CONTAINER_STATUS+=("stopped")
+            fi
+            
+            # Detectar volumes Docker válidos (não bind mounts)
+            local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Source}}{{"\n"}}{{end}}{{end}}' 2>/dev/null | grep -v '^$' | head -1)
             if [ -n "$volumes" ]; then
                 CONTAINER_VOLUMES+=("$volumes")
             else
@@ -80,7 +88,7 @@ detect_containers() {
             fi
             
             # Detectar portas
-            local ports=$(docker inspect "$name" --format '{{range $p, $conf := .NetworkSettings.Ports}}{{if $conf}}{{$p}} {{end}}{{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            local ports=$(docker inspect "$name" --format '{{range $p, $conf := .NetworkSettings.Ports}}{{if $conf}}{{$p}} {{end}}{{end}}' 2>/dev/null | xargs | head -1)
             if [ -n "$ports" ]; then
                 CONTAINER_PORTS+=("$ports")
             else
@@ -88,7 +96,7 @@ detect_containers() {
             fi
             
             # Detectar redes
-            local networks=$(docker inspect "$name" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            local networks=$(docker inspect "$name" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' 2>/dev/null | xargs | head -1)
             if [ -n "$networks" ]; then
                 CONTAINER_NETWORKS+=("$networks")
             else
@@ -96,7 +104,7 @@ detect_containers() {
             fi
             
             # Detectar variáveis de ambiente
-            local env_vars=$(docker inspect "$name" --format '{{range .Config.Env}}{{.}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -3 | tr '\n' ' ')
+            local env_vars=$(docker inspect "$name" --format '{{range .Config.Env}}{{.}} {{end}}' 2>/dev/null | xargs | head -3)
             if [ -n "$env_vars" ]; then
                 CONTAINER_ENV+=("$env_vars")
             else
@@ -117,7 +125,8 @@ load_current_config() {
         
         # Processar RECOVERY_TARGETS existente
         for target in "${RECOVERY_TARGETS[@]}"; do
-            local parts=($(echo "$target" | tr ':' '\n'))
+            # Usar readarray para preservar espaços nos nomes
+            IFS=':' read -ra parts <<< "$target"
             if [ ${#parts[@]} -eq 5 ]; then
                 local container="${parts[0]}"
                 local volume="${parts[1]}"
@@ -217,18 +226,28 @@ show_main_menu() {
             
             echo "[✓] $name ($image) - $priority_icon - ${timeout}s - $health_icon"
             if [ -n "$volume" ]; then
-                echo "    Volume: $volume"
+                echo "    📁 Volumes:"
+                echo "$volume" | while IFS= read -r vol; do
+                    if [ -n "$vol" ]; then
+                        echo "      • $vol"
+                    fi
+                done
             fi
             if [ -n "$ports" ]; then
-                echo "    Porta: $ports"
+                echo "    🔌 Porta: $ports"
             fi
         else
             echo "[ ] $name ($image)"
             if [ -n "$volume" ]; then
-                echo "    Volume: $volume"
+                echo "    📁 Volumes:"
+                echo "$volume" | while IFS= read -r vol; do
+                    if [ -n "$vol" ]; then
+                        echo "      • $vol"
+                    fi
+                done
             fi
             if [ -n "$ports" ]; then
-                echo "    Porta: $ports"
+                echo "    🔌 Porta: $ports"
             fi
         fi
         echo ""
@@ -276,12 +295,118 @@ toggle_container() {
     done
     
     echo ""
-    read -p "Escolha o número do container (0 para voltar): " choice
+    echo "🔧 OPÇÕES DE SELEÇÃO:"
+    echo "  • Digite um número para seleção individual"
+    echo "  • Digite números separados por vírgula (ex: 1,3,5)"
+    echo "  • Digite 'all' para selecionar todos"
+    echo "  • Digite 'running' para selecionar apenas os rodando"
+    echo "  • Digite '0' para voltar"
+    echo ""
+    read -p "Escolha sua opção: " choice
     
     if [ "$choice" = "0" ]; then
         return 0
     fi
     
+    # Seleção múltipla por vírgula
+    if [[ "$choice" == *,* ]]; then
+        local IFS=','
+        local -a choices=($choice)
+        local success_count=0
+        
+        for choice_item in "${choices[@]}"; do
+            choice_item=$(echo "$choice_item" | tr -d ' ')
+            if [[ "$choice_item" =~ ^[0-9]+$ ]] && [ "$choice_item" -ge 1 ] && [ "$choice_item" -le ${#CONTAINER_NAMES[@]} ]; then
+                local index=$((choice_item-1))
+                local name="${CONTAINER_NAMES[$index]}"
+                
+                # Adicionar à seleção (se não estiver já)
+                local found=false
+                for i in "${!SELECTED_CONTAINERS[@]}"; do
+                    if [ "${SELECTED_CONTAINERS[$i]}" = "$name" ]; then
+                        found=true
+                        break
+                    fi
+                done
+                
+                if [ "$found" = false ]; then
+                    SELECTED_CONTAINERS+=("$name")
+                    CONTAINER_PRIORITIES+=("2")
+                    CONTAINER_TIMEOUTS+=("30")
+                    CONTAINER_HEALTH_CHECKS+=("true")
+                    ((success_count++))
+                fi
+            fi
+        done
+        
+        if [ $success_count -gt 0 ]; then
+            echo "✅ $success_count container(s) adicionado(s) à seleção"
+        fi
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção de todos os containers
+    if [ "$choice" = "all" ]; then
+        local added_count=0
+        for i in "${!CONTAINER_NAMES[@]}"; do
+            local name="${CONTAINER_NAMES[$i]}"
+            local found=false
+            
+            for j in "${!SELECTED_CONTAINERS[@]}"; do
+                if [ "${SELECTED_CONTAINERS[$j]}" = "$name" ]; then
+                    found=true
+                    break
+                fi
+            done
+            
+            if [ "$found" = false ]; then
+                SELECTED_CONTAINERS+=("$name")
+                CONTAINER_PRIORITIES+=("2")
+                CONTAINER_TIMEOUTS+=("30")
+                CONTAINER_HEALTH_CHECKS+=("true")
+                ((added_count++))
+            fi
+        done
+        
+        echo "✅ Todos os containers adicionados à seleção ($added_count novos)"
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção apenas dos containers rodando
+    if [ "$choice" = "running" ]; then
+        local added_count=0
+        for i in "${!CONTAINER_NAMES[@]}"; do
+            local name="${CONTAINER_NAMES[$i]}"
+            local status="${CONTAINER_STATUS[$i]}"
+            
+            if [ "$status" = "running" ]; then
+                local found=false
+                
+                for j in "${!SELECTED_CONTAINERS[@]}"; do
+                    if [ "${SELECTED_CONTAINERS[$j]}" = "$name" ]; then
+                        found=true
+                        break
+                    fi
+                done
+                
+                if [ "$found" = false ]; then
+                    SELECTED_CONTAINERS+=("$name")
+                    CONTAINER_PRIORITIES+=("2")
+                    CONTAINER_TIMEOUTS+=("30")
+                    CONTAINER_HEALTH_CHECKS+=("true")
+                    ((added_count++))
+                fi
+            fi
+        done
+        
+        echo "✅ Containers rodando adicionados à seleção ($added_count novos)"
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção individual (código original)
     if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le ${#CONTAINER_NAMES[@]} ]; then
         local index=$((choice-1))
         local name="${CONTAINER_NAMES[$index]}"
@@ -719,7 +844,7 @@ save_configuration() {
 # CONFIGURAÇÃO DE RECUPERAÇÃO DINÂMICA - GERADA AUTOMATICAMENTE
 # =============================================================================
 # Data de geração: $(date)
-# Use: ./blueai-docker-ops.sh recovery config para modificar
+# Use: ./blueai-docker-ops.sh config para modificar
 
 # Diretório de backups
 BACKUP_DIR="$PROJECT_ROOT/backups"
@@ -737,14 +862,35 @@ EOF
     # Adicionar containers configurados
     for i in "${!SELECTED_CONTAINERS[@]}"; do
         local name="${SELECTED_CONTAINERS[$i]}"
-        local volume="${CONTAINER_VOLUMES[$i]}"
+        
+        # Encontrar o índice correto nos arrays de detecção
+        local detect_index=0
+        for j in "${!CONTAINER_NAMES[@]}"; do
+            if [ "${CONTAINER_NAMES[$j]}" = "$name" ]; then
+                detect_index=$j
+                break
+            fi
+        done
+        
+        local volume="${CONTAINER_VOLUMES[$detect_index]}"
         local priority="${CONTAINER_PRIORITIES[$i]}"
         local timeout="${CONTAINER_TIMEOUTS[$i]}"
         local health_check="${CONTAINER_HEALTH_CHECKS[$i]}"
         
-        # Se não tem volume, usar nome do container
-        if [ -z "$volume" ]; then
-            volume="$name-data"
+        # Validar e corrigir volume
+        if [ -n "$volume" ] && [ -d "$volume" ] && [ -r "$volume" ]; then
+            # Volume detectado é válido, usar
+            volume="$volume"
+        else
+            # Tentar verificar se existe volume Docker com nome padrão
+            if docker volume ls --format "{{.Name}}" | grep -q "^${name}-data$"; then
+                volume="${name}-data"
+            elif docker volume ls --format "{{.Name}}" | grep -q "^${name}_data$"; then
+                volume="${name}_data"
+            else
+                # Se não encontrar, usar nome simples
+                volume="${name}-data"
+            fi
         fi
         
         echo "    \"$name:$volume:$priority:$timeout:$health_check\"" >> "$RECOVERY_CONFIG"
@@ -786,11 +932,48 @@ EOF
     # Adicionar redes para todos os containers
     for i in "${!SELECTED_CONTAINERS[@]}"; do
         local name="${SELECTED_CONTAINERS[$i]}"
-        local network="${CONTAINER_NETWORKS[$i]}"
+        
+        # Encontrar o índice correto nos arrays de detecção
+        local detect_index=0
+        for j in "${!CONTAINER_NAMES[@]}"; do
+            if [ "${CONTAINER_NAMES[$j]}" = "$name" ]; then
+                detect_index=$j
+                break
+            fi
+        done
+        
+        local network="${CONTAINER_NETWORKS[$detect_index]}"
         if [ -z "$network" ]; then
             network="bridge"
         fi
         echo "    \"$name:$network\"" >> "$RECOVERY_CONFIG"
+    done
+    
+    cat >> "$RECOVERY_CONFIG" << EOF
+)
+
+# Configurações de porta por container
+RECOVERY_PORTS=(
+EOF
+    
+    # Adicionar portas para todos os containers
+    for i in "${!SELECTED_CONTAINERS[@]}"; do
+        local name="${SELECTED_CONTAINERS[$i]}"
+        
+        # Encontrar o índice correto nos arrays de detecção
+        local detect_index=0
+        for j in "${!CONTAINER_NAMES[@]}"; do
+            if [ "${CONTAINER_NAMES[$j]}" = "$name" ]; then
+                detect_index=$j
+                break
+            fi
+        done
+        
+        local ports="${CONTAINER_PORTS[$detect_index]}"
+        if [ -z "$ports" ]; then
+            ports="N/A"
+        fi
+        echo "    \"$name:$ports\"" >> "$RECOVERY_CONFIG"
     done
     
     cat >> "$RECOVERY_CONFIG" << EOF
@@ -834,7 +1017,8 @@ validate_configuration() {
     
     # Validar formato de cada target
     for target in "${RECOVERY_TARGETS[@]}"; do
-        local parts=($(echo "$target" | tr ':' '\n'))
+        # Usar readarray para preservar espaços nos nomes
+        IFS=':' read -ra parts <<< "$target"
         
         if [ ${#parts[@]} -ne 5 ]; then
             log_error "VALIDATE" "Formato inválido: $target"
@@ -902,7 +1086,7 @@ reset_configuration() {
 # CONFIGURAÇÃO DE RECUPERAÇÃO DINÂMICA - PADRÃO
 # =============================================================================
 # Data de reset: $(date)
-# Use: ./blueai-docker-ops.sh recovery config para configurar
+# Use: ./blueai-docker-ops.sh config para configurar
 
 # Diretório de backups
 BACKUP_DIR="$PROJECT_ROOT/backups"

@@ -1,0 +1,188 @@
+name: 🚀 Release Completo - BlueAI Docker Ops
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  SYSTEM_NAME: "BlueAI Docker Ops"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # 🚀 Release Completo (Criar + Deploy)
+  release:
+    name: 🚀 Release Completo
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        
+      - name: 🏷️ Obter informações da tag
+        id: tag
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "tag_version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
+          echo "📋 Tag: $TAG_NAME"
+          echo "📋 Versão: ${TAG_NAME#v}"
+          
+      - name: 📋 Gerar release notes do changelog
+        run: |
+          echo "📋 Gerando release notes do changelog..."
+          
+          # Configurações do sistema (definidas diretamente)
+          SYSTEM_NAME="BlueAI Docker Ops"
+          SYSTEM_DESCRIPTION="Sistema automatizado de backup para containers Docker"
+          SYSTEM_AUTHOR="BlueAI Solutions"
+          SYSTEM_LICENSE="MIT"
+          
+          RELEASE_VERSION="${{ steps.tag.outputs.tag_version }}"
+          CHANGELOG_FILE="docs/changelog/v${RELEASE_VERSION}.md"
+          
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "✅ Usando changelog existente: $CHANGELOG_FILE"
+            
+            # Cria release notes com cabeçalho do sistema
+            {
+              echo "# Release Notes - $SYSTEM_NAME v${RELEASE_VERSION}"
+              echo ""
+              echo "**$SYSTEM_NAME** - $SYSTEM_DESCRIPTION"
+              echo "**Autor:** $SYSTEM_AUTHOR"
+              echo "**Licença:** $SYSTEM_LICENSE"
+              echo ""
+              echo "---"
+              echo ""
+              # Remove o cabeçalho do changelog (primeira linha) e adiciona o conteúdo
+              tail -n +2 "$CHANGELOG_FILE"
+            } > RELEASE_NOTES.md
+            
+          else
+            echo "⚠️ Changelog não encontrado para v${RELEASE_VERSION}"
+            echo "📝 Gerando conteúdo padrão..."
+            
+            {
+              echo "# Release Notes - $SYSTEM_NAME v${RELEASE_VERSION}"
+              echo ""
+              echo "## Sobre"
+              echo "**$SYSTEM_NAME** - $SYSTEM_DESCRIPTION"
+              echo "**Autor:** $SYSTEM_AUTHOR"
+              echo "**Licença:** $SYSTEM_LICENSE"
+              echo ""
+              echo "## 📋 Informações da Release"
+              echo "Esta release foi criada automaticamente."
+              echo "Para detalhes completos das mudanças, consulte o [changelog completo](https://github.com/blueai-solutions/docker-ops/blob/main/docs/changelog/CHANGELOG.md)."
+              echo ""
+              echo "## 🚀 Funcionalidades Principais"
+              echo "- Sistema de backup automatizado para containers Docker"
+              echo "- Recuperação inteligente de volumes e dados"
+              echo "- Notificações por email e macOS"
+              echo "- Agendamento flexível de backups"
+              echo "- Interface de linha de comando intuitiva"
+            } > RELEASE_NOTES.md
+          fi
+          
+          echo "✅ Release notes criados!"
+          echo "📋 Conteúdo baseado em: $SYSTEM_NAME v${RELEASE_VERSION}"
+          
+      - name: 🏷️ Criar Release no GitHub
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          name: "🚀 ${{ steps.tag.outputs.tag_name }} - ${{ env.SYSTEM_NAME }}"
+          body_path: ./RELEASE_NOTES.md
+          files: |
+            ./RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 🔧 Preparar arquivos de distribuição
+        run: |
+          echo "🔧 Preparando arquivos para distribuição..."
+          
+          mkdir -p dist
+          
+          # Scripts essenciais para usuários finais
+          cp -r scripts/core/ dist/scripts/
+          cp -r scripts/backup/ dist/scripts/
+          cp -r scripts/notifications/ dist/scripts/
+          cp -r scripts/logging/ dist/scripts/
+          
+          # Utilitários para usuários (excluindo desenvolvimento)
+          mkdir -p dist/scripts/utils
+          cp scripts/utils/container-configurator.sh dist/scripts/utils/
+          cp scripts/utils/recovery-configurator.sh dist/scripts/utils/
+          cp scripts/utils/test-system.sh dist/scripts/utils/
+          cp scripts/utils/config-backup-manager.sh dist/scripts/utils/
+          cp scripts/utils/cleanup-deprecated.sh dist/scripts/utils/
+          
+          # Scripts de instalação para usuários
+          mkdir -p dist/scripts/install
+          cp scripts/install/install-launchagent.sh dist/scripts/install/
+          
+          # Templates de configuração (NÃO configurações locais)
+          mkdir -p dist/config
+          cp -r config/templates/ dist/config/
+          
+          # Documentação de uso (excluindo desenvolvimento)
+          mkdir -p dist/docs
+          cp docs/README.md dist/docs/
+          cp docs/guia-inicio-rapido.md dist/docs/
+          cp docs/comandos.md dist/docs/
+          cp docs/arquitetura.md dist/docs/
+          cp docs/solucao-problemas.md dist/docs/
+          cp docs/launchagent.md dist/docs/
+          
+          # Changelog para usuários (apenas histórico)
+          if [ -d "docs/changelog" ]; then
+            mkdir -p dist/docs/changelog
+            cp docs/changelog/CHANGELOG.md dist/docs/changelog/
+            cp docs/changelog/v*.md dist/docs/changelog/ 2>/dev/null || true
+          fi
+          
+          # Scripts de instalação do sistema
+          cp -r install/ dist/
+          
+          # Arquivos principais
+          cp blueai-docker-ops.sh dist/
+          cp VERSION dist/
+          cp README.md dist/
+          
+          echo "📁 Estrutura de distribuição:"
+          find dist/ -type f | head -20
+          
+      - name: 📦 Criar arquivo compactado
+        run: |
+          echo "📦 Criando arquivo compactado..."
+          
+          cd dist
+          tar -czf "../blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz" .
+          cd ..
+          
+          echo "📦 Arquivo criado: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz"
+          
+      - name: 📤 Upload pacote para release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          files: |
+            ./blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 🎯 Status final
+        run: |
+          echo "🎉 RELEASE COMPLETO COM SUCESSO!"
+          echo "🏷️ Tag: ${{ steps.tag.outputs.tag_name }}"
+          echo "📋 Versão: ${{ steps.tag.outputs.tag_version }}"
+          echo "📦 Pacote: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz"
+          echo "🚀 BlueAI Docker Ops está disponível para download!"
