@@ -252,16 +252,36 @@ download_system() {
     log_step "Copiando sistema BlueAI Docker Ops..."
     
     log_info "Copiando arquivos do diretório local..."
+    log_info "PROJECT_ROOT: $PROJECT_ROOT"
+    log_info "INSTALL_DIR: $INSTALL_DIR"
+    
+    # Verificar se os diretórios existem
+    if [[ ! -d "$PROJECT_ROOT/scripts" ]]; then
+        log_error "Diretório scripts não encontrado: $PROJECT_ROOT/scripts"
+        log_info "Conteúdo do PROJECT_ROOT:"
+        ls -la "$PROJECT_ROOT" || log_info "Não foi possível listar o diretório"
+        exit 1
+    fi
+    
+    if [[ ! -d "$PROJECT_ROOT/config" ]]; then
+        log_error "Diretório config não encontrado: $PROJECT_ROOT/config"
+        exit 1
+    fi
+    
+    if [[ ! -d "$PROJECT_ROOT/docs" ]]; then
+        log_error "Diretório docs não encontrado: $PROJECT_ROOT/docs"
+        exit 1
+    fi
     
     # Scripts principais
-    sudo cp -r "$PROJECT_ROOT/scripts"/* "$INSTALL_DIR/scripts/"
+    sudo cp -r "$PROJECT_ROOT/scripts/." "$INSTALL_DIR/scripts/"
     sudo cp "$PROJECT_ROOT/blueai-docker-ops.sh" "$INSTALL_DIR/bin/"
     
     # Configurações
-    sudo cp -r "$PROJECT_ROOT/config"/* "$INSTALL_DIR/config/"
+    sudo cp -r "$PROJECT_ROOT/config/." "$INSTALL_DIR/config/"
     
     # Documentação
-    sudo cp -r "$PROJECT_ROOT/docs"/* "$INSTALL_DIR/docs/"
+    sudo cp -r "$PROJECT_ROOT/docs/." "$INSTALL_DIR/docs/"
     
     # Arquivos de versão
     sudo cp "$PROJECT_ROOT/VERSION" "$INSTALL_DIR/"
