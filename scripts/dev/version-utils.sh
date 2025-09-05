@@ -201,7 +201,7 @@ check_for_updates() {
     if [ -n "$latest_version" ]; then
         if [ "$latest_version" != "$APP_VERSION" ]; then
             echo "🆕 Nova versão disponível: v$latest_version"
-            echo "📥 Download: https://github.com/user/docker-backup/releases"
+            echo "📥 Download: https://github.com/blueai-solutions/docker-ops/releases"
         else
             echo "✅ Você está usando a versão mais recente: v$APP_VERSION"
         fi

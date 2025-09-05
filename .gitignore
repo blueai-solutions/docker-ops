@@ -2,6 +2,16 @@
 logs/
 *.log
 
+# Configurações locais (não versionar)
+config/backup-config.sh
+config/recovery-config.sh
+config/notification-config.sh
+config/version-config.sh
+
+# Configurações de backup
+config/version-config.sh.backup.*
+config/backups/
+
 # Reports
 reports/
 *.html

@@ -9,8 +9,22 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Diretórios de log
-LOG_DIR="$PROJECT_ROOT/logs"
+# Carregar configuração de backup se disponível
+if [ -f "$PROJECT_ROOT/config/backup-config.sh" ]; then
+    source "$PROJECT_ROOT/config/backup-config.sh"
+    # Usar o mesmo diretório base dos backups para os logs
+    # Se BACKUP_DIR contém "BlueAI-Docker-Backups", substituir por "BlueAI-Docker-Logs"
+    if [[ "$BACKUP_DIR" == *"BlueAI-Docker-Backups"* ]]; then
+        LOG_DIR="${BACKUP_DIR//BlueAI-Docker-Backups/BlueAI-Docker-Logs}"
+    else
+        LOG_DIR="$BACKUP_DIR/logs"
+    fi
+else
+    # Fallback para desenvolvimento local
+    LOG_DIR="$PROJECT_ROOT/logs"
+fi
+
+# Arquivos de log
 BACKUP_LOG="$LOG_DIR/backup.log"
 ERROR_LOG="$LOG_DIR/error.log"
 SYSTEM_LOG="$LOG_DIR/system.log"
@@ -258,7 +272,7 @@ export_logs() {
     local days=${2:-7}
     
     if [ -z "$output_file" ]; then
-        output_file="$PROJECT_ROOT/reports/logs_export_$(date +%Y%m%d_%H%M%S).txt"
+        output_file="$LOG_DIR/logs_export_$(date +%Y%m%d_%H%M%S).txt"
     fi
     
     mkdir -p "$(dirname "$output_file")"

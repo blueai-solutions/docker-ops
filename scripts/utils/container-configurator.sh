@@ -73,10 +73,16 @@ detect_containers() {
                 CONTAINER_STATUS+=("stopped")
             fi
             
-            # Detectar volumes
-            local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{.Source}} {{end}}' 2>/dev/null | tr ' ' '\n' | grep -v '^$' | head -1)
+            # Detectar volumes Docker válidos (não bind mounts)
+            local volumes=$(docker inspect "$name" --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Source}}{{"\n"}}{{end}}{{end}}' 2>/dev/null | grep -v '^$' | head -1)
             if [ -n "$volumes" ]; then
-                CONTAINER_VOLUMES+=("$volumes")
+                # Verificar se o volume realmente existe e é acessível
+                if [ -d "$volumes" ] && [ -r "$volumes" ]; then
+                    CONTAINER_VOLUMES+=("$volumes")
+                else
+                    # Se não for acessível, usar fallback
+                    CONTAINER_VOLUMES+=("")
+                fi
             else
                 CONTAINER_VOLUMES+=("")
             fi
@@ -113,7 +119,8 @@ load_current_config() {
         
         # Processar BACKUP_TARGETS existente
         for target in "${BACKUP_TARGETS[@]}"; do
-            local parts=($(echo "$target" | tr ':' '\n'))
+            # Usar readarray para preservar espaços nos nomes
+            IFS=':' read -ra parts <<< "$target"
             if [ ${#parts[@]} -eq 4 ]; then
                 local container="${parts[0]}"
                 local volume="${parts[1]}"
@@ -175,12 +182,24 @@ show_main_menu() {
             
             echo "[✓] $name ($status) - $priority_icon - $behavior_icon"
             if [ -n "$volume" ]; then
-                echo "    Volume: $volume ($size)"
+                echo "    📁 Volumes:"
+                echo "$volume" | while IFS= read -r vol; do
+                    if [ -n "$vol" ]; then
+                        echo "      • $vol"
+                    fi
+                done
+                echo "    💾 Tamanho: $size"
             fi
         else
             echo "[ ] $name ($status)"
             if [ -n "$volume" ]; then
-                echo "    Volume: $volume ($size)"
+                echo "    📁 Volumes:"
+                echo "$volume" | while IFS= read -r vol; do
+                    if [ -n "$vol" ]; then
+                        echo "      • $vol"
+                    fi
+                done
+                echo "    💾 Tamanho: $size"
             fi
         fi
         echo ""
@@ -225,12 +244,115 @@ toggle_container() {
     done
     
     echo ""
-    read -p "Escolha o número do container (0 para voltar): " choice
+    echo "🔧 OPÇÕES DE SELEÇÃO:"
+    echo "  • Digite um número para seleção individual"
+    echo "  • Digite números separados por vírgula (ex: 1,3,5)"
+    echo "  • Digite 'all' para selecionar todos"
+    echo "  • Digite 'running' para selecionar apenas os rodando"
+    echo "  • Digite '0' para voltar"
+    echo ""
+    read -p "Escolha sua opção: " choice
     
     if [ "$choice" = "0" ]; then
         return 0
     fi
     
+    # Seleção múltipla por vírgula
+    if [[ "$choice" == *,* ]]; then
+        local IFS=','
+        local -a choices=($choice)
+        local success_count=0
+        
+        for choice_item in "${choices[@]}"; do
+            choice_item=$(echo "$choice_item" | tr -d ' ')
+            if [[ "$choice_item" =~ ^[0-9]+$ ]] && [ "$choice_item" -ge 1 ] && [ "$choice_item" -le ${#CONTAINER_NAMES[@]} ]; then
+                local index=$((choice_item-1))
+                local name="${CONTAINER_NAMES[$index]}"
+                
+                # Adicionar à seleção (se não estiver já)
+                local found=false
+                for i in "${!SELECTED_CONTAINERS[@]}"; do
+                    if [ "${SELECTED_CONTAINERS[$i]}" = "$name" ]; then
+                        found=true
+                        break
+                    fi
+                done
+                
+                if [ "$found" = false ]; then
+                    SELECTED_CONTAINERS+=("$name")
+                    CONTAINER_PRIORITIES+=("2")
+                    CONTAINER_BEHAVIORS+=("false")
+                    ((success_count++))
+                fi
+            fi
+        done
+        
+        if [ $success_count -gt 0 ]; then
+            echo "✅ $success_count container(s) adicionado(s) à seleção"
+        fi
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção de todos os containers
+    if [ "$choice" = "all" ]; then
+        local added_count=0
+        for i in "${!CONTAINER_NAMES[@]}"; do
+            local name="${CONTAINER_NAMES[$i]}"
+            local found=false
+            
+            for j in "${!SELECTED_CONTAINERS[@]}"; do
+                if [ "${SELECTED_CONTAINERS[$j]}" = "$name" ]; then
+                    found=true
+                    break
+                fi
+            done
+            
+            if [ "$found" = false ]; then
+                SELECTED_CONTAINERS+=("$name")
+                CONTAINER_PRIORITIES+=("2")
+                CONTAINER_BEHAVIORS+=("false")
+                ((added_count++))
+            fi
+        done
+        
+        echo "✅ Todos os containers adicionados à seleção ($added_count novos)"
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção apenas dos containers rodando
+    if [ "$choice" = "running" ]; then
+        local added_count=0
+        for i in "${!CONTAINER_NAMES[@]}"; do
+            local name="${CONTAINER_NAMES[$i]}"
+            local status="${CONTAINER_STATUS[$i]}"
+            
+            if [ "$status" = "running" ]; then
+                local found=false
+                
+                for j in "${!SELECTED_CONTAINERS[@]}"; do
+                    if [ "${SELECTED_CONTAINERS[$j]}" = "$name" ]; then
+                        found=true
+                        break
+                    fi
+                done
+                
+                if [ "$found" = false ]; then
+                    SELECTED_CONTAINERS+=("$name")
+                    CONTAINER_PRIORITIES+=("2")
+                    CONTAINER_BEHAVIORS+=("false")
+                    ((added_count++))
+                fi
+            fi
+        done
+        
+        echo "✅ Containers rodando adicionados à seleção ($added_count novos)"
+        sleep 2
+        return 0
+    fi
+    
+    # Seleção individual (código original)
     if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le ${#CONTAINER_NAMES[@]} ]; then
         local index=$((choice-1))
         local name="${CONTAINER_NAMES[$index]}"
@@ -517,7 +639,7 @@ save_configuration() {
 # CONFIGURAÇÃO DE BACKUP DINÂMICO - GERADA AUTOMATICAMENTE
 # =============================================================================
 # Data de geração: $(date)
-# Use: ./blueai-docker-ops.sh config containers para modificar
+# Use: ./blueai-docker-ops.sh config para modificar
 
 # Diretório de backup
 BACKUP_DIR="$PROJECT_ROOT/backups"
@@ -540,9 +662,29 @@ EOF
         local priority="${CONTAINER_PRIORITIES[$i]}"
         local behavior="${CONTAINER_BEHAVIORS[$i]}"
         
-        # Se não tem volume, usar nome do container
+        # Se não tem volume, usar fallback inteligente
         if [ -z "$volume" ]; then
+            # Tentar criar um nome de volume padrão baseado no container
             volume="$name-data"
+            # Verificar se existe um volume Docker com esse nome
+            local docker_volume_path="/var/lib/docker/volumes/${volume}/_data"
+            if [ -d "$docker_volume_path" ] && [ -r "$docker_volume_path" ]; then
+                volume="$docker_volume_path"
+            else
+                # Se não existir, usar nome simples (será tratado pelo sistema de backup)
+                volume="$name-data"
+            fi
+        else
+            # Validar se o volume detectado é válido
+            if [ ! -d "$volume" ] || [ ! -r "$volume" ]; then
+                # Se o volume detectado não for válido, usar fallback
+                local docker_volume_path="/var/lib/docker/volumes/${name}-data/_data"
+                if [ -d "$docker_volume_path" ] && [ -r "$docker_volume_path" ]; then
+                    volume="$docker_volume_path"
+                else
+                    volume="$name-data"
+                fi
+            fi
         fi
         
         echo "    \"$name:$volume:$priority:$behavior\"" >> "$BACKUP_CONFIG"
@@ -640,7 +782,8 @@ validate_configuration() {
     
     # Validar formato de cada target
     for target in "${BACKUP_TARGETS[@]}"; do
-        local parts=($(echo "$target" | tr ':' '\n'))
+        # Usar readarray para preservar espaços nos nomes
+        IFS=':' read -ra parts <<< "$target"
         
         if [ ${#parts[@]} -ne 4 ]; then
             log_error "VALIDATE" "Formato inválido: $target"
@@ -701,7 +844,7 @@ reset_configuration() {
 # CONFIGURAÇÃO DE BACKUP DINÂMICO - PADRÃO
 # =============================================================================
 # Data de reset: $(date)
-# Use: ./blueai-docker-ops.sh config containers para configurar
+# Use: ./blueai-docker-ops.sh config para configurar
 
 # Diretório de backup
 BACKUP_DIR="$PROJECT_ROOT/backups"
@@ -806,7 +949,7 @@ main() {
                         save_configuration
                         echo ""
                         echo "🎉 Configuração salva com sucesso!"
-                        echo "💡 Use './blueai-docker-ops.sh dynamic list' para verificar"
+                        echo "💡 Use './blueai-docker-ops.sh backup-list-config' para verificar"
                         exit 0
                         ;;
                     6)

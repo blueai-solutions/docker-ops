@@ -352,7 +352,7 @@ recover_container() {
 # Recuperar containers baseado na configuração
 if [ ${#RECOVERY_TARGETS[@]} -eq 0 ]; then
     echo "❌ Nenhum container configurado para recuperação"
-    echo "💡 Use './blueai-docker-ops.sh recovery config' para configurar containers"
+    echo "💡 Use './blueai-docker-ops.sh config' para configurar containers"
     exit 1
 fi
 

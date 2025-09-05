@@ -210,12 +210,24 @@ backup_container() {
     # Executar backup
     log_info "BACKUP" "Executando backup: $backup_file"
     
-    if docker run --rm \
+    local backup_output
+    backup_output=$(docker run --rm \
         -v "$volume":/source \
         -v "$BACKUP_DIR":/backup \
-        alpine tar czf "/backup/$(basename "$backup_file")" -C /source .; then
+        alpine tar czf "/backup/$(basename "$backup_file")" -C /source . 2>&1)
+    local backup_exit_code=$?
+    
+    if [ $backup_exit_code -eq 0 ]; then
         
-        log_info "BACKUP" "Backup de $container concluído: $(basename "$backup_file")"
+        # Verificar se o arquivo foi realmente criado e tem tamanho > 0
+        if [ -f "$backup_file" ] && [ -s "$backup_file" ]; then
+            local file_size=$(ls -lh "$backup_file" | awk '{print $5}')
+            log_info "BACKUP" "Backup de $container concluído: $(basename "$backup_file") (${file_size})"
+        else
+            log_error "BACKUP" "Arquivo de backup não foi criado ou está vazio: $backup_file"
+            end_performance_timer "$timer"
+            return 1
+        fi
         
         # Verificar integridade se habilitado
         if [ "$BACKUP_VERIFY_INTEGRITY" = true ]; then
@@ -272,7 +284,15 @@ backup_container() {
         end_performance_timer "$timer"
         return 0
     else
-        log_error "BACKUP" "Falha no backup de $container"
+        # Verificar se é erro de espaço em disco
+        if echo "$backup_output" | grep -q "No space left on device"; then
+            log_error "BACKUP" "Erro de espaço em disco durante backup de $container"
+            log_info "BACKUP" "Tentando limpar recursos Docker para liberar espaço"
+            cleanup_docker_resources
+            log_error "BACKUP" "Execute o backup novamente após a limpeza"
+        else
+            log_error "BACKUP" "Falha no backup de $container: $backup_output"
+        fi
         
         # Reiniciar container se foi parado
         if [ "$stop_before" = "true" ] && [ "$was_running" = "true" ]; then
@@ -282,6 +302,35 @@ backup_container() {
         
         end_performance_timer "$timer"
         return 1
+    fi
+}
+
+# Função para limpar recursos Docker
+cleanup_docker_resources() {
+    log_info "BACKUP" "Limpando recursos Docker não utilizados"
+    
+    # Limpar containers parados
+    local stopped_containers=$(docker container prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
+    if [ -n "$stopped_containers" ] && [ "$stopped_containers" -gt 0 ]; then
+        log_info "BACKUP" "Removidos $stopped_containers containers parados"
+    fi
+    
+    # Limpar imagens não utilizadas
+    local unused_images=$(docker image prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
+    if [ -n "$unused_images" ] && [ "$unused_images" -gt 0 ]; then
+        log_info "BACKUP" "Removidas $unused_images imagens não utilizadas"
+    fi
+    
+    # Limpar volumes não utilizados
+    local unused_volumes=$(docker volume prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
+    if [ -n "$unused_volumes" ] && [ "$unused_volumes" -gt 0 ]; then
+        log_info "BACKUP" "Removidos $unused_volumes volumes não utilizados"
+    fi
+    
+    # Limpar cache de build
+    local build_cache=$(docker builder prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
+    if [ -n "$build_cache" ] && [ "$build_cache" -gt 0 ]; then
+        log_info "BACKUP" "Removido $build_cache de cache de build"
     fi
 }
 
@@ -315,9 +364,19 @@ execute_backup() {
         local required_space=$((BACKUP_MIN_DISK_SPACE_GB * 1024 * 1024))  # Convert to KB
         
         if [ "$available_space" -lt "$required_space" ]; then
-            log_error "BACKUP" "Espaço insuficiente em disco: ${available_space}KB disponível, ${required_space}KB necessário"
-            end_performance_timer "$timer"
-            return 1
+            log_warning "BACKUP" "Espaço insuficiente em disco: ${available_space}KB disponível, ${required_space}KB necessário"
+            log_info "BACKUP" "Tentando limpar recursos Docker para liberar espaço"
+            cleanup_docker_resources
+            
+            # Verificar novamente após limpeza
+            local new_available_space=$(df "$BACKUP_DIR" | awk 'NR==2 {print $4}')
+            if [ "$new_available_space" -lt "$required_space" ]; then
+                log_error "BACKUP" "Espaço ainda insuficiente após limpeza: ${new_available_space}KB disponível, ${required_space}KB necessário"
+                end_performance_timer "$timer"
+                return 1
+            else
+                log_info "BACKUP" "Espaço suficiente após limpeza: ${new_available_space}KB disponível"
+            fi
         fi
     fi
     
@@ -347,6 +406,23 @@ execute_backup() {
     
     if [ $success_count -eq $total_count ]; then
         log_info "BACKUP" "🎉 Todos os backups foram concluídos com sucesso!"
+        
+        # Verificação final: listar todos os arquivos criados
+        log_info "BACKUP" "📁 Verificando arquivos criados em: $BACKUP_DIR"
+        if [ -d "$BACKUP_DIR" ]; then
+            local backup_files=$(find "$BACKUP_DIR" -name "*.tar.gz" -type f -newer "$BACKUP_DIR" 2>/dev/null | wc -l)
+            if [ "$backup_files" -gt 0 ]; then
+                log_info "BACKUP" "✅ $backup_files arquivo(s) de backup encontrado(s):"
+                find "$BACKUP_DIR" -name "*.tar.gz" -type f -newer "$BACKUP_DIR" 2>/dev/null | while read file; do
+                    local file_size=$(ls -lh "$file" | awk '{print $5}')
+                    log_info "BACKUP" "   📄 $(basename "$file") (${file_size})"
+                done
+            else
+                log_warning "BACKUP" "⚠️  Nenhum arquivo de backup encontrado no diretório"
+            fi
+        else
+            log_error "BACKUP" "❌ Diretório de backup não existe: $BACKUP_DIR"
+        fi
     else
         log_warning "BACKUP" "⚠️  $((total_count - success_count)) backup(s) falharam"
     fi
@@ -411,7 +487,7 @@ test_backup() {
 
 # Função principal
 main() {
-    local command="${1:-help}"
+    local command="${1:-backup}"  # Executa backup por padrão se não há argumentos
     
     case "$command" in
         backup)

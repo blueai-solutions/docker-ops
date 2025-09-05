@@ -13,13 +13,14 @@ Esta pasta contém toda a documentação técnica e de usuário do BlueAI Docker
 - [Scripts e Componentes](scripts-componentes.md) - Documentação de cada script
 - [Sistema de Logs](sistema-logs.md) - Como funciona o logging estruturado
 - [Sistema de Notificações](sistema-notificacoes.md) - Configuração e funcionamento das notificações
-- [LaunchAgent](launchagent.md) - Configuração e gerenciamento do agendamento
+- [LaunchAgent e Agendamento](launchagent.md) - Configuração e gerenciamento do agendamento automático
 
 ### 📊 **Guias de Uso**
 - [Comandos Disponíveis](comandos.md) - Referência completa de comandos
-- [Configurações Avançadas](configuracoes-avancadas.md) - Personalizações avançadas
+- [Configurações Avançadas](configuracao.md) - Personalizações avançadas
 - [Solução de Problemas](solucao-problemas.md) - Troubleshooting comum
 - [Monitoramento](monitoramento.md) - Como monitorar o sistema
+- [Reset e Limpeza](reset-e-limpeza.md) - Comandos perigosos de reset
 
 ### 🔧 **Desenvolvimento**
 - [Contribuindo](contribuindo.md) - Como contribuir para o projeto
@@ -35,14 +36,14 @@ Esta pasta contém toda a documentação técnica e de usuário do BlueAI Docker
 
 1. **Novo usuário?** Comece com [Guia de Início Rápido](guia-inicio-rapido.md)
 2. **Problemas?** Consulte [Solução de Problemas](solucao-problemas.md)
-3. **Configurações?** Veja [Configurações Avançadas](configuracoes-avancadas.md)
+3. **Configurações?** Veja [Configurações Avançadas](configuracao.md)
 4. **Desenvolvimento?** Leia [Contribuindo](contribuindo.md)
 
 ## 📝 **Última Atualização**
 
-- **Data:** $(date +%Y-%m-%d)
-- **Versão:** 2.0.0
-- **Autor:** BlueAI Docker Ops
+- **Data:** 2025-01-04
+- **Versão:** 2.4.0
+- **Autor:** BlueAI Solutions
 
 ---
 
