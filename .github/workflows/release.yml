@@ -87,25 +87,17 @@ jobs:
           
       - name: 🏷️ Criar Release no GitHub
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.tag_name }}
-          release_name: "🚀 ${{ steps.tag.outputs.tag_name }} - ${{ env.SYSTEM_NAME }}"
+          name: "🚀 ${{ steps.tag.outputs.tag_name }} - ${{ env.SYSTEM_NAME }}"
           body_path: ./RELEASE_NOTES.md
+          files: |
+            ./RELEASE_NOTES.md
           draft: false
           prerelease: false
-          
-      - name: 📤 Upload assets
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./RELEASE_NOTES.md
-          asset_name: RELEASE_NOTES.md
-          asset_content_type: text/markdown
           
       - name: 🔧 Preparar arquivos de distribuição
         run: |
@@ -173,14 +165,15 @@ jobs:
           echo "📦 Arquivo criado: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz"
           
       - name: 📤 Upload pacote para release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          files: |
+            ./blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz
-          asset_name: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz
-          asset_content_type: application/gzip
           
       - name: 🎯 Status final
         run: |
