@@ -57,7 +57,7 @@ Este documento descreve como distribuir o BlueAI Docker Ops simplificado via Git
 
 ## 🔧 Workflows Implementados
 
-### **1. Build e Testes (`build.yml`)**
+### **1. CI - Validação Contínua (`ci.yml`)**
 
 **Trigger:** Push/PR para `main` ou branches `release/*`
 
@@ -66,7 +66,6 @@ Este documento descreve como distribuir o BlueAI Docker Ops simplificado via Git
 - ✅ Verificação de permissões
 - ✅ Testes básicos do sistema
 - ✅ Relatório de qualidade
-- ✅ Preparação para release
 
 **Execução:**
 ```bash
@@ -74,15 +73,17 @@ Este documento descreve como distribuir o BlueAI Docker Ops simplificado via Git
 # Manual via GitHub Actions
 ```
 
-### **2. Release Automático (`release.yml`)**
+### **2. Release Completo (`release.yml`)**
 
 **Trigger:** Criação de tags `v*`
 
 **Funcionalidades:**
 - 🏷️ Criação automática de releases
 - 📋 Geração de release notes baseados em changelog
-- 📤 Upload de assets
-- 🔗 Links de instalação
+- 📤 Upload de release notes
+- 🔧 Preparação de arquivos de distribuição
+- 📦 Criação de arquivo compactado
+- 📤 Upload do pacote completo
 
 **Como usar:**
 ```bash
@@ -93,10 +94,6 @@ git push origin v2.4.0
 # Ou usar o comando make (apenas no repositório)
 make release-create VERSION=2.4.0
 ```
-
-### **3. Deploy e Distribuição (`deploy.yml`)**
-
-**Trigger:** Release publicado ou manual
 
 **Funcionalidades:**
 - 📦 Preparação de arquivos **otimizada para usuários**
@@ -302,6 +299,14 @@ git push origin --tags
 - **Comandos** - [comandos.md](comandos.md)
 - **Configuração** - [configuracao.md](configuracao.md)
 
+## ✅ **Vantagens do Workflow Simplificado**
+
+- **🎯 Mais simples:** Apenas 2 workflows em vez de 3
+- **🔄 Mais claro:** CI sempre executa, Release só com tags
+- **⚡ Mais rápido:** Sem condições complexas ou dependências
+- **🛠️ Mais fácil:** Fácil de entender e manter
+- **📦 Completo:** Release faz tudo de uma vez
+
 ## 🔮 **Funcionalidades Futuras**
 
 ### **Planejado para v2.5.0**
@@ -320,4 +325,4 @@ git push origin --tags
 
 ---
 
-**🚀 Sistema de distribuição otimizado para máxima usabilidade!**
+**🚀 Sistema de distribuição simplificado e otimizado para máxima usabilidade!**
