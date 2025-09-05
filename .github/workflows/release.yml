@@ -8,6 +8,10 @@ on:
 env:
   SYSTEM_NAME: "BlueAI Docker Ops"
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   # 🚀 Release Completo (Criar + Deploy)
   release:
