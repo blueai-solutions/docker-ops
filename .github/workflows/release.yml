@@ -31,8 +31,11 @@ jobs:
         run: |
           echo "📋 Gerando release notes do changelog..."
           
-          # Sourcing da configuração
-          source config/version-config.sh
+          # Configurações do sistema (definidas diretamente)
+          SYSTEM_NAME="BlueAI Docker Ops"
+          SYSTEM_DESCRIPTION="Sistema automatizado de backup para containers Docker"
+          SYSTEM_AUTHOR="BlueAI Solutions"
+          SYSTEM_LICENSE="MIT"
           
           RELEASE_VERSION="${{ steps.tag.outputs.tag_version }}"
           CHANGELOG_FILE="docs/changelog/v${RELEASE_VERSION}.md"
