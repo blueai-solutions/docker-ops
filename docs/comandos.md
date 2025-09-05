@@ -1,6 +1,6 @@
 # 📋 Comandos Detalhados - BlueAI Docker Ops
 
-Referência completa de todos os comandos disponíveis no sistema.
+Referência completa de todos os comandos disponíveis no sistema simplificado.
 
 ## 🐳 Script Principal
 
@@ -9,378 +9,227 @@ Referência completa de todos os comandos disponíveis no sistema.
 O script principal que unifica todas as funcionalidades do sistema.
 
 ```bash
-./blueai-docker-ops.sh [COMANDO] [OPÇÕES]
+./blueai-docker-ops.sh [COMANDO]
 ```
 
-## 🔄 Comandos de Backup
+## 🚀 Comandos Essenciais
 
-### **Backup Dinâmico**
-
-```bash
-# Executar backup dinâmico (recomendado)
-./blueai-docker-ops.sh backup
-
-# Backup dinâmico explícito
-./blueai-docker-ops.sh dynamic backup
-
-# Listar containers configurados para backup
-./blueai-docker-ops.sh dynamic list
-
-# Validar configuração de backup
-./blueai-docker-ops.sh dynamic validate
-
-# Testar backup sem executar
-./blueai-docker-ops.sh dynamic test
-```
-
-### **Gerenciamento de Backups**
+### **Setup e Configuração**
 
 ```bash
-# Listar backups disponíveis
-./blueai-docker-ops.sh backup list
+# Configuração inicial completa do sistema
+./blueai-docker-ops.sh setup
 
-# Restaurar backup específico
-./blueai-docker-ops.sh backup restore [arquivo.tar.gz]
+# Configuração interativa
+./blueai-docker-ops.sh config
 
-# Executar backup completo
-./blueai-docker-ops.sh backup run
-```
+# Configurar agendamento
+./blueai-docker-ops.sh schedule
 
-## 🔄 Comandos de Recuperação
+# Ver volumes configurados
+./blueai-docker-ops.sh volumes
 
-### **Recuperação Dinâmica**
+# Ver serviços configurados
+./blueai-docker-ops.sh services
 
-```bash
-# Recuperar todos os containers configurados
-./blueai-docker-ops.sh recover
-
-# Configurar recuperação interativamente
-./blueai-docker-ops.sh recovery config
-
-# Listar containers configurados para recuperação
-./blueai-docker-ops.sh recovery list
-
-# Preview da configuração de recuperação
-./blueai-docker-ops.sh recovery preview
-
-# Validar configuração de recuperação
-./blueai-docker-ops.sh recovery validate
-
-# Resetar configuração de recuperação
-./blueai-docker-ops.sh recovery reset
-
-# Iniciar recuperação de containers
-./blueai-docker-ops.sh recovery start
-
-# Parar recuperação de containers
-./blueai-docker-ops.sh recovery stop
-
-# Status da recuperação
-./blueai-docker-ops.sh recovery status
-
-# Logs da recuperação
-./blueai-docker-ops.sh recovery logs
-```
-
-## ⚙️ Comandos de Configuração
-
-### **Configuração de Containers**
-
-```bash
-# Configurar containers para backup (interativo)
-./blueai-docker-ops.sh config containers
-
-# Preview da configuração de containers
-./blueai-docker-ops.sh config preview
-
-# Validar configuração de containers
-./blueai-docker-ops.sh config validate
-
-# Resetar configuração de containers
-./blueai-docker-ops.sh config reset
-
-# Testar configurações
-./blueai-docker-ops.sh config test
-
-# Editar configurações
-./blueai-docker-ops.sh config edit
-```
-
-### **Gerenciamento de Backups de Configuração**
-
-```bash
-# Listar backups de configuração
-./blueai-docker-ops.sh config backups list
-
-# Restaurar backup de configuração
-./blueai-docker-ops.sh config backups restore [arquivo]
-
-# Limpar backups antigos
-./blueai-docker-ops.sh config backups clean [dias]
-
-# Informações do backup
-./blueai-docker-ops.sh config backups info [arquivo]
-
-# Comparar backup com configuração atual
-./blueai-docker-ops.sh config backups diff [arquivo]
-```
-
-## 📊 Comandos de Monitoramento
-
-### **Status e Informações**
-
-```bash
-# Verificar status dos containers
+# Status geral do sistema
 ./blueai-docker-ops.sh status
 
-# Analisar logs do sistema
+# Testar sistema completo
+./blueai-docker-ops.sh test
+```
+
+### **Monitoramento e Gestão**
+
+```bash
+# Ver logs do sistema
 ./blueai-docker-ops.sh logs
 
-# Monitorar logs em tempo real
-./blueai-docker-ops.sh monitor
+# Gerar relatórios
+./blueai-docker-ops.sh report
+
+# Comandos avançados
+./blueai-docker-ops.sh advanced
 ```
 
-### **Análise de Logs**
+### **Instalação e Gestão**
 
 ```bash
-# Logs das últimas 24 horas
-./blueai-docker-ops.sh logs --last-24h
+# Instalar sistema
+./blueai-docker-ops.sh install
 
-# Apenas erros
-./blueai-docker-ops.sh logs --errors
-
-# Análise de performance
-./blueai-docker-ops.sh logs --performance
-
-# Estatísticas gerais
-./blueai-docker-ops.sh logs --stats
-
-# Buscar nos logs
-./blueai-docker-ops.sh logs --search "texto"
-
-# Exportar logs
-./blueai-docker-ops.sh logs --export
+# Desinstalar sistema
+./blueai-docker-ops.sh uninstall
 ```
 
-## 📈 Comandos de Relatórios
+## 📦 Comandos de Backup
 
-### **Geração de Relatórios**
+### **Execução de Backup**
 
 ```bash
-# Gerar relatório HTML
-./blueai-docker-ops.sh report html
-
-# Gerar relatório de texto
-./blueai-docker-ops.sh report text
-
-# Exportar dados
-./blueai-docker-ops.sh report export
+# Executar backup
+./blueai-docker-ops.sh backup
 ```
 
-## 🧪 Comandos de Teste
-
-### **Testes e Validação**
+### **Exemplos de Uso**
 
 ```bash
-# Testar notificações
-./blueai-docker-ops.sh notify-test
+# Fazer backup manual
+./blueai-docker-ops.sh backup
 
-# Validar configurações
-./blueai-docker-ops.sh validate
-
-# Teste completo do sistema
-./scripts/utils/test-system.sh
+# Ver status do backup
+./blueai-docker-ops.sh status
 ```
 
-## 🧹 Comandos de Manutenção
+## 🔄 Comandos de Recovery
 
-### **Limpeza e Manutenção**
+### **Execução de Recovery**
 
 ```bash
-# Limpar logs e backups antigos
-./blueai-docker-ops.sh cleanup
-
-# Limpar funcionalidades depreciadas
-./scripts/utils/cleanup-deprecated.sh --check
-./scripts/utils/cleanup-deprecated.sh --remove
+# Executar recovery
+./blueai-docker-ops.sh recovery
 ```
 
-## 📝 Comandos de Versão
-
-### **Gerenciamento de Versão**
+### **Exemplos de Uso**
 
 ```bash
-# Mostrar informações da versão
-./blueai-docker-ops.sh version
-
-# Mostrar changelog
-./blueai-docker-ops.sh changelog [versão]
-
-# Gerenciar changelogs
-./blueai-docker-ops.sh changelog-manager
-
-# Verificar compatibilidade
-./blueai-docker-ops.sh compatibility
-
-# Verificar atualizações
-./blueai-docker-ops.sh update-check
-
-# Mostrar estatísticas do sistema
-./blueai-docker-ops.sh stats
+# Executar recovery de todos os serviços configurados
+./blueai-docker-ops.sh recovery
 ```
 
-## 🔄 Comandos de Automação
+## 📊 Monitoramento
 
-### **LaunchAgent (macOS)**
+### **Logs e Relatórios**
 
 ```bash
-# Instalar LaunchAgent
-./blueai-docker-ops.sh automação install
+# Ver logs do sistema
+./blueai-docker-ops.sh logs
 
-# Verificar status
-./blueai-docker-ops.sh automação status
-
-# Desinstalar LaunchAgent
-./blueai-docker-ops.sh automação uninstall
-
-# Testar script de backup
-./blueai-docker-ops.sh automação test
-
-# Ajuda dos comandos de automação
-./blueai-docker-ops.sh automação --help
+# Gerar relatórios
+./blueai-docker-ops.sh report
 ```
 
-### **Comandos Diretos (Alternativa)**
+### **Exemplos de Uso**
 
 ```bash
-# Instalar LaunchAgent
-./scripts/utils/install-launchagent.sh
+# Ver logs do sistema
+./blueai-docker-ops.sh logs
 
-# Verificar status
-./scripts/utils/install-launchagent.sh status
-
-# Desinstalar LaunchAgent
-./scripts/utils/install-launchagent.sh uninstall
-
-# Testar script de backup
-./scripts/utils/install-launchagent.sh test
-```
-
-## 📋 Opções Globais
-
-### **Ajuda e Informações**
-
-```bash
-# Mostrar ajuda completa
-./blueai-docker-ops.sh --help
-
-# Mostrar ajuda de comando específico
-./blueai-docker-ops.sh [COMANDO] --help
-
-# Mostrar versão
-./blueai-docker-ops.sh --version
+# Gerar relatórios
+./blueai-docker-ops.sh report
 ```
 
 ## 🔧 Comandos Avançados
 
-### **Utilitários do Sistema**
+### **Acesso a Funcionalidades Avançadas**
 
 ```bash
-# Configurador de containers
-./scripts/utils/container-configurator.sh
-
-# Configurador de recuperação
-./scripts/utils/recovery-configurator.sh
-
-# Gerenciador de backups de configuração
-./scripts/utils/config-backup-manager.sh
-
-# Limpeza de funcionalidades depreciadas
-./scripts/utils/cleanup-deprecated.sh
-
-# Teste completo do sistema
-./scripts/utils/test-system.sh
-
-# Instalador do LaunchAgent
-./scripts/utils/install-launchagent.sh
-
-# Utilitários de versão
-./scripts/utils/version-utils.sh
+# Mostrar comandos avançados disponíveis
+./blueai-docker-ops.sh advanced
 ```
 
-## 📊 Exemplos de Uso
-
-### **Fluxo Típico de Backup**
+### **Comandos Avançados Disponíveis**
 
 ```bash
-# 1. Configurar containers
-./blueai-docker-ops.sh config containers
+# Backup avançado
+backup run      # Executar backup completo
+backup validate # Validar configuração
+backup test     # Testar backup
 
-# 2. Validar configuração
-./blueai-docker-ops.sh config validate
+# Logs avançados
+logs --last-24h     # Logs das últimas 24 horas
+logs --errors       # Apenas erros
+logs --performance  # Análise de performance
+logs --search TEXT  # Buscar nos logs
 
-# 3. Executar backup
+# Relatórios avançados
+report html     # Gerar relatório HTML
+report text     # Gerar relatório de texto
+report export   # Exportar dados
+
+# Recovery avançado
+config                # Configurar volumes e serviços
+recovery validate     # Validar configuração
+recovery start        # Iniciar recuperação
+recovery stop         # Parar recuperação
+
+# Automação
+automation install     # Instalar LaunchAgent
+automation status      # Verificar status
+automation test        # Testar automação
+
+# Desenvolvimento
+version               # Informações da versão
+changelog             # Changelog
+compatibility         # Verificar compatibilidade
+stats                 # Estatísticas do sistema
+```
+
+## 🎯 Comandos por Categoria
+
+### **🔄 Backup e Recovery**
+- `backup` - Executar backup
+- `recovery` - Executar recovery
+
+### **⚙️ Configuração**
+- `setup` - Configuração inicial
+- `config` - Configuração interativa
+- `schedule` - Configurar agendamento
+- `volumes` - Ver volumes configurados
+
+### **📊 Monitoramento**
+- `status` - Status geral do sistema
+- `logs` - Ver logs do sistema
+- `report` - Gerar relatórios
+- `test` - Testar sistema completo
+
+### **🔧 Gestão**
+- `install` - Instalar sistema
+- `uninstall` - Desinstalar sistema
+- `advanced` - Comandos avançados
+
+## 📋 Exemplos Práticos
+
+### **Configuração Inicial**
+
+```bash
+# 1. Configuração completa
+./blueai-docker-ops.sh setup
+
+# 2. Verificar status
+./blueai-docker-ops.sh status
+
+# 3. Ver volumes configurados
+./blueai-docker-ops.sh volumes
+```
+
+### **Operação Diária**
+
+```bash
+# 1. Ver status do sistema
+./blueai-docker-ops.sh status
+
+# 2. Executar backup
 ./blueai-docker-ops.sh backup
 
-# 4. Verificar status
-./blueai-docker-ops.sh status
+# 3. Ver logs
+./blueai-docker-ops.sh logs
 
-# 5. Gerar relatório
-./blueai-docker-ops.sh report html
-```
-
-### **Fluxo Típico de Recuperação**
-
-```bash
-# 1. Configurar recuperação
-./blueai-docker-ops.sh recovery config
-
-# 2. Validar configuração
-./blueai-docker-ops.sh recovery validate
-
-# 3. Listar containers configurados
-./blueai-docker-ops.sh recovery list
-
-# 4. Executar recuperação
-./blueai-docker-ops.sh recover
-
-# 5. Verificar status
-./blueai-docker-ops.sh status
-
-# 6. Ver logs de erro
-./blueai-docker-ops.sh logs --errors
-```
-
-### **Monitoramento Diário**
-
-```bash
-# Verificar status
-./blueai-docker-ops.sh status
-
-# Monitorar logs
-./blueai-docker-ops.sh monitor
-
-# Análise de performance
-./blueai-docker-ops.sh logs --performance
-
-# Gerar relatório
-./blueai-docker-ops.sh report html
+# 4. Gerar relatório
+./blueai-docker-ops.sh report
 ```
 
 ### **Troubleshooting**
 
 ```bash
-# Ver logs de erro
-./blueai-docker-ops.sh logs --errors
+# 1. Testar sistema
+./blueai-docker-ops.sh test
 
-# Testar notificações
-./blueai-docker-ops.sh notify-test
+# 2. Ver logs de erro
+./blueai-docker-ops.sh advanced
 
-# Validar configurações
-./blueai-docker-ops.sh validate
-
-# Teste completo
-./scripts/utils/test-system.sh
+# 3. Verificar configurações
+./blueai-docker-ops.sh status
 ```
 
 ## 🚨 Comandos de Emergência
@@ -388,95 +237,150 @@ O script principal que unifica todas as funcionalidades do sistema.
 ### **Recuperação Rápida**
 
 ```bash
-# Recuperar containers imediatamente
-./blueai-docker-ops.sh recover
+# 1. Executar recovery
+./blueai-docker-ops.sh recovery
 
-# Verificar status
+# 2. Verificar status
 ./blueai-docker-ops.sh status
 
-# Ver logs de erro
-./blueai-docker-ops.sh logs --errors
+# 3. Ver logs
+./blueai-docker-ops.sh logs
+```
 
-# Backup de emergência
+### **Backup de Emergência**
+
+```bash
+# 1. Fazer backup imediato
 ./blueai-docker-ops.sh backup
+
+# 2. Verificar se foi criado
+./blueai-docker-ops.sh backup-list
 ```
 
-### **Restauração de Backup**
+## 🔧 Comandos Avançados
+
+### **Acesso ao Menu Avançado**
 
 ```bash
-# Listar backups disponíveis
-./blueai-docker-ops.sh backup list
-
-# Restaurar backup específico
-./blueai-docker-ops.sh backup restore [arquivo]
-
-# Verificar integridade
-./blueai-docker-ops.sh validate
+# Ver todos os comandos avançados
+./blueai-docker-ops.sh advanced
 ```
 
-## 📋 Códigos de Retorno
+### **Categorias de Comandos Avançados**
 
-| Código | Significado |
-|--------|-------------|
-| `0` | Sucesso |
-| `1` | Erro geral |
-| `2` | Erro de configuração |
-| `3` | Erro de permissão |
-| `4` | Erro de dependência |
-| `5` | Erro de validação |
+#### **📋 Backup Avançado**
+```bash
+backup run      # Executar backup completo
+backup validate # Validar configuração
+backup test     # Testar backup
+```
 
-## 🔍 Opções de Debug
+#### **📊 Logs Avançados**
+```bash
+logs --last-24h     # Logs das últimas 24 horas
+logs --errors       # Apenas erros
+logs --performance  # Análise de performance
+logs --search TEXT  # Buscar nos logs
+```
 
-### **Logs Detalhados**
+#### **📈 Relatórios Avançados**
+```bash
+report html     # Gerar relatório HTML
+report text     # Gerar relatório de texto
+report export   # Exportar dados
+```
+
+#### **🔄 Recovery Avançado**
+```bash
+config                # Configurar volumes e serviços
+recovery validate     # Validar configuração
+recovery start        # Iniciar recuperação
+recovery stop         # Parar recuperação
+```
+
+#### **🚀 Automação**
+```bash
+automation install     # Instalar LaunchAgent
+automation status      # Verificar status
+automation test        # Testar automação
+```
+
+#### **📊 Desenvolvimento**
+```bash
+version               # Informações da versão
+changelog             # Changelog
+compatibility         # Verificar compatibilidade
+stats                 # Estatísticas do sistema
+```
+
+#### **🚨 Reset e Limpeza (PERIGOSO!)**
+```bash
+factory-reset         # Reset completo de fábrica (APAGA TUDO!)
+clean-data            # Limpar dados (backups, logs, relatórios)
+```
+
+### **⚠️ Comandos Perigosos**
+
+Os comandos de reset são **extremamente perigosos** e devem ser usados com muito cuidado:
+
+- **`factory-reset`** - Apaga TODAS as configurações, backups, logs e dados
+- **`clean-data`** - Apaga apenas dados temporários, preservando configurações
+
+**Sempre faça backup antes de usar estes comandos!**
+
+## 📚 Ajuda e Suporte
+
+### **Comandos de Ajuda**
 
 ```bash
-# Habilitar logs debug
-export LOG_LEVEL=DEBUG
+# Ajuda principal
+./blueai-docker-ops.sh --help
+./blueai-docker-ops.sh -h
+./blueai-docker-ops.sh help
 
-# Executar comando
-./blueai-docker-ops.sh [COMANDO]
+# Ajuda para comandos avançados
+./blueai-docker-ops.sh advanced
 ```
 
-### **Modo Verboso**
+### **Informações do Sistema**
 
 ```bash
-# Executar com saída detalhada
-./blueai-docker-ops.sh [COMANDO] --verbose
+# Ver versão
+./blueai-docker-ops.sh --version
+
+# Ver informações do sistema
+./blueai-docker-ops.sh status
 ```
 
-## 📚 Comandos por Categoria
+## 🔍 Dicas de Uso
 
-### **🔄 Backup e Recuperação**
-- `backup` - Executar backup dinâmico
-- `dynamic backup` - Backup dinâmico explícito
-- `recover` - Recuperar containers
-- `recovery config` - Configurar recuperação
+### **1. Sempre comece com `setup`**
+```bash
+./blueai-docker-ops.sh setup
+```
 
-### **⚙️ Configuração**
-- `config containers` - Configurar containers
-- `config backups` - Gerenciar backups de configuração
-- `recovery config` - Configurar recuperação
+### **2. Use `status` para verificar o sistema**
+```bash
+./blueai-docker-ops.sh status
+```
 
-### **📊 Monitoramento**
-- `status` - Verificar status
-- `logs` - Analisar logs
-- `monitor` - Monitorar em tempo real
+### **3. Use `advanced` para funcionalidades extras**
+```bash
+./blueai-docker-ops.sh advanced
+```
 
-### **📈 Relatórios**
-- `report html` - Relatório HTML
-- `report text` - Relatório texto
-- `report export` - Exportar dados
+### **4. Use `test` para validar configurações**
+```bash
+./blueai-docker-ops.sh test
+```
 
-### **🧪 Testes**
-- `notify-test` - Testar notificações
-- `validate` - Validar configurações
-- `dynamic validate` - Validar backup dinâmico
+## 📖 Próximos Passos
 
-### **🧹 Manutenção**
-- `cleanup` - Limpar logs e backups
-- `version` - Informações de versão
-- `changelog` - Histórico de versões
+- 🏗️ **[Arquitetura do Sistema](arquitetura.md)** - Como o sistema funciona
+- 🔧 **[Configuração Avançada](configuracao.md)** - Personalizações
+- 🆘 **[Solução de Problemas](solucao-problemas.md)** - Troubleshooting
+- 🚀 **[Guia de Início Rápido](guia-inicio-rapido.md)** - Primeiros passos
 
 ---
 
-**💡 Dica:** Use `./blueai-docker-ops.sh --help` para ver a ajuda completa de qualquer comando.
+**🎯 Sistema simplificado com 8 comandos essenciais para operação diária!**

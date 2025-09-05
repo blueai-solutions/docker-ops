@@ -1,0 +1,157 @@
+name: 🚀 Deploy e Distribuição - BlueAI Docker Ops
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  SYSTEM_NAME: "BlueAI Docker Ops"
+
+jobs:
+  prepare-distribution:
+    name: 📦 Preparar Distribuição
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        
+      - name: 🏷️ Obter informações da release
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RELEASE_TAG=${{ github.event.release.tag_name }}
+            RELEASE_VERSION=${RELEASE_TAG#v}
+          else
+            RELEASE_TAG="v$(cat VERSION)"
+            RELEASE_VERSION=$(cat VERSION)
+          fi
+          
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          echo "📋 Release: $RELEASE_TAG"
+          echo "📋 Versão: $RELEASE_VERSION"
+          
+      - name: 🔧 Preparar arquivos de distribuição
+        run: |
+          echo "🔧 Preparando arquivos para distribuição..."
+          
+          mkdir -p dist
+          
+          # Scripts essenciais para usuários finais
+          cp -r scripts/core/ dist/scripts/
+          cp -r scripts/backup/ dist/scripts/
+          cp -r scripts/notifications/ dist/scripts/
+          cp -r scripts/logging/ dist/scripts/
+          
+          # Utilitários para usuários (excluindo desenvolvimento)
+          mkdir -p dist/scripts/utils
+          cp scripts/utils/container-configurator.sh dist/scripts/utils/
+          cp scripts/utils/recovery-configurator.sh dist/scripts/utils/
+          cp scripts/utils/test-system.sh dist/scripts/utils/
+          cp scripts/utils/config-backup-manager.sh dist/scripts/utils/
+          cp scripts/utils/cleanup-deprecated.sh dist/scripts/utils/
+          
+          # Scripts de instalação para usuários
+          mkdir -p dist/scripts/install
+          cp scripts/install/install-launchagent.sh dist/scripts/install/
+          
+          # Templates de configuração (NÃO configurações locais)
+          mkdir -p dist/config
+          cp -r config/templates/ dist/config/
+          
+          # Documentação de uso (excluindo desenvolvimento)
+          mkdir -p dist/docs
+          cp docs/README.md dist/docs/
+          cp docs/guia-inicio-rapido.md dist/docs/
+          cp docs/comandos.md dist/docs/
+          cp docs/arquitetura.md dist/docs/
+          cp docs/solucao-problemas.md dist/docs/
+          cp docs/launchagent.md dist/docs/
+          
+          # Changelog para usuários (apenas histórico)
+          if [ -d "docs/changelog" ]; then
+            mkdir -p dist/docs/changelog
+            cp docs/changelog/CHANGELOG.md dist/docs/changelog/
+            cp docs/changelog/v*.md dist/docs/changelog/ 2>/dev/null || true
+          fi
+          
+          # Scripts de instalação do sistema
+          cp -r install/ dist/
+          
+          # Arquivos principais
+          cp blueai-docker-ops.sh dist/
+          cp VERSION dist/
+          cp README.md dist/
+          
+          echo "📁 Estrutura de distribuição:"
+          find dist/ -type f | head -20
+          
+      - name: 📦 Criar arquivo compactado
+        run: |
+          echo "📦 Criando arquivo compactado..."
+          
+          cd dist
+          tar -czf "../blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz" .
+          cd ..
+          
+          echo "📦 Arquivo criado: blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz"
+          
+      - name: 📤 Upload assets para release
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz
+          asset_name: blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz
+          asset_content_type: application/gzip
+          
+      - name: 📊 Relatório de distribuição
+        run: |
+          # Sourcing da configuração
+          source config/version-config.sh
+          
+          echo "📊 RELATÓRIO DE DISTRIBUIÇÃO"
+          echo "============================="
+          echo "🏷️ Release: ${{ steps.release.outputs.release_tag }}"
+          echo "📋 Versão: ${{ steps.release.outputs.release_version }}"
+          echo "📋 Sistema: $SYSTEM_NAME"
+          echo "📋 Autor: $SYSTEM_AUTHOR"
+          echo "📁 Arquivos: $(find dist/ -type f | wc -l)"
+          echo "📦 Compactado: blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz"
+          echo ""
+          echo "📋 CONTEÚDO INCLUÍDO:"
+          echo "✅ Scripts de uso (core, backup, notifications, logging)"
+          echo "✅ Utilitários para usuários (configuração, recuperação, testes)"
+          echo "✅ Scripts de instalação (LaunchAgent)"
+          echo "✅ Templates de configuração (NÃO configurações locais)"
+          echo "✅ Documentação de uso"
+          echo "✅ Scripts de instalação do sistema"
+          echo "✅ Script de configuração automática"
+          echo ""
+          echo "❌ EXCLUÍDO (desenvolvimento e local):"
+          echo "❌ Scripts de release management (scripts/dev/)"
+          echo "❌ Scripts de changelog management (scripts/dev/)"
+          echo "❌ Scripts de version management (scripts/dev/)"
+          echo "❌ Configurações específicas do ambiente local"
+          echo "❌ Documentação técnica de desenvolvimento"
+          echo "❌ Workflows do GitHub Actions"
+          echo "❌ Makefile (ferramenta de desenvolvimento)"
+          
+      - name: 🎯 Status final
+        run: |
+          # Sourcing da configuração
+          source config/version-config.sh
+          
+          echo "🎉 DISTRIBUIÇÃO PREPARADA COM SUCESSO!"
+          echo "🚀 $SYSTEM_NAME v${{ steps.release.outputs.release_version }} está pronto!"
+          echo "📦 Arquivo: blueai-docker-ops-${{ steps.release.outputs.release_version }}.tar.gz"
+          echo ""
+          echo "🎯 PACOTE OTIMIZADO PARA USUÁRIOS FINAIS"
+          echo "📚 Scripts de desenvolvimento disponíveis apenas no repositório"
+          echo "🏗️ Estrutura organizada por funcionalidade"
+          echo "🔒 CONFIGURAÇÕES LIMPAS - Sem informações locais!"
+          echo "👨‍💻 Desenvolvido com ❤️ pela $SYSTEM_AUTHOR"

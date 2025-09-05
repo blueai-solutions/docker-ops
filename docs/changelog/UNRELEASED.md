@@ -12,6 +12,13 @@
 - 🔄 **Sincronização com nuvem** (planejado)
 - 🔄 **Backup de configurações** Docker (planejado)
 
+### Sistema de Agendamento Inteligente ✅
+- ✅ **LaunchAgent com sincronização automática** (implementado)
+- ✅ **Backup de configurações** antes de alterações (implementado)
+- ✅ **Validação inteligente** de horários (implementado)
+- ✅ **Descrição automática** de horários em português (implementado)
+- ✅ **Teste de funcionamento** com execução em 60s (implementado)
+
 ### Interface Web
 - 🔄 **Dashboard web** (planejado)
 - 🔄 **API REST** (planejado)
@@ -38,6 +45,18 @@
 - 🔄 **Cache inteligente** (planejado)
 - 🔄 **Compressão adaptativa** (planejado)
 
+## ✅ Melhorias Implementadas
+
+### Sistema de Agendamento
+- ✅ **Sincronização automática** entre arquivo de config e LaunchAgent
+- ✅ **Função `update_config_file()`** para atualização automática de configurações
+- ✅ **Função `generate_plist()`** para geração dinâmica de arquivos .plist
+- ✅ **Recarregamento automático** de configurações após alterações
+- ✅ **Backup de segurança** com timestamps únicos
+- ✅ **Validação robusta** de entrada de horários
+- ✅ **Descrição inteligente** de horários (meia-noite, manhã, tarde)
+- ✅ **Comando `test-launchagent`** para teste de funcionamento
+
 ### Usabilidade
 - 🔄 **Interface CLI** melhorada
 - 🔄 **Autocompletar** de comandos
@@ -51,6 +70,15 @@
 - 🔄 **Recuperação automática** aprimorada
 - 🔄 **Validação** mais robusta
 - 🔄 **Testes** mais abrangentes
+
+## 🐛 Correções Implementadas
+
+### Sistema de Agendamento
+- ✅ **Inconsistência entre arquivo de config e LaunchAgent** (corrigido)
+- ✅ **Ordem incorreta de operações** na função `change_schedule` (corrigido)
+- ✅ **Falta de sincronização** após alterações de horário (corrigido)
+- ✅ **Problema de variáveis não atualizadas** em `generate_plist` (corrigido)
+- ✅ **Falha na atualização** do arquivo .plist após alterações (corrigido)
 
 ## 📋 Roadmap
 

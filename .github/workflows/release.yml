@@ -1,0 +1,112 @@
+name: 🚀 Release Automático - BlueAI Docker Ops
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  SYSTEM_NAME: "BlueAI Docker Ops"
+
+jobs:
+  # 🏷️ Criar Release
+  create-release:
+    name: 🏷️ Criar Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v4
+        
+      - name: 🏷️ Obter informações da tag
+        id: tag
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "tag_version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
+          echo "📋 Tag: $TAG_NAME"
+          echo "📋 Versão: ${TAG_NAME#v}"
+          
+      - name: 📋 Gerar release notes do changelog
+        run: |
+          echo "📋 Gerando release notes do changelog..."
+          
+          # Sourcing da configuração
+          source config/version-config.sh
+          
+          RELEASE_VERSION="${{ steps.tag.outputs.tag_version }}"
+          CHANGELOG_FILE="docs/changelog/v${RELEASE_VERSION}.md"
+          
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "✅ Usando changelog existente: $CHANGELOG_FILE"
+            
+            # Cria release notes com cabeçalho do sistema
+            {
+              echo "# Release Notes - $SYSTEM_NAME v${RELEASE_VERSION}"
+              echo ""
+              echo "**$SYSTEM_NAME** - $SYSTEM_DESCRIPTION"
+              echo "**Autor:** $SYSTEM_AUTHOR"
+              echo "**Licença:** $SYSTEM_LICENSE"
+              echo ""
+              echo "---"
+              echo ""
+              # Remove o cabeçalho do changelog (primeira linha) e adiciona o conteúdo
+              tail -n +2 "$CHANGELOG_FILE"
+            } > RELEASE_NOTES.md
+            
+          else
+            echo "⚠️ Changelog não encontrado para v${RELEASE_VERSION}"
+            echo "📝 Gerando conteúdo padrão..."
+            
+            {
+              echo "# Release Notes - $SYSTEM_NAME v${RELEASE_VERSION}"
+              echo ""
+              echo "## Sobre"
+              echo "**$SYSTEM_NAME** - $SYSTEM_DESCRIPTION"
+              echo "**Autor:** $SYSTEM_AUTHOR"
+              echo "**Licença:** $SYSTEM_LICENSE"
+              echo ""
+              echo "## 📋 Informações da Release"
+              echo "Esta release foi criada automaticamente."
+              echo "Para detalhes completos das mudanças, consulte o [changelog completo](https://github.com/blueai-solutions/docker-ops/blob/main/docs/changelog/CHANGELOG.md)."
+              echo ""
+              echo "## 🚀 Funcionalidades Principais"
+              echo "- Sistema de backup automatizado para containers Docker"
+              echo "- Recuperação inteligente de volumes e dados"
+              echo "- Notificações por email e macOS"
+              echo "- Agendamento flexível de backups"
+              echo "- Interface de linha de comando intuitiva"
+            } > RELEASE_NOTES.md
+          fi
+          
+          echo "✅ Release notes criados!"
+          echo "📋 Conteúdo baseado em: $SYSTEM_NAME v${RELEASE_VERSION}"
+          
+      - name: 🏷️ Criar Release no GitHub
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          release_name: "🚀 ${{ steps.tag.outputs.tag_name }} - ${{ env.SYSTEM_NAME }}"
+          body_path: ./RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          
+      - name: 📤 Upload assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./RELEASE_NOTES.md
+          asset_name: RELEASE_NOTES.md
+          asset_content_type: text/markdown
+          
+      - name: 🎯 Status final
+        run: |
+          echo "🎉 RELEASE CRIADO COM SUCESSO!"
+          echo "🏷️ Tag: ${{ steps.tag.outputs.tag_name }}"
+          echo "📋 Versão: ${{ steps.tag.outputs.tag_version }}"
+          echo "🚀 BlueAI Docker Ops está disponível para download!"

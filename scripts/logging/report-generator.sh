@@ -20,9 +20,26 @@ else
     echo "❌ Arquivo de configuração de versão não encontrado"
     exit 1
 fi
-LOG_DIR="$PROJECT_ROOT/logs"
+
+# Carregar configuração de backup
+BACKUP_CONFIG="$PROJECT_ROOT/config/backup-config.sh"
+if [ -f "$BACKUP_CONFIG" ]; then
+    source "$BACKUP_CONFIG"
+else
+    echo "❌ Arquivo de configuração de backup não encontrado"
+    exit 1
+fi
+
+# Verificar se estamos em um sistema instalado globalmente
+if [ -d "/usr/local/blueai-docker-ops/logs" ]; then
+    LOG_DIR="/usr/local/blueai-docker-ops/logs"
+    BACKUP_DIR="/usr/local/blueai-docker-ops/backups"
+else
+    LOG_DIR="$PROJECT_ROOT/logs"
+    # BACKUP_DIR já foi carregado do backup-config.sh
+fi
+
 REPORTS_DIR="$PROJECT_ROOT/reports"
-BACKUP_DIR="$PROJECT_ROOT/backups"
 
 # Função para gerar CSS
 generate_css() {
@@ -288,6 +305,12 @@ function filterLogs(level) {
             row.style.display = 'none';
         }
     });
+    
+    // Atualizar botões ativos
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.style.opacity = '0.7';
+    });
+    document.querySelector(`[data-level="${level}"]`).style.opacity = '1';
 }
 
 // Função para exportar dados
@@ -392,10 +415,10 @@ generate_stats_section() {
     echo '<div class="stats-grid">'
     
     # Estatísticas básicas
-    local total_backups=$(find "$BACKUP_DIR" -name "*.tar.gz" -type f | wc -l)
-    local total_logs=$(find "$LOG_DIR" -name "*.log" -type f | wc -l)
-    local error_count=$(grep -c "\[ERROR\]\|\[CRITICAL\]" "$LOG_DIR"/*.log 2>/dev/null || echo "0")
-    local warning_count=$(grep -c "\[WARNING\]" "$LOG_DIR"/*.log 2>/dev/null || echo "0")
+    local total_backups=$(find "$BACKUP_DIR" -name "*.tar.gz" -type f 2>/dev/null | wc -l)
+    local total_logs=$(find "$LOG_DIR" -name "*.log" -type f 2>/dev/null | wc -l)
+    local error_count=$(find "$LOG_DIR" -name "*.log" -type f -exec grep -h "\[ERROR\]\|\[CRITICAL\]" {} \; 2>/dev/null | wc -l)
+    local warning_count=$(find "$LOG_DIR" -name "*.log" -type f -exec grep -h "\[WARNING\]" {} \; 2>/dev/null | wc -l)
     
     echo "<div class='stat-card success'>"
     echo "<div class='stat-number'>$total_backups</div>"
@@ -424,9 +447,11 @@ generate_stats_section() {
 # Função para gerar seção de logs recentes
 generate_recent_logs_section() {
     local days=$1
-    local log_file="$LOG_DIR/backup.log"
     
-    if [ ! -f "$log_file" ]; then
+    # Verificar se existem arquivos de log
+    local log_files=$(find "$LOG_DIR" -name "*.log" -type f 2>/dev/null | wc -l)
+    
+    if [ "$log_files" -eq 0 ]; then
         echo '<div class="section">'
         echo '<h2>📝 Logs Recentes</h2>'
         echo '<div class="alert warning">Nenhum arquivo de log encontrado.</div>'
@@ -457,24 +482,39 @@ generate_recent_logs_section() {
     echo '</thead>'
     echo '<tbody>'
     
-    # Obter logs recentes
-    local cutoff_date=$(date -d "$days days ago" +%Y-%m-%d 2>/dev/null || date -v-${days}d +%Y-%m-%d 2>/dev/null || echo "")
-    grep "\[$cutoff_date" "$log_file" 2>/dev/null | tail -20 | while read line; do
-        # Parse da linha de log
-        local timestamp=$(echo "$line" | sed -n 's/\[\([^]]*\)\] \[.*/\1/p')
-        local level=$(echo "$line" | sed -n 's/.*\[\([A-Z]*\)\] \[.*/\1/p')
-        local module=$(echo "$line" | sed -n 's/.*\[[A-Z]*\] \[\([^]]*\)\] .*/\1/p')
-        local message=$(echo "$line" | sed -n 's/.*\[[A-Z]*\] \[[^]]*\] \(.*\)/\1/p')
+    # Obter logs recentes de todos os arquivos (últimos 50 logs)
+    local temp_file=$(mktemp)
+    {
+        find "$LOG_DIR" -name "*.log" -type f -exec sh -c 'tail -50 "$1"' _ {} \;
+    } 2>/dev/null | sort -r | head -50 > "$temp_file"
+    
+    while IFS= read -r line; do
+        # Parse da linha de log - formato: [timestamp] [level] [module] message
+        # Exemplo: [2025-09-04 20:02:04] [WARNING] [BACKUP] Volume mysql-data não encontrado, pulando...
+        local timestamp=$(echo "$line" | sed -n 's/^\[\([^]]*\)\] .*/\1/p')
+        local level=$(echo "$line" | sed -n 's/^\[[^]]*\] \[\([A-Z]*\)\] .*/\1/p')
+        local module=$(echo "$line" | sed -n 's/^\[[^]]*\] \[[A-Z]*\] \[\([^]]*\)\] .*/\1/p')
+        local message=$(echo "$line" | sed -n 's/^\[[^]]*\] \[[A-Z]*\] \[[^]]*\] \(.*\)/\1/p')
         
-        if [ -n "$timestamp" ]; then
+        # Se não conseguiu parsear com módulo, tentar sem módulo: [timestamp] [level] message
+        if [ -z "$message" ]; then
+            message=$(echo "$line" | sed -n 's/^\[[^]]*\] \[[A-Z]*\] \(.*\)/\1/p')
+        fi
+        
+        # Converter nível para minúsculo para CSS
+        local level_lower=$(echo "$level" | tr '[:upper:]' '[:lower:]')
+        
+        if [ -n "$timestamp" ] && [ -n "$level" ]; then
             echo "<tr>"
             echo "<td>$timestamp</td>"
-            echo "<td><span class='log-level $level'>$level</span></td>"
+            echo "<td><span class='log-level $level_lower'>$level</span></td>"
             echo "<td>$module</td>"
             echo "<td>$message</td>"
             echo "</tr>"
         fi
-    done
+    done < "$temp_file"
+    
+    rm -f "$temp_file"
     
     echo '</tbody>'
     echo '</table>'
@@ -498,8 +538,10 @@ generate_performance_section() {
     
     # Estatísticas de performance
     local total_ops=$(wc -l < "$performance_log")
-    local avg_time=$(awk '{sum+=$4} END {print sum/NR}' "$performance_log" 2>/dev/null || echo "0")
-    local max_time=$(awk '{if($4>max) max=$4} END {print max}' "$performance_log" 2>/dev/null || echo "0")
+    # Extrair tempos usando sed para o formato atual
+    local times=$(sed -n 's/.*: \([0-9.]*\)s -.*/\1/p' "$performance_log" 2>/dev/null)
+    local avg_time=$(echo "$times" | awk '{sum+=$1} END {if(NR>0) print sum/NR; else print 0}')
+    local max_time=$(echo "$times" | awk '{if($1>max) max=$1} END {if(max) print max; else print 0}')
     
     echo '<div class="stats-grid">'
     echo "<div class='stat-card'>"
@@ -533,10 +575,11 @@ generate_performance_section() {
     echo '<tbody>'
     
     tail -10 "$performance_log" | while read line; do
-        local timestamp=$(echo "$line" | awk '{print $1, $2}')
-        local operation=$(echo "$line" | awk '{print $4}' | sed 's/://')
-        local duration=$(echo "$line" | awk '{print $5}' | sed 's/s//')
-        local status=$(echo "$line" | awk '{print $7}')
+        # Parse do formato: [timestamp] [PERFORMANCE] operation: duration - status
+        local timestamp=$(echo "$line" | sed -n 's/\[\([^]]*\)\] \[.*/\1/p')
+        local operation=$(echo "$line" | sed -n 's/.*\[PERFORMANCE\] \([^:]*\):.*/\1/p')
+        local duration=$(echo "$line" | sed -n 's/.*: \([0-9.]*\)s -.*/\1/p')
+        local status=$(echo "$line" | sed -n 's/.*- \([^]]*\)$/\1/p')
         
         echo "<tr>"
         echo "<td>$timestamp</td>"
