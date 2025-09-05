@@ -5,7 +5,7 @@
 # Use: ./blueai-docker-ops.sh config para modificar
 
 # Diretório de backup (configure conforme seu ambiente)
-BACKUP_DIR="./backups"
+BACKUP_DIR="$HOME/BlueAI-Docker-Backups"
 
 # Configurações de retenção
 BACKUP_RETENTION_DAYS=7
@@ -63,6 +63,10 @@ BACKUP_COMPRESSION_LEVELS=(
 BACKUP_PRE_CHECK=true
 BACKUP_INTEGRITY_CHECK=true
 BACKUP_SECURITY_CHECK=true
+BACKUP_CHECK_DOCKER=true
+BACKUP_CHECK_DISK_SPACE=true
+BACKUP_MIN_DISK_SPACE_GB=5
+BACKUP_VERIFY_INTEGRITY=true
 
 # =============================================================================
 # INSTRUÇÕES DE CONFIGURAÇÃO

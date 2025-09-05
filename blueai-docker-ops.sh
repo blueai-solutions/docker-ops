@@ -10,7 +10,27 @@
 
 # Configurações do sistema
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$SCRIPT_DIR"
+
+# Detectar diretório do projeto
+if [ -L "${BASH_SOURCE[0]}" ]; then
+    # Se for link simbólico, seguir o link para encontrar o diretório real
+    REAL_SCRIPT="$(readlink "${BASH_SOURCE[0]}")"
+    if [[ "$REAL_SCRIPT" == /* ]]; then
+        # Caminho absoluto
+        PROJECT_ROOT="$(cd "$(dirname "$REAL_SCRIPT")/.." && pwd)"
+    else
+        # Caminho relativo
+        PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/$(dirname "$REAL_SCRIPT")/.." && pwd)"
+    fi
+else
+    # Se não for link simbólico, usar diretório do script
+    PROJECT_ROOT="$SCRIPT_DIR"
+fi
+
+# Fallback: se ainda não encontrou, tentar localizar o diretório de instalação
+if [ ! -d "$PROJECT_ROOT/scripts" ] && [ -d "/usr/local/blueai-docker-ops" ]; then
+    PROJECT_ROOT="/usr/local/blueai-docker-ops"
+fi
 SYSTEM_NAME="BlueAI Docker Ops"
 
 # Cores para output
@@ -91,9 +111,15 @@ run_setup() {
     run_schedule_auto
     echo ""
     
-    # Executar instalação
-    run_install
-    echo ""
+    # Verificar se já está instalado globalmente
+    if command -v blueai-docker-ops &> /dev/null || command -v docker-ops &> /dev/null; then
+        echo "✅ Sistema já está instalado globalmente!"
+        echo "💡 Comandos disponíveis: blueai-docker-ops, docker-ops"
+    else
+        # Executar instalação apenas se não estiver instalado
+        run_install
+        echo ""
+    fi
     
     echo "🎉 Configuração inicial concluída!"
 }
@@ -374,16 +400,19 @@ run_automation_status() {
     
     echo ""
     
-    # Verificar configuração de agendamento
-    if [ -f "$PROJECT_ROOT/config/version-config.sh" ]; then
-        source "$PROJECT_ROOT/config/version-config.sh"
-        if [ -n "$BACKUP_SCHEDULE" ]; then
-            echo "⏰ Agendamento configurado: $BACKUP_SCHEDULE"
+    # Verificar configuração de agendamento no LaunchAgent
+    if [ -f "$launchagent_path" ]; then
+        # Extrair horário do arquivo plist
+        local hour=$(plutil -extract StartCalendarInterval.0.Hour raw "$launchagent_path" 2>/dev/null)
+        local minute=$(plutil -extract StartCalendarInterval.0.Minute raw "$launchagent_path" 2>/dev/null)
+        
+        if [ -n "$hour" ] && [ -n "$minute" ]; then
+            printf "⏰ Agendamento: %02d:%02d (diário)\n" "$hour" "$minute"
         else
             echo "⏰ Agendamento: NÃO CONFIGURADO"
         fi
     else
-        echo "⏰ Agendamento: ARQUIVO DE CONFIGURAÇÃO NÃO ENCONTRADO"
+        echo "⏰ Agendamento: NÃO CONFIGURADO"
     fi
 }
 
@@ -1066,9 +1095,14 @@ run_status() {
     fi
     echo ""
     echo "  🕐 Agendamento:"
-    if [ -f "$PROJECT_ROOT/config/com.user.dockerbackup.plist" ]; then
+    LAUNCHAGENT_FILE="$HOME/Library/LaunchAgents/com.user.blueai.dockerbackup.plist"
+    if [ -f "$LAUNCHAGENT_FILE" ]; then
         echo "    ✅ LaunchAgent instalado"
-        echo "    📋 Status: $(launchctl list | grep com.user.dockerbackup || echo 'Não ativo')"
+        if launchctl list | grep -q "com.user.blueai.dockerbackup"; then
+            echo "    🟢 Status: ATIVO"
+        else
+            echo "    🟡 Status: INSTALADO (não ativo)"
+        fi
     else
         echo "    ⚠️  LaunchAgent não instalado"
     fi
@@ -1101,6 +1135,31 @@ run_report_simple() {
         echo "🔍 Para relatórios detalhados, use: $0 advanced"
     else
         echo "❌ Diretório de relatórios não encontrado"
+    fi
+}
+
+# Gerar relatório HTML
+run_report_html() {
+    echo "📊 Gerando relatório HTML..."
+    
+    # Verificar se o script de geração existe
+    local report_script="$PROJECT_ROOT/scripts/logging/report-generator.sh"
+    if [ ! -f "$report_script" ]; then
+        echo "❌ Script de geração de relatórios não encontrado"
+        return 1
+    fi
+    
+    # Executar script de geração
+    if "$report_script" "$@"; then
+        echo ""
+        echo "✅ Relatório HTML gerado com sucesso!"
+        echo "🌐 Abra o arquivo no navegador para visualizar"
+        echo ""
+        echo "💡 Para abrir automaticamente:"
+        echo "   open $PROJECT_ROOT/reports/*.html"
+    else
+        echo "❌ Erro ao gerar relatório HTML"
+        return 1
     fi
 }
 
@@ -1213,7 +1272,14 @@ main() {
             run_logs_simple
             ;;
         report)
-            run_report_simple
+            case "$2" in
+                html)
+                    run_report_html "${@:3}"
+                    ;;
+                *)
+                    run_report_simple
+                    ;;
+            esac
             ;;
         advanced)
             run_advanced_help
