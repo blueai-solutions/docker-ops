@@ -51,14 +51,21 @@ blueai-docker-ops/
 
 ## 🚀 Início Rápido
 
-### **⚡ Configuração em Uma Linha (Recomendado)**
+### **⚡ Instalação Rápida (Recomendado)**
 
 ```bash
-# Configuração completa do sistema
-make setup
+# Instalação automática em uma linha
+curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
+```
 
-# OU usar o script diretamente
-./blueai-docker-ops.sh setup
+**Ou download manual:**
+```bash
+# 1. Download do script de instalação
+curl -O https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh
+
+# 2. Tornar executável e instalar
+chmod +x install.sh
+./install.sh
 ```
 
 **O que acontece automaticamente:**
