@@ -3,9 +3,9 @@
 # =============================================================================
 # BLUEAI DOCKER OPS - INSTALADOR AUTOMÁTICO
 # =============================================================================
-# Versão: 2.4.0
+# Versão: Dinâmica (lida do arquivo VERSION)
 # Autor: BlueAI Solutions
-# Data: 2025-01-04
+# Data: 2025-09-05
 
 set -e
 
@@ -26,7 +26,13 @@ BIN_DIR="/usr/local/bin"
 REPO_URL="https://github.com/blueai-solutions/docker-ops"
 RELEASE_URL="https://api.github.com/repos/blueai-solutions/docker-ops/releases/latest"
 CURRENT_USER=$(whoami)
-CURRENT_VERSION="2.4.0"
+
+# Obter versão atual do arquivo VERSION
+if [[ -f "$PROJECT_ROOT/VERSION" ]]; then
+    CURRENT_VERSION=$(cat "$PROJECT_ROOT/VERSION" | tr -d '\n\r' | xargs)
+else
+    CURRENT_VERSION="2.4.2"  # Fallback se arquivo não existir
+fi
 
 # Função para log colorido
 log_info() {
@@ -247,21 +253,139 @@ create_directories() {
     log_success "Diretórios criados com sucesso"
 }
 
+# Função para verificar se arquivos locais existem
+check_local_files() {
+    local required_files=(
+        "$PROJECT_ROOT/scripts"
+        "$PROJECT_ROOT/config"
+        "$PROJECT_ROOT/docs"
+        "$PROJECT_ROOT/blueai-docker-ops.sh"
+        "$PROJECT_ROOT/VERSION"
+    )
+    
+    for file in "${required_files[@]}"; do
+        if [[ ! -e "$file" ]]; then
+            return 1
+        fi
+    done
+    return 0
+}
+
+# Função para baixar release do GitHub
+download_from_github() {
+    log_step "Baixando sistema BlueAI Docker Ops do GitHub..."
+    
+    # Criar diretório temporário
+    local temp_dir=$(mktemp -d)
+    local download_url=""
+    local tarball_name=""
+    
+    # Tentar obter URL da última release
+    log_info "Obtendo informações da última release..."
+    if command -v curl &> /dev/null; then
+        local release_info=$(curl -s "$RELEASE_URL" 2>/dev/null)
+        if [[ $? -eq 0 ]] && [[ -n "$release_info" ]]; then
+            # Extrair URL do tarball
+            download_url=$(echo "$release_info" | grep -o '"tarball_url":"[^"]*"' | cut -d'"' -f4)
+            tarball_name="blueai-docker-ops-$(echo "$release_info" | grep -o '"tag_name":"[^"]*"' | cut -d'"' -f4).tar.gz"
+        fi
+    fi
+    
+    # Se não conseguiu obter release, usar branch main
+    if [[ -z "$download_url" ]]; then
+        log_warning "Não foi possível obter release, usando branch main..."
+        download_url="$REPO_URL/archive/refs/heads/main.tar.gz"
+        tarball_name="blueai-docker-ops-main.tar.gz"
+    fi
+    
+    # Download do tarball
+    log_info "Baixando: $download_url"
+    if command -v curl &> /dev/null; then
+        curl -L -o "$temp_dir/$tarball_name" "$download_url"
+    elif command -v wget &> /dev/null; then
+        wget -O "$temp_dir/$tarball_name" "$download_url"
+    else
+        log_error "curl ou wget é necessário para download"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
+    
+    if [[ $? -ne 0 ]] || [[ ! -f "$temp_dir/$tarball_name" ]]; then
+        log_error "Falha no download do sistema"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
+    
+    # Extrair tarball
+    log_info "Extraindo arquivos..."
+    cd "$temp_dir"
+    tar -xzf "$tarball_name"
+    
+    # Encontrar diretório extraído
+    local extracted_dir=$(find . -maxdepth 1 -type d -name "docker-ops*" | head -1)
+    if [[ -z "$extracted_dir" ]]; then
+        log_error "Não foi possível encontrar diretório extraído"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
+    
+    # Copiar arquivos para diretório de instalação
+    log_info "Copiando arquivos baixados..."
+    
+    # Scripts
+    if [[ -d "$extracted_dir/scripts" ]]; then
+        sudo cp -r "$extracted_dir/scripts/." "$INSTALL_DIR/scripts/"
+    fi
+    
+    # Configurações
+    if [[ -d "$extracted_dir/config" ]]; then
+        sudo cp -r "$extracted_dir/config/." "$INSTALL_DIR/config/"
+    fi
+    
+    # Documentação
+    if [[ -d "$extracted_dir/docs" ]]; then
+        sudo cp -r "$extracted_dir/docs/." "$INSTALL_DIR/docs/"
+    fi
+    
+    # Arquivo principal
+    if [[ -f "$extracted_dir/blueai-docker-ops.sh" ]]; then
+        sudo cp "$extracted_dir/blueai-docker-ops.sh" "$INSTALL_DIR/bin/"
+    fi
+    
+    # Versão
+    if [[ -f "$extracted_dir/VERSION" ]]; then
+        sudo cp "$extracted_dir/VERSION" "$INSTALL_DIR/"
+    fi
+    
+    # README
+    if [[ -f "$extracted_dir/README.md" ]]; then
+        sudo cp "$extracted_dir/README.md" "$INSTALL_DIR/examples/"
+    fi
+    
+    # Limpeza
+    cd - > /dev/null
+    rm -rf "$temp_dir"
+    
+    log_success "Sistema baixado e copiado com sucesso"
+}
+
 # Função para copiar sistema local
-download_system() {
-    log_step "Copiando sistema BlueAI Docker Ops..."
+copy_local_system() {
+    log_step "Copiando sistema BlueAI Docker Ops (instalação local)..."
     
     log_info "Copiando arquivos do diretório local..."
+    log_info "PROJECT_ROOT: $PROJECT_ROOT"
+    log_info "INSTALL_DIR: $INSTALL_DIR"
     
     # Scripts principais
-    sudo cp -r "$PROJECT_ROOT/scripts"/* "$INSTALL_DIR/scripts/"
+    sudo cp -r "$PROJECT_ROOT/scripts/." "$INSTALL_DIR/scripts/"
     sudo cp "$PROJECT_ROOT/blueai-docker-ops.sh" "$INSTALL_DIR/bin/"
     
     # Configurações
-    sudo cp -r "$PROJECT_ROOT/config"/* "$INSTALL_DIR/config/"
+    sudo cp -r "$PROJECT_ROOT/config/." "$INSTALL_DIR/config/"
     
     # Documentação
-    sudo cp -r "$PROJECT_ROOT/docs"/* "$INSTALL_DIR/docs/"
+    sudo cp -r "$PROJECT_ROOT/docs/." "$INSTALL_DIR/docs/"
     
     # Arquivos de versão
     sudo cp "$PROJECT_ROOT/VERSION" "$INSTALL_DIR/"
@@ -270,6 +394,20 @@ download_system() {
     sudo cp "$PROJECT_ROOT/README.md" "$INSTALL_DIR/examples/"
     
     log_success "Sistema copiado com sucesso"
+}
+
+# Função principal para obter sistema
+download_system() {
+    log_step "Obtendo sistema BlueAI Docker Ops..."
+    
+    # Verificar se arquivos locais existem
+    if check_local_files; then
+        log_info "Arquivos locais encontrados, usando instalação local"
+        copy_local_system
+    else
+        log_info "Arquivos locais não encontrados, baixando do GitHub"
+        download_from_github
+    fi
 }
 
 # Função para configurar permissões
@@ -426,6 +564,7 @@ main() {
     show_header
     
     log_info "Iniciando instalação do BlueAI Docker Ops..."
+    log_info "Versão: $CURRENT_VERSION"
     log_info "Usuário: $CURRENT_USER"
     log_info "Diretório: $INSTALL_DIR"
     echo ""

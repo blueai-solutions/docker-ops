@@ -141,18 +141,45 @@ blueai-docker-ops-2.4.0.tar.gz
 
 ### **7. 🚀 Instalação pelo Usuário Final**
 
+#### **⚡ Instalação Automática (Recomendado)**
+
+```bash
+# Instalação automática via script dedicado
+curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh | bash
+```
+
+#### **📥 Download Manual do Script**
+
+```bash
+# 7.1 - Download do script de instalação
+curl -O https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh
+
+# 7.2 - Tornar executável e instalar
+chmod +x install.sh
+./install.sh
+```
+
+#### **🔄 Download via wget (Alternativo)**
+
+```bash
+# 7.1 - Download via wget
+wget https://raw.githubusercontent.com/blueai-solutions/docker-ops/main/install/install.sh
+
+# 7.2 - Tornar executável e instalar
+chmod +x install.sh
+./install.sh
+```
+
+#### **📦 Instalação via Release (Avançado)**
+
 ```bash
 # 7.1 - Download do release
-wget https://github.com/blueai-solutions/docker-ops/releases/download/v2.4.0/blueai-docker-ops-2.4.0.tar.gz
+wget https://github.com/blueai-solutions/docker-ops/releases/latest/download/blueai-docker-ops-2.4.1.tar.gz
 
 # 7.2 - Extrair e instalar
-tar -xzf blueai-docker-ops-2.4.0.tar.gz
-cd blueai-docker-ops-2.4.0
-./blueai-docker-ops.sh setup
-
-# 7.3 - Configurar sistema
-./blueai-docker-ops.sh config
-./blueai-docker-ops.sh schedule
+tar -xzf blueai-docker-ops-2.4.1.tar.gz
+cd blueai-docker-ops-2.4.1
+./install/install.sh
 ```
 
 ## 🎯 **Resumo do Workflow Simplificado**
