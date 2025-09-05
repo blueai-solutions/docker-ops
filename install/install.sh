@@ -3,9 +3,9 @@
 # =============================================================================
 # BLUEAI DOCKER OPS - INSTALADOR AUTOMÁTICO
 # =============================================================================
-# Versão: 2.4.0
+# Versão: Dinâmica (lida do arquivo VERSION)
 # Autor: BlueAI Solutions
-# Data: 2025-01-04
+# Data: 2025-09-05
 
 set -e
 
@@ -26,7 +26,13 @@ BIN_DIR="/usr/local/bin"
 REPO_URL="https://github.com/blueai-solutions/docker-ops"
 RELEASE_URL="https://api.github.com/repos/blueai-solutions/docker-ops/releases/latest"
 CURRENT_USER=$(whoami)
-CURRENT_VERSION="2.4.0"
+
+# Obter versão atual do arquivo VERSION
+if [[ -f "$PROJECT_ROOT/VERSION" ]]; then
+    CURRENT_VERSION=$(cat "$PROJECT_ROOT/VERSION" | tr -d '\n\r' | xargs)
+else
+    CURRENT_VERSION="2.4.2"  # Fallback se arquivo não existir
+fi
 
 # Função para log colorido
 log_info() {
@@ -446,6 +452,7 @@ main() {
     show_header
     
     log_info "Iniciando instalação do BlueAI Docker Ops..."
+    log_info "Versão: $CURRENT_VERSION"
     log_info "Usuário: $CURRENT_USER"
     log_info "Diretório: $INSTALL_DIR"
     echo ""
