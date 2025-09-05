@@ -84,7 +84,13 @@ Retornar resultado
 
 **Responsabilidade:** Execução de backups de volumes Docker
 **Componentes:**
-- `dynamic-backup.sh` - Backup dinâmico configurável
+- `dynamic-backup.sh` - Backup dinâmico configurável com verificação de espaço
+
+**Melhorias Implementadas:**
+- ✅ **Verificação automática de espaço em disco** - Antes de executar backup
+- ✅ **Limpeza automática de recursos Docker** - Quando há falta de espaço
+- ✅ **Tratamento inteligente de erros** - Recuperação automática de problemas
+- ✅ **Configurações avançadas** - Templates com verificações de segurança
 
 **Fluxo de Backup:**
 ```
@@ -92,17 +98,21 @@ Retornar resultado
    ↓
 2. Verificar Volumes Configurados
    ↓
-3. Verificar Espaço em Disco
+3. Verificar Espaço em Disco (AUTOMÁTICO)
    ↓
-4. Executar Backup
+4. Limpar Recursos Docker (se necessário)
    ↓
-5. Verificar Integridade
+5. Executar Backup
    ↓
-6. Limpar Backups Antigos
+6. Verificar Integridade
    ↓
-7. Gerar Relatórios
+7. Tratar Erros (se houver)
    ↓
-8. Enviar Notificações
+8. Limpar Backups Antigos
+   ↓
+9. Gerar Relatórios
+   ↓
+10. Enviar Notificações
 ```
 
 ### **3. Sistema de Notificações (scripts/notifications/)**
@@ -121,9 +131,15 @@ Retornar resultado
 
 **Responsabilidade:** Logging estruturado e análise
 **Componentes:**
-- `logging-functions.sh` - Funções de log estruturado
+- `logging-functions.sh` - Funções de log estruturado com detecção automática de ambiente
 - `log-analyzer.sh` - Analisador de logs
-- `report-generator.sh` - Gerador de relatórios HTML
+- `report-generator.sh` - Gerador de relatórios HTML com filtros funcionais
+
+**Melhorias Implementadas:**
+- ✅ **Detecção automática de ambiente** - Funciona em desenvolvimento e produção
+- ✅ **Parsing inteligente de logs** - Suporte a diferentes formatos
+- ✅ **Filtros funcionais** - Relatórios com filtros que realmente funcionam
+- ✅ **Estatísticas precisas** - Contagem correta de todos os tipos de log
 
 **Estrutura de Logs:**
 ```

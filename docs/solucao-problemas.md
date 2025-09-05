@@ -349,6 +349,34 @@ ls -la reports/
 ls -la reports/*.html
 ```
 
+### **"Filtros de relatório não funcionam"**
+
+#### **Sintomas:**
+- Botões de filtro não respondem
+- Avisos e erros não aparecem nos relatórios
+- Estatísticas incorretas
+
+#### **Soluções:**
+```bash
+# 1. O sistema foi corrigido na versão 2.4.0
+# Os filtros agora funcionam corretamente
+
+# 2. Para verificar se está funcionando:
+./blueai-docker-ops.sh report html
+# Abra o arquivo HTML no navegador
+# Teste os botões: Todos, Info, Avisos, Erros
+
+# 3. Se ainda houver problemas, verificar logs:
+./blueai-docker-ops.sh logs --search "report"
+```
+
+#### **Melhorias Implementadas:**
+- ✅ **Filtros funcionais** - Botões de filtro agora funcionam corretamente
+- ✅ **Parsing correto** - Logs são parseados no formato correto [timestamp] [level] [module] message
+- ✅ **Estatísticas precisas** - Contagem inclui todos os arquivos de log
+- ✅ **Detecção automática** - Funciona em desenvolvimento e produção
+- ✅ **Indicação visual** - Filtros ativos são destacados visualmente
+
 ## 🔧 Problemas de Instalação
 
 ### **"Comando não encontrado"**
@@ -472,8 +500,28 @@ cp -r config config-backup-$(date +%Y%m%d_%H%M%S)/
 - Sistema lento
 - Pouco espaço em disco
 - Logs muito grandes
+- Erro: "No space left on device" durante backup
 
 #### **Soluções:**
+```bash
+# 1. O sistema agora verifica automaticamente o espaço em disco
+# e limpa recursos Docker quando necessário
+
+# 2. Para verificar espaço manualmente:
+df -h
+
+# 3. Para limpar recursos Docker manualmente:
+docker system prune -f
+
+# 4. Para verificar uso do Docker:
+docker system df
+```
+
+#### **Melhorias Automáticas:**
+- ✅ **Verificação automática** de espaço em disco antes do backup
+- ✅ **Limpeza automática** de recursos Docker não utilizados
+- ✅ **Tratamento inteligente** de erros de espaço em disco
+- ✅ **Recuperação automática** quando há problemas de espaço
 ```bash
 # 1. Limpeza seletiva de dados
 ./blueai-docker-ops.sh clean-data
