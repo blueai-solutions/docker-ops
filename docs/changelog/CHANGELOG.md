@@ -4,6 +4,14 @@ Histórico completo de todas as versões e mudanças do sistema.
 
 ## 🚀 Versões Disponíveis
 
+### [v2.4.1](v2.4.1.md) - **27 de Janeiro de 2025** - 🔧 **CORREÇÕES E MELHORIAS** ✅ **IMPLEMENTADA**
+- **Workflows do GitHub Actions corrigidos** - sem mais erros 403
+- **Instruções de instalação rápida** restauradas e melhoradas
+- **Sistema de relatórios funcional** - filtros que realmente funcionam
+- **Verificação automática de espaço em disco** - sem mais erros de backup
+- **Workflow simplificado** - apenas 2 workflows em vez de 3
+- **Documentação completa** e atualizada
+
 ### [v2.4.0](v2.4.0.md) - **4 de Janeiro de 2025** - 🎯 **SIMPLIFICAÇÃO EXTREMA** ✅ **IMPLEMENTADA**
 - **Sistema redesenhado** para ser simples e intuitivo
 - **Apenas 8 comandos essenciais** para operação diária

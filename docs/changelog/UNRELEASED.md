@@ -1,7 +1,7 @@
 # Changelog - Unreleased
 
 **Status:** Em Desenvolvimento  
-**Próxima Versão:** 2.4.0  
+**Próxima Versão:** 2.5.0  
 **Data Estimada:** TBD  
 
 ## 🚧 Funcionalidades em Desenvolvimento
@@ -79,6 +79,25 @@
 - ✅ **Falta de sincronização** após alterações de horário (corrigido)
 - ✅ **Problema de variáveis não atualizadas** em `generate_plist` (corrigido)
 - ✅ **Falha na atualização** do arquivo .plist após alterações (corrigido)
+
+### GitHub Actions (v2.4.1)
+- ✅ **Erro de configuração** no workflow de release (corrigido)
+- ✅ **Actions desatualizadas** (create-release@v1 → softprops/action-gh-release@v1)
+- ✅ **Permissões insuficientes** (adicionadas contents: write, packages: write)
+- ✅ **Erro 403** "Resource not accessible" (corrigido)
+- ✅ **Erro "Too many retries"** (corrigido)
+
+### Sistema de Relatórios (v2.4.1)
+- ✅ **Filtros não funcionais** nos relatórios (corrigido)
+- ✅ **Parsing incorreto de logs** (corrigido)
+- ✅ **Estatísticas imprecisas** (corrigido)
+- ✅ **Detecção de ambiente** (implementado)
+
+### Sistema de Backup (v2.4.1)
+- ✅ **Erro "No space left on device"** (corrigido)
+- ✅ **Verificação de espaço em disco** (implementado)
+- ✅ **Limpeza automática de recursos Docker** (implementado)
+- ✅ **Tratamento inteligente de erros** (implementado)
 
 ## 📋 Roadmap
 
