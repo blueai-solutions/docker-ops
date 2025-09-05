@@ -1,4 +1,4 @@
-name: 🚀 Release Automático - BlueAI Docker Ops
+name: 🚀 Release Completo - BlueAI Docker Ops
 
 on:
   push:
@@ -9,9 +9,9 @@ env:
   SYSTEM_NAME: "BlueAI Docker Ops"
 
 jobs:
-  # 🏷️ Criar Release
-  create-release:
-    name: 🏷️ Criar Release
+  # 🚀 Release Completo (Criar + Deploy)
+  release:
+    name: 🚀 Release Completo
     runs-on: ubuntu-latest
     
     steps:
@@ -104,9 +104,85 @@ jobs:
           asset_name: RELEASE_NOTES.md
           asset_content_type: text/markdown
           
+      - name: 🔧 Preparar arquivos de distribuição
+        run: |
+          echo "🔧 Preparando arquivos para distribuição..."
+          
+          mkdir -p dist
+          
+          # Scripts essenciais para usuários finais
+          cp -r scripts/core/ dist/scripts/
+          cp -r scripts/backup/ dist/scripts/
+          cp -r scripts/notifications/ dist/scripts/
+          cp -r scripts/logging/ dist/scripts/
+          
+          # Utilitários para usuários (excluindo desenvolvimento)
+          mkdir -p dist/scripts/utils
+          cp scripts/utils/container-configurator.sh dist/scripts/utils/
+          cp scripts/utils/recovery-configurator.sh dist/scripts/utils/
+          cp scripts/utils/test-system.sh dist/scripts/utils/
+          cp scripts/utils/config-backup-manager.sh dist/scripts/utils/
+          cp scripts/utils/cleanup-deprecated.sh dist/scripts/utils/
+          
+          # Scripts de instalação para usuários
+          mkdir -p dist/scripts/install
+          cp scripts/install/install-launchagent.sh dist/scripts/install/
+          
+          # Templates de configuração (NÃO configurações locais)
+          mkdir -p dist/config
+          cp -r config/templates/ dist/config/
+          
+          # Documentação de uso (excluindo desenvolvimento)
+          mkdir -p dist/docs
+          cp docs/README.md dist/docs/
+          cp docs/guia-inicio-rapido.md dist/docs/
+          cp docs/comandos.md dist/docs/
+          cp docs/arquitetura.md dist/docs/
+          cp docs/solucao-problemas.md dist/docs/
+          cp docs/launchagent.md dist/docs/
+          
+          # Changelog para usuários (apenas histórico)
+          if [ -d "docs/changelog" ]; then
+            mkdir -p dist/docs/changelog
+            cp docs/changelog/CHANGELOG.md dist/docs/changelog/
+            cp docs/changelog/v*.md dist/docs/changelog/ 2>/dev/null || true
+          fi
+          
+          # Scripts de instalação do sistema
+          cp -r install/ dist/
+          
+          # Arquivos principais
+          cp blueai-docker-ops.sh dist/
+          cp VERSION dist/
+          cp README.md dist/
+          
+          echo "📁 Estrutura de distribuição:"
+          find dist/ -type f | head -20
+          
+      - name: 📦 Criar arquivo compactado
+        run: |
+          echo "📦 Criando arquivo compactado..."
+          
+          cd dist
+          tar -czf "../blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz" .
+          cd ..
+          
+          echo "📦 Arquivo criado: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz"
+          
+      - name: 📤 Upload pacote para release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz
+          asset_name: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz
+          asset_content_type: application/gzip
+          
       - name: 🎯 Status final
         run: |
-          echo "🎉 RELEASE CRIADO COM SUCESSO!"
+          echo "🎉 RELEASE COMPLETO COM SUCESSO!"
           echo "🏷️ Tag: ${{ steps.tag.outputs.tag_name }}"
           echo "📋 Versão: ${{ steps.tag.outputs.tag_version }}"
+          echo "📦 Pacote: blueai-docker-ops-${{ steps.tag.outputs.tag_version }}.tar.gz"
           echo "🚀 BlueAI Docker Ops está disponível para download!"

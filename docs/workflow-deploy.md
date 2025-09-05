@@ -1,6 +1,6 @@
-# 🚀 Workflow de Deploy - BlueAI Docker Ops
+# 🚀 Workflow Simplificado - BlueAI Docker Ops
 
-## 📋 Sequência Completa do Workflow de Deploy
+## 📋 Sequência Completa do Workflow Simplificado
 
 ### **1. 🏗️ Desenvolvimento e Preparação**
 
@@ -29,9 +29,9 @@ git push origin v2.4.0
 ./scripts/dev/release-manager.sh create v2.4.0
 ```
 
-### **3. 🔄 GitHub Actions - Workflow Automático**
+### **3. 🔄 GitHub Actions - Workflow Simplificado**
 
-#### **3.1 - Build e Testes (`build.yml`)**
+#### **3.1 - CI - Validação Contínua (`ci.yml`)**
 **Trigger:** Push/PR para `main` ou branches `release/*`
 
 ```
@@ -51,10 +51,10 @@ git push origin v2.4.0
     ↓
 📊 Relatório de qualidade
     ↓
-📦 Preparação para Release (se main)
+🎯 Status final
 ```
 
-#### **3.2 - Release Automático (`release.yml`)**
+#### **3.2 - Release Completo (`release.yml`)**
 **Trigger:** Criação de tags `v*`
 
 ```
@@ -66,26 +66,13 @@ git push origin v2.4.0
     ↓
 🏷️ Criar Release no GitHub
     ↓
-📤 Upload assets
-    ↓
-🎯 Status final
-```
-
-#### **3.3 - Deploy e Distribuição (`deploy.yml`)**
-**Trigger:** Release publicado ou manual
-
-```
-📥 Checkout do código
-    ↓
-🏷️ Obter informações da release
+📤 Upload release notes
     ↓
 🔧 Preparar arquivos de distribuição
     ↓
 📦 Criar arquivo compactado
     ↓
-📤 Upload assets para release
-    ↓
-📊 Relatório de distribuição
+📤 Upload pacote para release
     ↓
 🎯 Status final
 ```
@@ -168,14 +155,21 @@ cd blueai-docker-ops-2.4.0
 ./blueai-docker-ops.sh schedule
 ```
 
-## 🎯 **Resumo do Workflow**
+## 🎯 **Resumo do Workflow Simplificado**
 
-1. **Desenvolvimento** → Testes → Validação
-2. **Tag de versão** → GitHub Actions
-3. **Build automático** → Testes → Validação
-4. **Release automático** → Changelog → GitHub Release
-5. **Deploy automático** → Pacote otimizado → Upload
-6. **Distribuição** → Download → Instalação pelo usuário
+1. **Desenvolvimento** → Push/PR → **CI** (validação contínua)
+2. **Tag de versão** → **Release** (cria release + pacote completo)
+3. **Distribuição** → Download → Instalação pelo usuário
+
+### **🔄 Fluxo Visual Simplificado:**
+
+```
+Desenvolvimento → Push/PR → CI (validação)
+       ↓
+Tag v2.4.0 → Release (cria release + pacote)
+       ↓
+GitHub Release → Download → Instalação
+```
 
 ## 🔧 **Comandos Essenciais**
 
@@ -197,5 +191,15 @@ make info
 
 - **👨‍💻 Repositório:** Desenvolvimento completo, scripts de release, workflows
 - **📦 Pacote:** Apenas funcionalidades para usuários finais, sem código de desenvolvimento
-- **🚀 GitHub Actions:** Automação completa do processo de release e deploy
+- **🚀 GitHub Actions:** 
+  - **CI:** Validação contínua em push/PR
+  - **Release:** Criação completa de release com pacote
 - **👤 Usuário Final:** Download, instalação e uso do sistema
+
+## ✅ **Vantagens do Workflow Simplificado**
+
+- **🎯 Mais simples:** Apenas 2 workflows em vez de 3
+- **🔄 Mais claro:** CI sempre executa, Release só com tags
+- **⚡ Mais rápido:** Sem condições complexas ou dependências
+- **🛠️ Mais fácil:** Fácil de entender e manter
+- **📦 Completo:** Release faz tudo de uma vez
