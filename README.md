@@ -51,13 +51,21 @@ blueai-docker-ops/
 
 ## 🚀 Início Rápido
 
-### **⚡ Configuração em Uma Linha (Recomendado)**
+### **⚡ Instalação Rápida (Recomendado)**
 
 ```bash
-# Configuração completa do sistema
-make setup
+# Download e instalação em uma linha
+curl -sSL https://github.com/blueai-solutions/docker-ops/releases/latest/download/blueai-docker-ops-$(curl -s https://api.github.com/repos/blueai-solutions/docker-ops/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/v//').tar.gz | tar -xz && cd blueai-docker-ops-* && ./blueai-docker-ops.sh setup
+```
 
-# OU usar o script diretamente
+**Ou versão mais simples:**
+```bash
+# 1. Download da última versão
+wget https://github.com/blueai-solutions/docker-ops/releases/latest/download/blueai-docker-ops-2.4.0.tar.gz
+
+# 2. Extrair e instalar
+tar -xzf blueai-docker-ops-2.4.0.tar.gz
+cd blueai-docker-ops-2.4.0
 ./blueai-docker-ops.sh setup
 ```
 

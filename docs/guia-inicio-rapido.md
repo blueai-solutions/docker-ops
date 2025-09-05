@@ -9,6 +9,39 @@ Este guia irá ajudá-lo a configurar e usar o BlueAI Docker Ops em poucos minut
 - ✅ **Bash** (já incluído no macOS)
 - ✅ **Permissões** de escrita no diretório do projeto
 
+## ⚡ Instalação Rápida
+
+### **Download e Instalação em Uma Linha**
+
+```bash
+# Instalação automática da última versão
+curl -sSL https://github.com/blueai-solutions/docker-ops/releases/latest/download/blueai-docker-ops-$(curl -s https://api.github.com/repos/blueai-solutions/docker-ops/releases/latest | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$' | sed 's/v//').tar.gz | tar -xz && cd blueai-docker-ops-* && ./blueai-docker-ops.sh setup
+```
+
+### **Download Manual (Mais Simples)**
+
+```bash
+# 1. Download da última versão
+wget https://github.com/blueai-solutions/docker-ops/releases/latest/download/blueai-docker-ops-2.4.0.tar.gz
+
+# 2. Extrair e instalar
+tar -xzf blueai-docker-ops-2.4.0.tar.gz
+cd blueai-docker-ops-2.4.0
+./blueai-docker-ops.sh setup
+```
+
+### **Download via curl (Alternativo)**
+
+```bash
+# 1. Download via curl
+curl -L -O https://github.com/blueai-solutions/docker-ops/releases/latest/download/blueai-docker-ops-2.4.0.tar.gz
+
+# 2. Extrair e instalar
+tar -xzf blueai-docker-ops-2.4.0.tar.gz
+cd blueai-docker-ops-2.4.0
+./blueai-docker-ops.sh setup
+```
+
 ## 🎯 Configuração em 3 Passos
 
 ### **Passo 1: Configuração Inicial (Setup Completo)**
