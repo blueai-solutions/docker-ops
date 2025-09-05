@@ -59,7 +59,7 @@ Este documento descreve como distribuir o BlueAI Docker Ops simplificado via Git
 
 ### **1. Build e Testes (`build.yml`)**
 
-**Trigger:** Push/PR para `main` ou `develop`
+**Trigger:** Push/PR para `main` ou branches `release/*`
 
 **Funcionalidades:**
 - ✅ Validação de sintaxe bash
