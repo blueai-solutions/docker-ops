@@ -99,6 +99,13 @@
 - ✅ **Limpeza automática de recursos Docker** (implementado)
 - ✅ **Tratamento inteligente de erros** (implementado)
 
+### Instruções de Instalação (v2.4.2)
+- ✅ **Instruções incorretas** no README.md (corrigido)
+- ✅ **Instruções incorretas** no guia-inicio-rapido.md (corrigido)
+- ✅ **Instruções incorretas** no workflow-deploy.md (corrigido)
+- ✅ **Direcionamento para scripts dedicados** da pasta install/ (implementado)
+- ✅ **Múltiplas opções de instalação** funcionais (implementado)
+
 ## 📋 Roadmap
 
 ### Versão 2.1.0 (Próxima)
