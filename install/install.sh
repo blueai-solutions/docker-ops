@@ -233,8 +233,8 @@ create_directories() {
         "$INSTALL_DIR/config"
         "$INSTALL_DIR/scripts"
         "$INSTALL_DIR/docs"
-        "$INSTALL_DIR/logs"
-        "$INSTALL_DIR/backups"
+        "$HOME/BlueAI-Docker-Logs"
+        "$HOME/BlueAI-Docker-Backups"
         "$INSTALL_DIR/reports"
         "$INSTALL_DIR/examples"
     )
