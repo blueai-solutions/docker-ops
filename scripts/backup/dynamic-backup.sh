@@ -287,9 +287,8 @@ backup_container() {
         # Verificar se é erro de espaço em disco
         if echo "$backup_output" | grep -q "No space left on device"; then
             log_error "BACKUP" "Erro de espaço em disco durante backup de $container"
-            log_info "BACKUP" "Tentando limpar recursos Docker para liberar espaço"
-            cleanup_docker_resources
-            log_error "BACKUP" "Execute o backup novamente após a limpeza"
+            show_disk_space_info
+            log_error "BACKUP" "Backup falhou devido a espaço insuficiente"
         else
             log_error "BACKUP" "Falha no backup de $container: $backup_output"
         fi
@@ -305,33 +304,28 @@ backup_container() {
     fi
 }
 
-# Função para limpar recursos Docker
-cleanup_docker_resources() {
-    log_info "BACKUP" "Limpando recursos Docker não utilizados"
+# Função para mostrar informações sobre espaço em disco
+show_disk_space_info() {
+    log_warning "BACKUP" "Espaço em disco insuficiente detectado"
+    log_info "BACKUP" "Informações sobre espaço em disco:"
     
-    # Limpar containers parados
-    local stopped_containers=$(docker container prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
-    if [ -n "$stopped_containers" ] && [ "$stopped_containers" -gt 0 ]; then
-        log_info "BACKUP" "Removidos $stopped_containers containers parados"
+    # Mostrar uso de disco
+    if command -v df &> /dev/null; then
+        log_info "BACKUP" "Uso de disco atual:"
+        df -h "$BACKUP_DIR" 2>/dev/null || df -h . 2>/dev/null || true
     fi
     
-    # Limpar imagens não utilizadas
-    local unused_images=$(docker image prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
-    if [ -n "$unused_images" ] && [ "$unused_images" -gt 0 ]; then
-        log_info "BACKUP" "Removidas $unused_images imagens não utilizadas"
+    # Mostrar tamanho do diretório de backup
+    if [ -d "$BACKUP_DIR" ]; then
+        local backup_size=$(du -sh "$BACKUP_DIR" 2>/dev/null | cut -f1 || echo "N/A")
+        log_info "BACKUP" "Tamanho do diretório de backup: $backup_size"
     fi
     
-    # Limpar volumes não utilizados
-    local unused_volumes=$(docker volume prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
-    if [ -n "$unused_volumes" ] && [ "$unused_volumes" -gt 0 ]; then
-        log_info "BACKUP" "Removidos $unused_volumes volumes não utilizados"
-    fi
-    
-    # Limpar cache de build
-    local build_cache=$(docker builder prune -f 2>/dev/null | grep -o '[0-9]*' | tail -1)
-    if [ -n "$build_cache" ] && [ "$build_cache" -gt 0 ]; then
-        log_info "BACKUP" "Removido $build_cache de cache de build"
-    fi
+    log_info "BACKUP" "Recomendações:"
+    log_info "BACKUP" "1. Libere espaço em disco manualmente"
+    log_info "BACKUP" "2. Remova backups antigos se necessário"
+    log_info "BACKUP" "3. Verifique se há arquivos grandes desnecessários"
+    log_info "BACKUP" "4. Execute o backup novamente após liberar espaço"
 }
 
 # Função para executar backup completo
@@ -364,19 +358,10 @@ execute_backup() {
         local required_space=$((BACKUP_MIN_DISK_SPACE_GB * 1024 * 1024))  # Convert to KB
         
         if [ "$available_space" -lt "$required_space" ]; then
-            log_warning "BACKUP" "Espaço insuficiente em disco: ${available_space}KB disponível, ${required_space}KB necessário"
-            log_info "BACKUP" "Tentando limpar recursos Docker para liberar espaço"
-            cleanup_docker_resources
-            
-            # Verificar novamente após limpeza
-            local new_available_space=$(df "$BACKUP_DIR" | awk 'NR==2 {print $4}')
-            if [ "$new_available_space" -lt "$required_space" ]; then
-                log_error "BACKUP" "Espaço ainda insuficiente após limpeza: ${new_available_space}KB disponível, ${required_space}KB necessário"
-                end_performance_timer "$timer"
-                return 1
-            else
-                log_info "BACKUP" "Espaço suficiente após limpeza: ${new_available_space}KB disponível"
-            fi
+            log_error "BACKUP" "Espaço insuficiente em disco: ${available_space}KB disponível, ${required_space}KB necessário"
+            show_disk_space_info
+            end_performance_timer "$timer"
+            return 1
         fi
     fi
     
