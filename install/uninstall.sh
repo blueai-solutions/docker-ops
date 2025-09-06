@@ -3,9 +3,9 @@
 # =============================================================================
 # BLUEAI DOCKER OPS - DESINSTALADOR
 # =============================================================================
-# Versão: 2.4.0
+# Versão: 2.4.2
 # Autor: BlueAI Solutions
-# Data: $(date +%Y-%m-%d)
+# Data: 2025-09-05
 
 set -e
 
@@ -49,7 +49,7 @@ show_header() {
     echo ""
     echo -e "${CYAN}🐳 BLUEAI DOCKER OPS - DESINSTALADOR${NC}"
     echo -e "${CYAN}=====================================${NC}"
-    echo -e "${CYAN}Data: $(date +%Y-%m-%d %H:%M:%S)${NC}"
+    echo -e "${CYAN}Data: $(date '+%Y-%m-%d %H:%M:%S')${NC}"
     echo ""
 }
 
@@ -134,8 +134,9 @@ remove_user_configs() {
     
     if [[ -f "$shell_rc" ]]; then
         # Criar backup do arquivo
-        cp "$shell_rc" "$shell_rc.backup.$(date +%Y%m%d_%H%M%S)"
-        log_info "Backup criado: $shell_rc.backup.$(date +%Y%m%d_%H%M%S)"
+        local backup_timestamp=$(date '+%Y%m%d_%H%M%S')
+        cp "$shell_rc" "$shell_rc.backup.$backup_timestamp"
+        log_info "Backup criado: $shell_rc.backup.$backup_timestamp"
         
         # Remover linhas relacionadas ao BlueAI Docker Ops
         sed -i '' '/# BlueAI Docker Ops/,+2d' "$shell_rc" 2>/dev/null || true
