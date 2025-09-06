@@ -215,12 +215,31 @@ confirm_uninstall() {
     echo -e "   • Logs de operações anteriores"
     echo ""
     
-    read -p "Tem certeza que deseja continuar? (digite 'sim' para confirmar): " confirmation
-    
-    if [[ "$confirmation" != "sim" ]]; then
-        echo ""
-        log_info "Desinstalação cancelada pelo usuário"
-        exit 0
+    # Verificar se estamos em um terminal interativo
+    if [[ -t 0 ]]; then
+        read -p "Tem certeza que deseja continuar? (digite 'sim' para confirmar): " confirmation
+        
+        if [[ "$confirmation" != "sim" ]]; then
+            echo ""
+            log_info "Desinstalação cancelada pelo usuário"
+            exit 0
+        fi
+    else
+        # Se não estamos em um terminal interativo, usar argumento --force
+        if [[ "$1" != "--force" ]]; then
+            echo ""
+            log_error "Script executado via pipe (curl | bash)"
+            log_info "Para desinstalar, use uma das opções:"
+            log_info "1. Download e execução local:"
+            log_info "   curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/feature/instalacao-rapida/install/uninstall.sh -o uninstall.sh"
+            log_info "   chmod +x uninstall.sh && ./uninstall.sh"
+            log_info ""
+            log_info "2. Forçar desinstalação (sem confirmação):"
+            log_info "   curl -sSL https://raw.githubusercontent.com/blueai-solutions/docker-ops/feature/instalacao-rapida/install/uninstall.sh | bash -s -- --force"
+            exit 1
+        else
+            log_warning "Desinstalação forçada (sem confirmação)"
+        fi
     fi
     
     echo ""
@@ -240,7 +259,7 @@ main() {
     check_installation
     
     # Confirmação
-    confirm_uninstall
+    confirm_uninstall "$@"
     
     echo ""
     log_info "Iniciando processo de desinstalação..."
