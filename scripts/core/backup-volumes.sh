@@ -29,7 +29,12 @@ for target in "${RECOVERY_TARGETS[@]}"; do
     if [ ${#parts[@]} -ge 2 ]; then
         container_name="${parts[0]}"
         volume_path="${parts[1]}"
-        volume_name=$(echo "$volume_path" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
+        # Extrair nome do volume do caminho ou usar diretamente se já for nome
+        if [[ "$volume_path" == /var/lib/docker/volumes/* ]]; then
+            volume_name=$(echo "$volume_path" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
+        else
+            volume_name="$volume_path"
+        fi
         
         VOLUMES+=("$volume_name")
         CONTAINER_VOLUME_MAP+=("$container_name:$volume_name")
@@ -62,7 +67,17 @@ show_help() {
 
 # Função para verificar se volume existe
 volume_exists() {
-    docker volume ls --format "{{.Name}}" | grep -q "^$1$"
+    local volume_name="$1"
+    
+    # Se já é um nome de volume (não um caminho), usar diretamente
+    if [[ "$volume_name" != /* ]]; then
+        docker volume ls --format "{{.Name}}" | grep -q "^$volume_name$"
+        return $?
+    fi
+    
+    # Extrair nome do volume do caminho completo
+    volume_name=$(echo "$volume_name" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
+    docker volume ls --format "{{.Name}}" | grep -q "^$volume_name$"
 }
 
 # Função para obter container associado a um volume

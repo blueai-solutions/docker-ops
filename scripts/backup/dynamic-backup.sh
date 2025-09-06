@@ -155,6 +155,12 @@ container_running() {
 volume_exists() {
     local volume_path="$1"
     
+    # Se já é um nome de volume (não um caminho), usar diretamente
+    if [[ "$volume_path" != /* ]]; then
+        docker volume ls --format "{{.Name}}" | grep -q "^$volume_path$"
+        return $?
+    fi
+    
     # Extrair nome do volume do caminho completo
     local volume_name=$(echo "$volume_path" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
     
@@ -204,7 +210,14 @@ backup_container() {
     fi
     
     # Criar nome do arquivo de backup
-    local volume_name=$(echo "$volume" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
+    local volume_name
+    if [[ "$volume" == /var/lib/docker/volumes/* ]]; then
+        # Extrair nome do volume do caminho completo
+        volume_name=$(echo "$volume" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
+    else
+        # Já é um nome de volume
+        volume_name="$volume"
+    fi
     local backup_file="$BACKUP_DIR/${volume_name}_$(date +%Y%m%d_%H%M%S).tar.gz"
     
     # Executar backup

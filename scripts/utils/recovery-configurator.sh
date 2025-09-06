@@ -879,8 +879,11 @@ EOF
         
         # Validar e corrigir volume
         if [ -n "$volume" ] && [ -d "$volume" ] && [ -r "$volume" ]; then
-            # Volume detectado é válido, usar
-            volume="$volume"
+            # Volume detectado é válido, extrair nome do volume do caminho
+            if [[ "$volume" == /var/lib/docker/volumes/* ]]; then
+                # Extrair nome do volume do caminho completo
+                volume=$(echo "$volume" | sed 's|/var/lib/docker/volumes/||' | sed 's|/_data||')
+            fi
         else
             # Tentar verificar se existe volume Docker com nome padrão
             if docker volume ls --format "{{.Name}}" | grep -q "^${name}-data$"; then
@@ -888,8 +891,14 @@ EOF
             elif docker volume ls --format "{{.Name}}" | grep -q "^${name}_data$"; then
                 volume="${name}_data"
             else
-                # Se não encontrar, usar nome simples
-                volume="${name}-data"
+                # Tentar encontrar volume que contenha o nome do container
+                local found_volume=$(docker volume ls --format "{{.Name}}" | grep -E ".*${name}.*" | head -1)
+                if [ -n "$found_volume" ]; then
+                    volume="$found_volume"
+                else
+                    # Se não encontrar, usar nome simples
+                    volume="${name}-data"
+                fi
             fi
         fi
         
