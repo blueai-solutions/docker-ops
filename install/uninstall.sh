@@ -215,17 +215,9 @@ confirm_uninstall() {
     echo -e "   • Logs de operações anteriores"
     echo ""
     
-    # Verificar se estamos em um terminal interativo
-    if [[ -t 0 ]]; then
-        read -p "Tem certeza que deseja continuar? (digite 'sim' para confirmar): " confirmation
-        
-        if [[ "$confirmation" != "sim" ]]; then
-            echo ""
-            log_info "Desinstalação cancelada pelo usuário"
-            exit 0
-        fi
-    else
-        # Se não estamos em um terminal interativo, usar argumento --force
+    # Verificar se estamos em um pipe (curl | bash)
+    if [[ -p /dev/stdin ]] || [[ ! -t 0 ]]; then
+        # Estamos em um pipe, mostrar instruções
         if [[ "$1" != "--force" ]]; then
             echo ""
             log_error "Script executado via pipe (curl | bash)"
@@ -239,6 +231,16 @@ confirm_uninstall() {
             exit 1
         else
             log_warning "Desinstalação forçada (sem confirmação)"
+        fi
+    else
+        # Terminal interativo, pedir confirmação
+        echo -n "Tem certeza que deseja continuar? (digite 'sim' para confirmar): "
+        read confirmation
+        
+        if [[ "$confirmation" != "sim" ]]; then
+            echo ""
+            log_info "Desinstalação cancelada pelo usuário"
+            exit 0
         fi
     fi
     
