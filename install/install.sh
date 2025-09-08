@@ -422,8 +422,10 @@ setup_permissions() {
     sudo chown -R "$CURRENT_USER:staff" "$INSTALL_DIR"
     
     # Permissões específicas para logs e backups
-    sudo chmod 755 "$INSTALL_DIR/logs"
-    sudo chmod 755 "$INSTALL_DIR/backups"
+    # sudo chmod 755 "$INSTALL_DIR/logs"
+    sudo chmod 755 "$HOME/BlueAI-Docker-Logs"
+    # sudo chmod 755 "$INSTALL_DIR/backups"
+    sudo chmod 755 "$HOME/BlueAI-Docker-Backups"
     
     log_success "Permissões configuradas com sucesso"
 }
@@ -527,7 +529,7 @@ show_post_install_info() {
     echo ""
     echo -e "${CYAN}📚 Documentação:${NC} $INSTALL_DIR/docs/"
     echo -e "${CYAN}⚙️  Configurações:${NC} $INSTALL_DIR/config/"
-    echo -e "${CYAN}📝 Logs:${NC} $INSTALL_DIR/logs/"
+    echo -e "${CYAN}📝 Logs:${NC} $HOME/BlueAI-Docker-Logs/"
     echo ""
     echo -e "${CYAN}🚀 Para começar:${NC}"
     echo -e "   • blueai-docker-ops --help"
